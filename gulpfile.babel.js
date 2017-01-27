@@ -31,7 +31,7 @@ const revLogger = new RevLogger({
 // css
 gulp.task('sass', () => {
     const config = readConfig(`${CONFIG}/pleeease.json`);
-    return gulp.src(`${SRC}/scss/style.scss`)
+    return gulp.src(`${SRC}/scss/**/[!_]*.scss`)
         .pipe(sassGlob())
         .pipe(sass())
         .pipe(pleeease(config))
