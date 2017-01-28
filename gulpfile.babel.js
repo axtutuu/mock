@@ -13,7 +13,7 @@ import browserSync from 'browser-sync';
 import readConfig from 'read-config';
 import watch from 'gulp-watch';
 import RevLogger from 'rev-logger';
-
+import through2 from 'through2';
 
 // const
 const SRC = './src';
@@ -46,6 +46,23 @@ gulp.task('browserify', () => {
         .transform(babelify)
         .bundle()
         .pipe(source('script.js'))
+        .pipe(gulp.dest(`${DEST}/js`));
+});
+
+gulp.task('browserify', () => {
+    return gulp.src(`${SRC}/js/**/[!_]*.js`)
+        .pipe(through2.obj(function(file, encode, callback) {
+            browserify(file.path)
+                .transform(babelify)
+                .bundle((err, res)=> {
+                    if (err) {
+                        $.util.log(err.message);
+                        $.util.log(err.stack);
+                    }
+                    file.contents = res;
+                    callback(null, file);
+                });
+        }))
         .pipe(gulp.dest(`${DEST}/js`));
 });
 
