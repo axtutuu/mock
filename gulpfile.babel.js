@@ -40,15 +40,6 @@ gulp.task('sass', () => {
 
 gulp.task('css', gulp.series('sass'));
 
-// js
-gulp.task('browserify', () => {
-    return browserify(`${SRC}/js/script.js`)
-        .transform(babelify)
-        .bundle()
-        .pipe(source('script.js'))
-        .pipe(gulp.dest(`${DEST}/js`));
-});
-
 gulp.task('browserify', () => {
     return gulp.src(`${SRC}/js/**/[!_]*.js`)
         .pipe(through2.obj(function(file, encode, callback) {

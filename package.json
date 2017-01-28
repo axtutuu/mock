@@ -32,6 +32,7 @@
     "gulp-sass-glob": "^1.0.6",
     "gulp-watch": "^4.3.8",
     "jquery": "2.*",
+    "jquery.scrollbar": "^0.2.11",
     "read-config": "2.0.*",
     "reset.css": "^2.0.2",
     "rev-logger": "1.1.1",
