@@ -1,0 +1,27 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="../../css/style.css")
+  link(rel="stylesheet", href="../../css/rem.css")
+block ContentBlock
+  // ref https://css-tricks.com/rems-ems/
+  h1 Rem
+  .content
+    section.article.article--small
+      h2.small--title Small Title
+      p.
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Proin nibh augue, suscipit a,<br>
+        scelerisque sed, lacinia in, mi. Cras vel lorem. Etiam pellentesque aliquet tellus.<br>
+        Phasellus pharetra nulla ac diam. Quisque semper justo at risus. Donec venenatis, turpis vel<br>
+        hendrerit interdum, dui ligula ultricies purus, sed posuere libero dui id orci. Nam congue,<br>
+        pede vitae dapibus aliquet, elit magna vulputate arcu, vel tempus metus leo non est.<br>
+    section.article.article--large
+      h2.large--title Large Title
+      p.
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Proin nibh augue, suscipit a,<br>
+        scelerisque sed, lacinia in, mi. Cras vel lorem. Etiam pellentesque aliquet tellus.<br>
+        Phasellus pharetra nulla ac diam. Quisque semper justo at risus. Donec venenatis, turpis vel<br>
+        hendrerit interdum, dui ligula ultricies purus, sed posuere libero dui id orci. Nam congue,<br>
+        pede vitae dapibus aliquet, elit magna vulputate arcu, vel tempus metus leo non est.<br>
+prepend JavascriptBlock
+  script(src="../../js/rem.js")
+
