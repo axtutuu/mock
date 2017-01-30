@@ -1,9 +1,13 @@
+// @function px($size) {
+//   @return #{$size / 100}rem;
+// }
+
 html {
-  font-size: 62.5%;
+  font-size: 100px;
 }
 
 body {
-  font-size: 1.6rem;
+  font-size: 0.16rem;
 }
 
 .article {
@@ -11,7 +15,10 @@ body {
   border: 1px solid #5D4E79;
   border-radius: 10px;
   margin: 10px auto;
+  width: 80%;
   p {
-    font-size: 1.3rem;
+    // width: 1024px -> font-siz: 16pxを基準に
+    font-size: 0.14rem;
   }
 }
+
