@@ -14,6 +14,7 @@ import readConfig from 'read-config';
 import watch from 'gulp-watch';
 import RevLogger from 'rev-logger';
 import through2 from 'through2';
+import $ from 'jquery';
 
 // const
 const SRC = './src';
@@ -41,7 +42,7 @@ gulp.task('sass', () => {
 gulp.task('css', gulp.series('sass'));
 
 gulp.task('browserify', () => {
-    return gulp.src(`${SRC}/js/**/[!_]*.js`)
+    return gulp.src(`${SRC}/js/**/[!_]*.js[x]`)
         .pipe(through2.obj(function(file, encode, callback) {
             browserify(file.path)
                 .transform(babelify)
@@ -88,7 +89,7 @@ gulp.task('browser-sync', () => {
     });
 
     watch([`${SRC}/scss/**/*.scss`], gulp.series('sass', browserSync.reload));
-    watch([`${SRC}/js/**/*.js`], gulp.series('browserify', browserSync.reload));
+    watch([`${SRC}/js/**/*.js[x]`], gulp.series('browserify', browserSync.reload));
     watch([
         `${SRC}/pug/**/*.pug`,
         `${SRC}/config/meta.yml`
