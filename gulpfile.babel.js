@@ -19,7 +19,7 @@ import $ from 'jquery';
 // const
 const SRC = './src';
 const CONFIG = './src/config';
-const HTDOCS = './';
+const HTDOCS = './public';
 const BASE_PATH = '';
 const DEST = `${HTDOCS}${BASE_PATH}`;
 
