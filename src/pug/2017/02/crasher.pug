@@ -1,0 +1,14 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="../../css/style.css")
+  style.
+    .img{
+      width: 100%;
+    }
+block ContentBlock
+  img.img(src="http://tiqav.com/1el.jpg")
+  label(for="escape") もう許してください
+  input.checkbox(type="checkbox" id="escape")
+
+prepend JavascriptBlock
+  script(src="../../js/crasher.js")

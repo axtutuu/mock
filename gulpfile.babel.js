@@ -42,7 +42,7 @@ gulp.task('sass', () => {
 gulp.task('css', gulp.series('sass'));
 
 gulp.task('browserify', () => {
-    return gulp.src(`${SRC}/js/**/[!_]*.js[x]`)
+  return gulp.src([`${SRC}/js/**/[!_]*.js[x]`,`${SRC}/js/**/[!_]*.js`])
         .pipe(through2.obj(function(file, encode, callback) {
             browserify(file.path)
                 .transform(babelify)
@@ -89,7 +89,7 @@ gulp.task('browser-sync', () => {
     });
 
     watch([`${SRC}/scss/**/*.scss`], gulp.series('sass', browserSync.reload));
-    watch([`${SRC}/js/**/*.js[x]`], gulp.series('browserify', browserSync.reload));
+    watch([`${SRC}/js/**/*.js[x]`, `${SRC}/js/**/*.js`], gulp.series('browserify', browserSync.reload));
     watch([
         `${SRC}/pug/**/*.pug`,
         `${SRC}/config/meta.yml`
