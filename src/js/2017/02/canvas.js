@@ -1,10 +1,10 @@
 import $ from "jquery";
 import EventEmitter from "events";
 const IMAGES = [
-  '/images/2017/02/image1.jpg',
-  '/images/2017/02/image2.jpg',
-  '/images/2017/02/image3.jpg',
-  '/images/2017/02/image4.jpg'
+  '/mock/images/2017/02/image1.jpg',
+  '/mock/images/2017/02/image2.jpg',
+  '/mock/images/2017/02/image3.jpg',
+  '/mock/images/2017/02/image4.jpg'
 ];
 
 const FRAMES = {};
