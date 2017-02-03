@@ -10139,8 +10139,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var IMAGES = ['/images/2017/02/image1.jpg', '/images/2017/02/image2.jpg', '/images/2017/02/image3.jpg', '/images/2017/02/image4.jpg'];
+
 var FRAMES = {};
-var DEFAULT = "http://placehold.it/300x200/719b3b/fff.jpg/?text=Default";
 
 var Canvas = function (_EventEmitter) {
   _inherits(Canvas, _EventEmitter);
@@ -10152,8 +10153,10 @@ var Canvas = function (_EventEmitter) {
 
     var _this = _possibleConstructorReturn(this, (Canvas.__proto__ || Object.getPrototypeOf(Canvas)).call(this));
 
+    console.log(createjs);
     _this.$canvas = opts.$canvas;
     _this.canvasCxt = opts.$canvas[0].getContext('2d');
+    _this.stage = new createjs.Stage('canvas');
 
     _this.init();
     return _this;
@@ -10164,13 +10167,31 @@ var Canvas = function (_EventEmitter) {
     value: function init() {
       var _this2 = this;
 
-      var defaultImage = new Image();
-      defaultImage.src = DEFAULT;
+      this.$canvas[0].width = this.$canvas.width();
+      this.$canvas[0].height = this.$canvas.height();
+      this.stage.enableMouseOver();
 
-      defaultImage.onload = function () {
-        console.log(defaultImage);
-        _this2.canvasCxt.drawImage(defaultImage, 0, 0);
-      };
+      var positionX = 0;
+      IMAGES.forEach(function (v, i) {
+        var bitmap = new createjs.Bitmap(v);
+        bitmap.cursor = 'pointer';
+        bitmap.addEventListener('click', function () {
+          alert('click');
+        });
+        _this2.stage.addChild(bitmap);
+
+        if ((i + 1) % 4 == 0) {
+          positionX = 0;
+          bitmap.y = 200;
+        }
+        bitmap.x = positionX * 200;
+        positionX += 1;
+      });
+
+      createjs.Ticker.setFPS(30);
+      createjs.Ticker.addEventListener('tick', function () {
+        _this2.stage.update();
+      });
     }
   }]);
 
