@@ -34,16 +34,16 @@
     "gulp-watch": "^4.3.8",
     "jquery": "2.*",
     "jquery.scrollbar": "^0.2.11",
-    "read-config": "2.0.*",
-    "reset.css": "^2.0.2",
-    "rev-logger": "1.1.1",
-    "vinyl-source-stream": "1.1.*",
     "react": "^15.2.1",
     "react-addons-css-transition-group": "^15.2.1",
     "react-dom": "^15.2.1",
     "react-masonry-component": "^4.2.1",
-    "react-router": "^2.6.0"
-    },
+    "react-router": "^2.6.0",
+    "read-config": "2.0.*",
+    "reset.css": "^2.0.2",
+    "rev-logger": "1.1.1",
+    "vinyl-source-stream": "1.1.*"
+  },
   "babel": {
     "presets": [
       "es2015",
