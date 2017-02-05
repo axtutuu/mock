@@ -1,11 +1,5 @@
 import $ from "jquery";
 import EventEmitter from "events";
-const IMAGES = [
-  // '/mock/images/2017/02/image1.jpg',
-  '/images/2017/02/image1.jpg',
-];
-
-const FRAMES = {};
 
 class Canvas extends EventEmitter {
   constructor(opts={}){
@@ -13,9 +7,9 @@ class Canvas extends EventEmitter {
     this.$canvas   = opts.$canvas;
     this.canvasCxt = opts.$canvas[0].getContext('2d');
     this.stage     = new createjs.Stage('canvas');
-    this.isPointerDown = false;
     this.images     = [
-      { id: "image", src: '/images/2017/02/image1.jpg', x: 0, y: 0 }
+      // { id: "image", src: '/images/2017/02/image1.jpg', x: 0, y: 0 }
+      { id: "image", src: '/mock/images/2017/02/image1.jpg', x: 0, y: 0 }
     ];
     this.bitmap = "";
     this.offsetX = 0;

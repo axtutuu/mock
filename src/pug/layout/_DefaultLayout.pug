@@ -12,8 +12,8 @@ html(lang="ja")
     if keywords && keywords.length
       meta(name="keywords", content=keywords.join ? keywords.join(', ') : keywords)
     if favicon_url
-      link(rel="shortcut icon", href=favicon_url, type="image/vnd.microsoft.icon")
-      link(rel="icon", href=favicon_url, type="image/vnd.microsoft.icon")
+      link(rel="shortcut icon", href=favicon_url, type="/mock/images/favicon.png")
+      link(rel="icon", href=favicon_url, type="/mock/images/favicon.png")
 
     //- IEで「互換モード」で表示されるのを防ぐための指定
     meta(http-equiv="X-UA-Compatible", content="IE=Edge")

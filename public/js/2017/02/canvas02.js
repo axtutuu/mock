@@ -10139,12 +10139,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var IMAGES = [
-// '/mock/images/2017/02/image1.jpg',
-'/images/2017/02/image1.jpg'];
-
-var FRAMES = {};
-
 var Canvas = function (_EventEmitter) {
   _inherits(Canvas, _EventEmitter);
 
@@ -10158,8 +10152,9 @@ var Canvas = function (_EventEmitter) {
     _this.$canvas = opts.$canvas;
     _this.canvasCxt = opts.$canvas[0].getContext('2d');
     _this.stage = new createjs.Stage('canvas');
-    _this.isPointerDown = false;
-    _this.images = [{ id: "image", src: '/images/2017/02/image1.jpg', x: 0, y: 0 }];
+    _this.images = [
+    // { id: "image", src: '/images/2017/02/image1.jpg', x: 0, y: 0 }
+    { id: "image", src: '/mock/images/2017/02/image1.jpg', x: 0, y: 0 }];
     _this.bitmap = "";
     _this.offsetX = 0;
     _this.offsetY = 0;
