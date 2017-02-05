@@ -10155,12 +10155,14 @@ var Canvas = function (_EventEmitter) {
 
     var _this = _possibleConstructorReturn(this, (Canvas.__proto__ || Object.getPrototypeOf(Canvas)).call(this));
 
-    console.log(createjs);
     _this.$canvas = opts.$canvas;
     _this.canvasCxt = opts.$canvas[0].getContext('2d');
     _this.stage = new createjs.Stage('canvas');
     _this.isPointerDown = false;
-    _this.images = [{ src: '/images/2017/02/image1.jpg', x: 0, y: 0 }];
+    _this.images = [{ id: "image", src: '/images/2017/02/image1.jpg', x: 0, y: 0 }];
+    _this.bitmap = "";
+    _this.offsetX = 0;
+    _this.offsetY = 0;
 
     _this.init();
     return _this;
@@ -10169,45 +10171,52 @@ var Canvas = function (_EventEmitter) {
   _createClass(Canvas, [{
     key: "init",
     value: function init() {
-      var _this2 = this;
-
       this.$canvas[0].width = this.$canvas.width();
       this.$canvas[0].height = this.$canvas.height();
       this.stage.enableMouseOver();
 
-      var positionX = 0;
-      IMAGES.forEach(function (v, i) {
-        var bitmap = new createjs.Bitmap(v);
-        bitmap.cursor = 'pointer';
-        bitmap.addEventListener('click', function () {
-          alert('click');
-        });
-        _this2.stage.addChild(bitmap);
-
-        if ((i + 1) % 4 == 0) {
-          positionX = 0;
-          bitmap.y = 200;
-        }
-        bitmap.x = positionX * 200;
-        positionX += 1;
-      });
-
-      createjs.Ticker.setFPS(30);
-      createjs.Ticker.addEventListener('tick', function () {
-        _this2.stage.update();
-      });
-
-      this.$canvas.on("mousedown", function (e) {
-        _this2.onPointerDown(e);
-      });
+      var queue = new createjs.LoadQueue(false);
+      queue.addEventListener("fileload", this.loadCompleteHandler.bind(this));
+      queue.loadFile(this.images[0].src);
     }
   }, {
-    key: "onPointerDown",
-    value: function onPointerDown(e) {
-      console.log(e);
-      console.log(e.pageX);
-      console.log(this.isPointerDown);
-      this.isPointerDown = true;
+    key: "loadCompleteHandler",
+    value: function loadCompleteHandler(e) {
+      this.bitmap = new createjs.Bitmap(e.result);
+      this.bitmap.cursor = 'pointer';
+      this.bitmap.addEventListener('mousedown', this.startDrag.bind(this));
+      this.stage.addChild(this.bitmap);
+      this.stage.update();
+    }
+  }, {
+    key: "startDrag",
+    value: function startDrag(e) {
+      var instance = e.target;
+      this.offsetX = instance.x - e.stageX;
+      this.offsetY = instance.y - e.stageY;
+      console.log('----------------------offset------------------------');
+      console.log(this.offsetX);
+      console.log(this.offsetY);
+      console.log('----------------------offset------------------------');
+      instance.addEventListener('pressmove', this.drag.bind(this));
+      instance.addEventListener('pressup', this.stopDrag.bind(this));
+    }
+  }, {
+    key: "drag",
+    value: function drag(e) {
+      e.preventDefault();
+
+      var instance = e.target;
+      instance.x = e.stageX + this.offsetX;
+      instance.y = e.stageY + this.offsetY;
+      this.stage.update();
+    }
+  }, {
+    key: "stopDrag",
+    value: function stopDrag(e) {
+      var instance = e.target;
+      instance.removeEventListener("pressmove", this.drag);
+      instance.removeEventListener("pressup", this.stopDrag);
     }
   }]);
 
