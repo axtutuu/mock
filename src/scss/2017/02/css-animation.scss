@@ -1,0 +1,61 @@
+/* base CSS  */
+
+h1 {
+  color: #BB71C3;
+}
+
+.box {
+  border: 1px solid #BB71C3;
+  border-radius: 3px;
+  overflow: hidden;
+  max-width: 640px;
+  width: 80%;
+  height: 300px;
+  cursor: pointer;
+  position: relative;
+}
+
+.circle {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  background-color: #BB71C3;
+}
+
+.center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+
+/*  animation  */
+
+// fadeout
+.fade-out-elem {
+  transition: all 1s;
+  opacity: 1;
+}
+
+.fade-out {
+  opacity: 0;
+}
+
+// toRight
+@keyframes to-right {
+  50%  { left: 80%; }
+  100% { left: 110%; }
+}
+
+.toRight {
+  animation: to-right 3s linear 0s;
+  // same as below
+  // animation-name: to-right; // アニメーション名
+  // animation-duration: 3s;   // アニメーションの速度
+  // animation-timing-function: ease; //  アニメーションのタイミング (http://www.htmq.com/css3/animation-timing-function.shtml)
+  // animation-delay: 0s;      // アニメーションの遅延
+  // animation-iteration-count: 1; // アニメーションの繰り返し数
+  // animation-direction: normal; // アニメーションの反転再生 (http://www.htmq.com/css3/animation-direction.shtml)
+  // animation-fill-mode: none; // スタイルの適用方法 (http://unformedbuilding.com/articles/learn-about-css-animation/)
+  // animation-play-state: running; // アニメーションの状態 (http://unformedbuilding.com/articles/learn-about-css-animation/)
+}

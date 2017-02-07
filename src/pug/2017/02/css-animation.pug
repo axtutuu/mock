@@ -1,0 +1,15 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="../../css/2017/02/css-animation.css")
+block ContentBlock
+  h1 CSS animation
+
+  h2 FadeOut/In
+  .box.js-fade-out
+    .circle.center.fade-out-elem
+
+  h2 To right
+  .box.js-to-right
+    .circle.center
+prepend JavascriptBlock
+  script(src="../../js/2017/02/css-animation.js")
