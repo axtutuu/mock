@@ -50,3 +50,23 @@ h1 {
 .toRight {
   -webkit-animation: to-right 3s linear 0s;
           animation: to-right 3s linear 0s; }
+
+.change-width {
+  -webkit-animation: changeWidth 3s infinite alternate;
+          animation: changeWidth 3s infinite alternate; }
+
+@-webkit-keyframes changeWidth {
+  from {
+    width: 50px;
+    height: 50px; }
+  to {
+    width: 600px;
+    height: 600px; } }
+
+@keyframes changeWidth {
+  from {
+    width: 50px;
+    height: 50px; }
+  to {
+    width: 600px;
+    height: 600px; } }

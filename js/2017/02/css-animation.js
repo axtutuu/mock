@@ -9826,7 +9826,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 (function () {
   var CLASS_LIST = {
     'js-fade-out': 'fade-out',
-    'js-to-right': 'toRight'
+    'js-to-right': 'toRight',
+    'js-scale': 'change-width'
   };
 
   (0, _jquery2.default)('.box').on('click', function (e) {
@@ -9838,6 +9839,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }
 
   function targerClass(className) {
+    console.log(className);
     var target = className.split(' ')[1];
     return CLASS_LIST[target];
   }
