@@ -18,6 +18,20 @@ h1 {
   height: 50px;
   background-color: #BB71C3; }
 
+.left {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%); }
+
+.right {
+  position: absolute;
+  top: 50%;
+  left: 80%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%); }
+
 .center {
   position: absolute;
   top: 50%;
@@ -70,3 +84,67 @@ h1 {
   to {
     width: 600px;
     height: 600px; } }
+
+@-webkit-keyframes stepOne {
+  0%, 10% {
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; }
+  10%, 100% {
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; } }
+
+@keyframes stepOne {
+  0%, 10% {
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; }
+  10%, 100% {
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; } }
+
+@-webkit-keyframes stepTwo {
+  10%, 30% {
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; }
+  30%, 100% {
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; } }
+
+@keyframes stepTwo {
+  10%, 30% {
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; }
+  30%, 100% {
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; } }
+
+@-webkit-keyframes stepThree {
+  30%, 50% {
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; }
+  50%, 100% {
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; } }
+
+@keyframes stepThree {
+  30%, 50% {
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; }
+  50%, 100% {
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; } }
+
+.step .circle {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; }
+
+.step .circle:nth-child(1) {
+  -webkit-animation: stepOne   6s linear infinite;
+          animation: stepOne   6s linear infinite; }
+
+.step .circle:nth-child(2) {
+  -webkit-animation: stepTwo   6s linear infinite;
+          animation: stepTwo   6s linear infinite; }
+
+.step .circle:nth-child(3) {
+  -webkit-animation: stepThree 6s linear infinite;
+          animation: stepThree 6s linear infinite; }

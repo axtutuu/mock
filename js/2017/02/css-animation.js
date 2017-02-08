@@ -9827,7 +9827,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   var CLASS_LIST = {
     'js-fade-out': 'fade-out',
     'js-to-right': 'toRight',
-    'js-scale': 'change-width'
+    'js-scale': 'change-width',
+    'js-step': 'step'
   };
 
   (0, _jquery2.default)('.box').on('click', function (e) {
