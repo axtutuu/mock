@@ -22,6 +22,18 @@ h1 {
   background-color: #BB71C3;
 }
 
+.left {
+  position: absolute;
+  top: 50%; left: 10%;
+  transform: translateY(-50%);
+}
+
+.right {
+  position: absolute;
+  top: 50%; left: 80%;
+  transform: translateY(-50%);
+}
+
 .center {
   position: absolute;
   top: 50%; left: 50%;
@@ -61,7 +73,6 @@ h1 {
 }
 
 // scale
-
 .change-width {
   animation: changeWidth 3s infinite alternate;
 }
@@ -69,4 +80,27 @@ h1 {
 @keyframes changeWidth {
   from { width: 50px; height: 50px; }
   to   { width: 600px; height: 600px; }
+}
+
+// step
+@keyframes stepOne{
+  0%, 10%   { opacity: 0; }
+  10%, 100% { opacity: 1; }
+}
+
+@keyframes stepTwo{
+  10%, 30%   { opacity: 0; }
+  30%, 100% { opacity: 1; }
+}
+
+@keyframes stepThree{
+  30%, 50%   { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+
+.step {
+  .circle { opacity: 0;  }
+  .circle:nth-child(1) { animation: stepOne   6s linear infinite; }
+  .circle:nth-child(2) { animation: stepTwo   6s linear infinite; }
+  .circle:nth-child(3) { animation: stepThree 6s linear infinite; }
 }

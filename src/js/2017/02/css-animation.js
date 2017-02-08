@@ -3,7 +3,8 @@ import $ from 'jquery';
   const CLASS_LIST = {
     'js-fade-out': 'fade-out',
     'js-to-right': 'toRight',
-    'js-scale': 'change-width'
+    'js-scale': 'change-width',
+    'js-step': 'step'
   };
 
   $('.box').on('click', (e)=> {
