@@ -2,7 +2,8 @@ import $ from 'jquery';
 (()=>{
   const CLASS_LIST = {
     'js-fade-out': 'fade-out',
-    'js-to-right': 'toRight'
+    'js-to-right': 'toRight',
+    'js-scale': 'change-width'
   };
 
   $('.box').on('click', (e)=> {
@@ -14,6 +15,7 @@ import $ from 'jquery';
   }
 
   function targerClass(className) {
+    console.log(className);
     const target = className.split(' ')[1];
     return CLASS_LIST[target];
   }

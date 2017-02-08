@@ -59,3 +59,14 @@ h1 {
   // animation-fill-mode: none; // スタイルの適用方法 (http://unformedbuilding.com/articles/learn-about-css-animation/)
   // animation-play-state: running; // アニメーションの状態 (http://unformedbuilding.com/articles/learn-about-css-animation/)
 }
+
+// scale
+
+.change-width {
+  animation: changeWidth 3s infinite alternate;
+}
+
+@keyframes changeWidth {
+  from { width: 50px; height: 50px; }
+  to   { width: 600px; height: 600px; }
+}
