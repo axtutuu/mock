@@ -1,0 +1,13 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  style.
+    h1 { color: #BB71C3; }
+    canvas { width: 80%; max-width: 800px; margin: 0 auto; border: 1px solid #BB71C3; border-radius: 3px; }
+block ContentBlock
+  h1 Canvas Square
+  canvas.js-canvas
+prepend JavascriptBlock
+  script.
+    var canvas = document.querySelector(".js-canvas");
+    var cxt2D  = canvas.getContext("2d");
+    cxt2D.fillRect(10,10,100,100);
