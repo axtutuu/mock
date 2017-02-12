@@ -8,8 +8,8 @@ class Canvas extends EventEmitter {
     this.canvasCxt = opts.$canvas[0].getContext('2d');
     this.stage     = new createjs.Stage('canvas');
     this.images     = [
-      // { id: "image", src: '/images/2017/02/image1.jpg', x: 0, y: 0 }
-      { id: "image", src: '/mock/images/2017/02/image1.jpg', x: 0, y: 0 }
+      { id: "image", src: '/images/2017/02/image1.jpg', x: 0, y: 0 }
+      // { id: "image", src: '/mock/images/2017/02/image1.jpg', x: 0, y: 0 }
     ];
     this.bitmap = "";
     this.offsetX = 0;

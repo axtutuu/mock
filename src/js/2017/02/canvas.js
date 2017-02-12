@@ -49,6 +49,6 @@ class Canvas extends EventEmitter {
 
 (()=>{
   const canvas = new Canvas({
-    $canvas: $(".canvas")
+    canvas: $(".js-canvas")
   });
 })();

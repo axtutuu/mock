@@ -10200,7 +10200,7 @@ var Canvas = function (_EventEmitter) {
 
 (function () {
   var canvas = new Canvas({
-    $canvas: (0, _jquery2.default)(".canvas")
+    canvas: (0, _jquery2.default)(".js-canvas")
   });
 })();
 
