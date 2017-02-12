@@ -332,6 +332,7 @@ var Canvas = function (_EventEmitter) {
     _this.stage = new createjs.Stage('js-canvas');
     _this.stage.enableMouseOver();
     _this.activeShape = new createjs.Shape();
+    _this.rotateShape = new createjs.Shape();
     _this.isActive = false;
 
     _this.init();
@@ -346,8 +347,13 @@ var Canvas = function (_EventEmitter) {
       queue.addEventListener("fileload", this.draw.bind(this));
       queue.loadFile(imgUrl);
 
+      // 枠線
       this.activeShape.graphics.beginStroke('#D6D4D6');
       this.activeShape.graphics.setStrokeStyle(3);
+
+      // rotate
+      this.rotateShape.graphics.beginFill('#7E5384');
+      this.rotateShape.cursor = 'pointer';
     }
   }, {
     key: 'draw',
@@ -355,6 +361,8 @@ var Canvas = function (_EventEmitter) {
       this.bitmap = new createjs.Bitmap(e.result);
       this.bitmap.cursor = 'pointer';
       this.bitmap.addEventListener('click', this.active.bind(this));
+      this.bitmap.x = 300;
+      this.bitmap.y = 300;
       this.stage.addChild(this.bitmap);
       this.stage.update();
     }
@@ -364,20 +372,97 @@ var Canvas = function (_EventEmitter) {
       if (this.isActive) {
         this.isActive = false;
         this.stage.removeChild(this.activeShape);
+        this.stage.removeChild(this.rotateShape);
         this.stage.update();
         return;
       }
       var instance = e.target;
       this.isActive = true;
 
+      // rotate
+      var rotateX = this.bitmap.getBounds().width + this.bitmap.x;
+      var rotateY = this.bitmap.getBounds().height + this.bitmap.y;
+      this.rotateShape.graphics.drawCircle(0, 0, 25, 25);
+      this.rotateShape.x = rotateX;
+      this.rotateShape.y = rotateY;
+
+      // 枠線
       this.activeShape.graphics.drawRect(instance.x, instance.y, instance.getBounds().width, instance.getBounds().height);
       this.stage.addChild(this.activeShape);
+      this.stage.addChild(this.rotateShape);
+      this.rotateShape.addEventListener('mousedown', this.rotateStart.bind(this));
       this.stage.update();
 
       // console.log(instance);
       // console.log(instance.x);
       // console.log(instance.y);
       // console.log(instance.getBounds());
+    }
+  }, {
+    key: 'rotateStart',
+    value: function rotateStart(e) {
+      var instance = e.target;
+      instance.addEventListener('pressmove', this.rotate.bind(this));
+      instance.addEventListener('pressup', this.rotateEnd.bind(this));
+    }
+  }, {
+    key: 'rotate',
+    value: function rotate(e) {
+      var instance = e.target;
+      var offsetX = this.stage.mouseX - this.bitmap.x;
+      var offsetY = this.stage.mouseY - this.bitmap.y;
+
+      var rads = this.tan2(offsetX, offsetY);
+      this.bitmap.rotation = this.toDegree(rads);
+
+      // rotate操作の移動
+      var rotateX = this.bitmap.getBounds().width + this.bitmap.x;
+      var rotateY = this.bitmap.getBounds().height + this.bitmap.y;
+
+      // Bの座標
+      console.log(this.bitmap.getBounds().width * Math.sin(rads));
+
+      // 対角線の座標
+      var ab = Math.pow(this.bitmap.getBounds().width, 2); // 累乗
+      var ad = Math.pow(this.bitmap.getBounds().height, 2); // 累乗
+      var ac = Math.sqrt(ab + ad); // 対角線
+      var dDeg = this.toDegree(rads) + 45;
+      var dAds = this.toRadian(dDeg);
+      console.log(ac * Math.sin(dAds));
+      // console.log((Math.sin(rads)-45));
+
+
+      this.stage.update();
+      // console.log(angle-40);
+      // console.log(this.stage.mouseY);
+      // console.log(instance.y);
+      // console.log(Math.atan2(this.stage.mouseY - instance.y, this.stage.mouseX - instance.x));
+      // console.log(this.stage.mouseX);
+    }
+  }, {
+    key: 'rotateEnd',
+    value: function rotateEnd(e) {
+      var instance = e.target;
+      instance.removeEventListener("pressmove", this.rotate);
+      instance.removeEventListener("pressup", this.rotateEnd);
+    }
+  }, {
+    key: 'toRadian',
+    value: function toRadian(degree) {
+      return degree * Math.PI / 180;
+    }
+  }, {
+    key: 'toDegree',
+    value: function toDegree(radian) {
+      return radian * 180 / Math.PI;
+    }
+
+    // x軸から対象点までの角度
+
+  }, {
+    key: 'tan2',
+    value: function tan2(x, y) {
+      return Math.atan2(y, x);
     }
   }, {
     key: 'moveStart',
