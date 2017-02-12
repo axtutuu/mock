@@ -10152,9 +10152,9 @@ var Canvas = function (_EventEmitter) {
     _this.$canvas = opts.$canvas;
     _this.canvasCxt = opts.$canvas[0].getContext('2d');
     _this.stage = new createjs.Stage('canvas');
-    _this.images = [
-    // { id: "image", src: '/images/2017/02/image1.jpg', x: 0, y: 0 }
-    { id: "image", src: '/mock/images/2017/02/image1.jpg', x: 0, y: 0 }];
+    _this.images = [{ id: "image", src: '/images/2017/02/image1.jpg', x: 0, y: 0 }
+    // { id: "image", src: '/mock/images/2017/02/image1.jpg', x: 0, y: 0 }
+    ];
     _this.bitmap = "";
     _this.offsetX = 0;
     _this.offsetY = 0;
