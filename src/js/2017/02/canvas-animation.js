@@ -1,11 +1,11 @@
 ((win, doc)=>{
-  const canvas = doc.querySelector('.js-canvas');
-  const stage  = new createjs.Stage(canvas);
-  const shape  = new createjs.Shape();
-  canvas.width = canvas.offsetWidth*2;
+  const canvas  = doc.querySelector('.js-canvas');
+  const stage   = new createjs.Stage(canvas);
+  const shape   = new createjs.Shape();
+  canvas.width  = canvas.offsetWidth*2;
   canvas.height = canvas.offsetHeight*2;
-  shape.x      = 50;
-  shape.y      = 50;
+  shape.x       = 50;
+  shape.y       = 50;
   stage.addChild(shape);
   draw(shape.graphics);
   createjs.Ticker.setFPS(30);
