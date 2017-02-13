@@ -335,6 +335,12 @@ var Canvas = function (_EventEmitter) {
     _this.rotateShape = new createjs.Shape();
     _this.isActive = false;
 
+    // 座標
+    _this.pointA = document.querySelector('.point--a') || document.createElement('div');
+    _this.pointB = document.querySelector('.point--b') || document.createElement('div');
+    _this.pointC = document.querySelector('.point--c') || document.createElement('div');
+    _this.pointD = document.querySelector('.point--d') || document.createElement('div');
+
     _this.init();
     return _this;
   }
@@ -387,16 +393,11 @@ var Canvas = function (_EventEmitter) {
       this.rotateShape.y = rotateY;
 
       // 枠線
-      this.activeShape.graphics.drawRect(instance.x, instance.y, instance.getBounds().width, instance.getBounds().height);
-      this.stage.addChild(this.activeShape);
+      // this.activeShape.graphics.drawRect(instance.x,instance.y,instance.getBounds().width,instance.getBounds().height);
+      // this.stage.addChild(this.activeShape);
       this.stage.addChild(this.rotateShape);
       this.rotateShape.addEventListener('mousedown', this.rotateStart.bind(this));
       this.stage.update();
-
-      // console.log(instance);
-      // console.log(instance.x);
-      // console.log(instance.y);
-      // console.log(instance.getBounds());
     }
   }, {
     key: 'rotateStart',
@@ -418,26 +419,31 @@ var Canvas = function (_EventEmitter) {
       // rotate操作の移動
       var rotateX = this.bitmap.getBounds().width + this.bitmap.x;
       var rotateY = this.bitmap.getBounds().height + this.bitmap.y;
+      var bitmapBounds = this.bitmap.getBounds();
 
-      // Bの座標
-      console.log(this.bitmap.getBounds().width * Math.sin(rads));
+      // A点の座標 (原点)
+      this.pointA.innerHTML = '(0,0)';
+
+      // B点の座標
+      this.pointB.innerHTML = this.txtFormat(this.calcPointX(bitmapBounds.width, rads), this.calcPointY(bitmapBounds.width, rads));
 
       // 対角線の座標
-      var ab = Math.pow(this.bitmap.getBounds().width, 2); // 累乗
-      var ad = Math.pow(this.bitmap.getBounds().height, 2); // 累乗
-      var ac = Math.sqrt(ab + ad); // 対角線
-      var dDeg = this.toDegree(rads) + 45;
-      var dAds = this.toRadian(dDeg);
-      console.log(ac * Math.sin(dAds));
-      // console.log((Math.sin(rads)-45));
+      var diagonalLine = this.calcDiagonalLine(this.bitmap.getBounds().width, this.bitmap.getBounds().height);
+      var diagonalRasin = this.toRadian(this.toDegree(rads) + 45); //対角線のラジアン角
+      this.pointC.innerHTML = this.txtFormat(this.calcPointX(diagonalLine, diagonalRasin), this.calcPointY(diagonalLine, diagonalRasin));
 
+      this.rotateShape.x = this.bitmap.x + this.calcPointX(diagonalLine, diagonalRasin);
+      this.rotateShape.y = this.bitmap.y + this.calcPointY(diagonalLine, diagonalRasin);
 
+      // D点の座標
+      var verticalRasin = this.toRadian(this.toDegree(rads) + 90);
+      this.pointD.innerHTML = this.txtFormat(this.calcPointX(bitmapBounds.height, verticalRasin), this.calcPointY(bitmapBounds.height, verticalRasin));
       this.stage.update();
-      // console.log(angle-40);
-      // console.log(this.stage.mouseY);
-      // console.log(instance.y);
-      // console.log(Math.atan2(this.stage.mouseY - instance.y, this.stage.mouseX - instance.x));
-      // console.log(this.stage.mouseX);
+    }
+  }, {
+    key: 'txtFormat',
+    value: function txtFormat(x, y) {
+      return '(' + this.calcDecimal(x) + ',' + this.calcDecimal(y) + ')';
     }
   }, {
     key: 'rotateEnd',
@@ -464,15 +470,38 @@ var Canvas = function (_EventEmitter) {
     value: function tan2(x, y) {
       return Math.atan2(y, x);
     }
+
+    // 小数点第２位以下の切り捨て
+
   }, {
-    key: 'moveStart',
-    value: function moveStart() {}
+    key: 'calcDecimal',
+    value: function calcDecimal(n) {
+      return Math.floor(n * 10) / 10;
+    }
+
+    // y座標の取得 -> 距離xsin(ラジアン角度)
+
   }, {
-    key: 'move',
-    value: function move() {}
+    key: 'calcPointY',
+    value: function calcPointY(distance, radian) {
+      return distance * Math.sin(radian);
+    }
+
+    // x座標の取得  距離xcos(ラジアン角度) http://ngroku.com/?p=976
+
   }, {
-    key: 'moveStop',
-    value: function moveStop() {}
+    key: 'calcPointX',
+    value: function calcPointX(distance, radian) {
+      return distance * Math.cos(radian);
+    }
+
+    // 対角線の長さ √(AD^2 + AB ^2 )
+
+  }, {
+    key: 'calcDiagonalLine',
+    value: function calcDiagonalLine(width, height) {
+      return Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
+    }
   }]);
 
   return Canvas;

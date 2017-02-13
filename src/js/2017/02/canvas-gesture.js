@@ -8,6 +8,12 @@ class Canvas extends EventEmitter {
     this.rotateShape = new createjs.Shape();
     this.isActive = false;
 
+    // 座標
+    this.pointA = document.querySelector('.point--a') || document.createElement('div');
+    this.pointB = document.querySelector('.point--b') || document.createElement('div');
+    this.pointC = document.querySelector('.point--c') || document.createElement('div');
+    this.pointD = document.querySelector('.point--d') || document.createElement('div');
+
     this.init();
   }
 
@@ -55,16 +61,11 @@ class Canvas extends EventEmitter {
     this.rotateShape.y = rotateY;
 
     // 枠線
-    this.activeShape.graphics.drawRect(instance.x,instance.y,instance.getBounds().width,instance.getBounds().height);
-    this.stage.addChild(this.activeShape);
+    // this.activeShape.graphics.drawRect(instance.x,instance.y,instance.getBounds().width,instance.getBounds().height);
+    // this.stage.addChild(this.activeShape);
     this.stage.addChild(this.rotateShape);
     this.rotateShape.addEventListener('mousedown', this.rotateStart.bind(this));
     this.stage.update();
-
-    // console.log(instance);
-    // console.log(instance.x);
-    // console.log(instance.y);
-    // console.log(instance.getBounds());
   }
 
   rotateStart(e) {
@@ -85,26 +86,30 @@ class Canvas extends EventEmitter {
     // rotate操作の移動
     const rotateX = this.bitmap.getBounds().width+this.bitmap.x;
     const rotateY = this.bitmap.getBounds().height+this.bitmap.y;
+    const bitmapBounds = this.bitmap.getBounds();
 
-    // Bの座標
-    console.log(this.bitmap.getBounds().width*Math.sin(rads));
+    // A点の座標 (原点)
+    this.pointA.innerHTML = '(0,0)';
+
+    // B点の座標
+    this.pointB.innerHTML = this.txtFormat(this.calcPointX(bitmapBounds.width, rads), this.calcPointY(bitmapBounds.width, rads));
 
     // 対角線の座標
-    const ab = Math.pow(this.bitmap.getBounds().width, 2);  // 累乗
-    const ad = Math.pow(this.bitmap.getBounds().height, 2); // 累乗
-    const ac = Math.sqrt(ab+ad); // 対角線
-    const dDeg = this.toDegree(rads)+45;
-    const dAds = this.toRadian(dDeg);
-    console.log(ac*(Math.sin(dAds)));
-    // console.log((Math.sin(rads)-45));
+    const diagonalLine    = this.calcDiagonalLine(this.bitmap.getBounds().width, this.bitmap.getBounds().height);
+    const diagonalRasin   = this.toRadian(this.toDegree(rads)+45); //対角線のラジアン角
+    this.pointC.innerHTML = this.txtFormat(this.calcPointX(diagonalLine, diagonalRasin), this.calcPointY(diagonalLine, diagonalRasin));
 
+    this.rotateShape.x = this.bitmap.x+this.calcPointX(diagonalLine, diagonalRasin);
+    this.rotateShape.y = this.bitmap.y+this.calcPointY(diagonalLine, diagonalRasin);
 
+    // D点の座標
+    const verticalRasin   = this.toRadian(this.toDegree(rads)+90);
+    this.pointD.innerHTML = this.txtFormat(this.calcPointX(bitmapBounds.height, verticalRasin), this.calcPointY(bitmapBounds.height, verticalRasin));
     this.stage.update();
-    // console.log(angle-40);
-    // console.log(this.stage.mouseY);
-    // console.log(instance.y);
-    // console.log(Math.atan2(this.stage.mouseY - instance.y, this.stage.mouseX - instance.x));
-    // console.log(this.stage.mouseX);
+  }
+
+  txtFormat(x,y) {
+    return '(' + this.calcDecimal(x) + ',' + this.calcDecimal(y) + ')';
   }
 
   rotateEnd(e) {
@@ -126,15 +131,25 @@ class Canvas extends EventEmitter {
     return Math.atan2(y,x);
   }
 
-  moveStart() {
+  // 小数点第２位以下の切り捨て
+  calcDecimal(n) {
+    return Math.floor(n*10)/10;
   }
 
-  move() {
+  // y座標の取得 -> 距離xsin(ラジアン角度)
+  calcPointY(distance, radian) {
+    return distance * Math.sin(radian);
   }
 
-  moveStop() {
+  // x座標の取得  距離xcos(ラジアン角度) http://ngroku.com/?p=976
+  calcPointX(distance, radian) {
+    return distance * Math.cos(radian);
   }
 
+  // 対角線の長さ √(AD^2 + AB ^2 )
+  calcDiagonalLine(width, height) {
+    return Math.sqrt(Math.pow(width,2)+Math.pow(height,2));
+  }
 }
 
 ((win, doc)=>{
