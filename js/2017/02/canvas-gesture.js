@@ -367,8 +367,8 @@ var Canvas = function (_EventEmitter) {
       this.bitmap = new createjs.Bitmap(e.result);
       this.bitmap.cursor = 'pointer';
       this.bitmap.addEventListener('click', this.active.bind(this));
-      this.bitmap.x = 300;
-      this.bitmap.y = 300;
+      this.bitmap.x = 50;
+      this.bitmap.y = 50;
       this.stage.addChild(this.bitmap);
       this.stage.update();
     }
