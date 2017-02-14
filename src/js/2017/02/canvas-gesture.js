@@ -61,8 +61,6 @@ class Canvas extends EventEmitter {
     this.rotateShape.y = rotateY;
 
     // 枠線
-    // this.activeShape.graphics.drawRect(instance.x,instance.y,instance.getBounds().width,instance.getBounds().height);
-    // this.stage.addChild(this.activeShape);
     this.stage.addChild(this.rotateShape);
     this.rotateShape.addEventListener('mousedown', this.rotateStart.bind(this));
     this.stage.update();
