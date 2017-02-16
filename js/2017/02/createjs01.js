@@ -321,7 +321,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   // console.log(CalcChart.publicPropertyyy);
   new _Drawer2.default();
 })();
-// import Shape from "./modules/Shape.js";
 
 },{"./modules/CalcChart.js":3,"./modules/Drawer.js":4}],3:[function(require,module,exports){
 "use strict";
@@ -351,6 +350,9 @@ var CalcChart = {
   },
   truncatePoint: function truncatePoint(n) {
     return Math.floor(n * 10) / 10;
+  },
+  rotating: function rotating(x, y) {
+    return Math.atan2(y, x); // 対象点とmouseの角度 (radian)
   }
 };
 
@@ -368,6 +370,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 var _events = require('events');
 
 var _events2 = _interopRequireDefault(_events);
+
+var _RotateShape = require('./RotateShape.js');
+
+var _RotateShape2 = _interopRequireDefault(_RotateShape);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -399,15 +405,24 @@ var Drawer = function (_EventEmitter) {
     _this.stage.enableMouseOver();
 
     _this.testShape = new createjs.Shape();
-    _this.testShape.graphics.beginFill('#7E5384').drawRect(0, 0, 300, 300);
+    _this.testShape_width = 300;
+    _this.testShape_height = 300;
+    _this.testShape.graphics.beginFill('#7E5384').drawRect(0, 0, _this.testShape_width, _this.testShape_height);
 
     _this.testShape.addEventListener('click', _this.active.bind(_this));
     _this.stage.addChild(_this.testShape);
     _this.stage.update();
+
+    _this.rotateShape = new _RotateShape2.default(_this);
     return _this;
   }
 
   _createClass(Drawer, [{
+    key: 'active',
+    value: function active(e) {
+      this.rotateShape.active(e);
+    }
+  }, {
     key: 'add',
     value: function add() {}
   }, {
@@ -423,4 +438,89 @@ var Drawer = function (_EventEmitter) {
 
 exports.default = Drawer;
 
-},{"events":1}]},{},[2]);
+},{"./RotateShape.js":5,"events":1}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CalcChart = require('./CalcChart.js');
+
+var _CalcChart2 = _interopRequireDefault(_CalcChart);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var RotateShape = function () {
+  function RotateShape(drawer) {
+    _classCallCheck(this, RotateShape);
+
+    var queue = new createjs.LoadQueue(false);
+    queue.addEventListener("fileload", this.init.bind(this));
+    queue.loadFile('/images/2017/02/Synchronize-100.png');
+    this.drawer = drawer;
+  }
+
+  _createClass(RotateShape, [{
+    key: 'init',
+    value: function init(e) {
+      this.bitmap = new createjs.Bitmap(e.result);
+      this.bitmap.cursor = 'pointer';
+      this.bitmap.addEventListener('mousedown', this.start.bind(this));
+    }
+  }, {
+    key: 'active',
+    value: function active(e) {
+      console.log(e);
+      console.log(this.drawer.testShape.getBounds());
+      console.log(this.drawer.stage.mouseX);
+      this.position();
+      this.drawer.stage.addChild(this.bitmap);
+      this.drawer.stage.update();
+    }
+  }, {
+    key: 'start',
+    value: function start(e) {
+      var instance = e.target;
+      instance.addEventListener('pressmove', this.move.bind(this));
+      instance.addEventListener('pressup', this.end.bind(this));
+    }
+  }, {
+    key: 'move',
+    value: function move(e) {
+      var instance = e.target;
+      var radian = _CalcChart2.default.rotating(this.drawer.stage.mouseX - this.drawer.testShape.x, this.drawer.stage.mouseY - this.drawer.testShape.y);
+
+      this.drawer.testShape.rotation = _CalcChart2.default.toDegree(radian);
+      this.drawer.stage.update();
+
+      console.log(this.drawer.testShape.x);
+      console.log(radian);
+      console.log(e);
+    }
+  }, {
+    key: 'end',
+    value: function end(e) {
+      var instance = e.target;
+      instance.removeEventListener("pressmove", this.rotate);
+      instance.removeEventListener("pressup", this.rotateEnd);
+    }
+  }, {
+    key: 'position',
+    value: function position() {
+      var bounds = this.bitmap.getBounds();
+      this.bitmap.x = this.drawer.testShape_width + this.drawer.testShape.x - bounds.width / 2;
+      this.bitmap.y = this.drawer.testShape_height + this.drawer.testShape.y - bounds.height / 2;
+    }
+  }]);
+
+  return RotateShape;
+}();
+
+exports.default = RotateShape;
+
+},{"./CalcChart.js":3}]},{},[2]);
