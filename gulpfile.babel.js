@@ -47,11 +47,11 @@ gulp.task('browserify', () => {
             browserify(file.path)
                 .transform(babelify)
                 .bundle((err, res)=> {
-                    if (err) {
-                        $.util.log(err.message);
-                        $.util.log(err.stack);
-                    }
-                    file.contents = res;
+                  if (err) {
+                    console.log(err.message);
+                    console.log(err.stack);
+                  }
+                  file.contents = res;
                     callback(null, file);
                 });
         }))

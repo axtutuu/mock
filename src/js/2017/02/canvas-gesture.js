@@ -2,7 +2,7 @@ import EventEmitter from "events";
 class Canvas extends EventEmitter {
   constructor(opts={}){
     super();
-    this.stage  = new createjs.Stage('js-canvas');
+    this.stage = new createjs.Stage('js-canvas');
     this.stage.enableMouseOver();
     this.activeShape = new createjs.Shape();
     this.rotateShape = new createjs.Shape();
