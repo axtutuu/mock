@@ -384,9 +384,14 @@ var Drawer = function (_EventEmitter) {
     _this.stage = new createjs.Stage('js-canvas');
     _this.stage.enableMouseOver();
 
+    // test shape
     _this.testShape = new createjs.Shape();
+    _this.testShape.x = 300;
+    _this.testShape.y = 300;
     _this.testShape_width = 300;
     _this.testShape_height = 300;
+    _this.testShape.regX = 300 / 2;
+    _this.testShape.regY = 300 / 2;
     _this.testShape.graphics.beginFill('#7E5384').drawRect(0, 0, _this.testShape_width, _this.testShape_height);
 
     _this.testShape.addEventListener('click', _this.active.bind(_this));

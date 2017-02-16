@@ -17,9 +17,14 @@ export default class Drawer extends EventEmitter {
     this.stage.enableMouseOver();
 
 
+    // test shape
     this.testShape = new createjs.Shape();
+    this.testShape.x      = 300;
+    this.testShape.y      = 300;
     this.testShape_width  = 300;
     this.testShape_height = 300;
+    this.testShape.regX = 300/2;
+    this.testShape.regY = 300/2;
     this.testShape.graphics
       .beginFill('#7E5384')
       .drawRect(0,0,this.testShape_width,this.testShape_height);
