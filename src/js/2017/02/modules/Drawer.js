@@ -1,4 +1,5 @@
 import EventEmitter from "events";
+import RotateShape from './RotateShape.js';
 
 export default class Drawer extends EventEmitter {
   constructor(opts={}){
@@ -17,13 +18,21 @@ export default class Drawer extends EventEmitter {
 
 
     this.testShape = new createjs.Shape();
+    this.testShape_width  = 300;
+    this.testShape_height = 300;
     this.testShape.graphics
       .beginFill('#7E5384')
-      .drawRect(0,0,300,300);
+      .drawRect(0,0,this.testShape_width,this.testShape_height);
 
     this.testShape.addEventListener('click', this.active.bind(this));
     this.stage.addChild(this.testShape);
     this.stage.update();
+
+    this.rotateShape = new RotateShape(this);
+  }
+
+  active(e) {
+    this.rotateShape.active(e);
   }
 
   add() {

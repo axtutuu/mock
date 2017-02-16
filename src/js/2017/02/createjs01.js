@@ -1,5 +1,4 @@
 import CalcChart from "./modules/CalcChart.js";
-// import Shape from "./modules/Shape.js";
 import Drawer from "./modules/Drawer.js";
 
 

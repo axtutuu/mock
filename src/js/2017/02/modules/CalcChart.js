@@ -23,6 +23,9 @@ const CalcChart = {
   },
   truncatePoint: (n) =>{
     return Math.floor(n*10)/10;
+  },
+  rotating: (x,y) => {
+    return Math.atan2(y,x); // 対象点とmouseの角度 (radian)
   }
 };
 
