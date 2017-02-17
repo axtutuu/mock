@@ -316,8 +316,6 @@ var _Drawer2 = _interopRequireDefault(_Drawer);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (function () {
-  console.log(_CalcChart2.default.corner);
-  console.log(_CalcChart2.default.calcPointY(5, 10));
   // console.log(CalcChart.publicPropertyyy);
   new _Drawer2.default();
 })();
@@ -332,13 +330,13 @@ var CalcChart = {
     C: 45,
     D: 135
   },
-  calcPointY: function calcPointY(distance, radian) {
+  pointY: function pointY(distance, radian) {
     return distance * Math.sin(radian);
   },
-  calcPointX: function calcPointX(distance, radian) {
+  pointX: function pointX(distance, radian) {
     return distance * Math.cos(radian);
   },
-  // 対角線の長さ √(AD^2 + AB ^2 )
+  // 対角線 √(AD^2 + AB ^2 )
   diagonalLine: function diagonalLine(width, height) {
     return Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
   },
@@ -464,10 +462,10 @@ var RotateShape = function () {
   function RotateShape(drawer) {
     _classCallCheck(this, RotateShape);
 
+    this.drawer = drawer;
     var queue = new createjs.LoadQueue(false);
     queue.addEventListener("fileload", this.init.bind(this));
     queue.loadFile('/images/2017/02/Synchronize-100.png');
-    this.drawer = drawer;
   }
 
   _createClass(RotateShape, [{
@@ -480,9 +478,9 @@ var RotateShape = function () {
   }, {
     key: 'active',
     value: function active(e) {
-      console.log(e);
-      console.log(this.drawer.testShape.getBounds());
-      console.log(this.drawer.stage.mouseX);
+      this.diagonalLine = _CalcChart2.default.diagonalLine(this.drawer.testShape_width, this.drawer.testShape_height);
+
+      this.bounds = this.bitmap.getBounds();
       this.position();
       this.drawer.stage.addChild(this.bitmap);
       this.drawer.stage.update();
@@ -498,14 +496,13 @@ var RotateShape = function () {
     key: 'move',
     value: function move(e) {
       var instance = e.target;
-      var radian = _CalcChart2.default.rotating(this.drawer.stage.mouseX - this.drawer.testShape.x, this.drawer.stage.mouseY - this.drawer.testShape.y);
+      var rad = _CalcChart2.default.rotating(this.drawer.stage.mouseX - this.drawer.testShape.x, this.drawer.stage.mouseY - this.drawer.testShape.y);
+      // offset
+      rad = _CalcChart2.default.toRadian(_CalcChart2.default.toDegree(rad) - 45);
 
-      this.drawer.testShape.rotation = _CalcChart2.default.toDegree(radian);
+      this.drawer.testShape.rotation = _CalcChart2.default.toDegree(rad);
+      this.position(rad);
       this.drawer.stage.update();
-
-      console.log(this.drawer.testShape.x);
-      console.log(radian);
-      console.log(e);
     }
   }, {
     key: 'end',
@@ -517,9 +514,13 @@ var RotateShape = function () {
   }, {
     key: 'position',
     value: function position() {
-      var bounds = this.bitmap.getBounds();
-      this.bitmap.x = this.drawer.testShape_width + this.drawer.testShape.x - bounds.width / 2;
-      this.bitmap.y = this.drawer.testShape_height + this.drawer.testShape.y - bounds.height / 2;
+      var rad = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+      var r = _CalcChart2.default.toRadian(_CalcChart2.default.toDegree(rad) + 45);
+
+      this.bitmap.x = _CalcChart2.default.pointX(this.diagonalLine / 2, r) + this.drawer.testShape.x - this.bounds.width / 2;
+
+      this.bitmap.y = _CalcChart2.default.pointY(this.diagonalLine / 2, r) + this.drawer.testShape.y - this.bounds.height / 2;
     }
   }]);
 

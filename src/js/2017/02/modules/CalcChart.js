@@ -5,13 +5,13 @@ const CalcChart = {
     C: 45,
     D: 135
   },
-  calcPointY: (distance, radian) => {
+  pointY: (distance, radian) => {
     return distance * Math.sin(radian);
   },
-  calcPointX: (distance, radian) => {
+  pointX: (distance, radian) => {
     return distance * Math.cos(radian);
   },
-  // 対角線の長さ √(AD^2 + AB ^2 )
+  // 対角線 √(AD^2 + AB ^2 )
   diagonalLine: (width,height) => {
     return Math.sqrt(Math.pow(width,2)+Math.pow(height,2));
   },
