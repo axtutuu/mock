@@ -2,11 +2,48 @@
   const input   = doc.querySelector('.js-image-input');
   const preview = doc.querySelector('.js-preview');
 
+  const canvas = document.getElementById('canvas');
+  const canvasCxt = canvas.getContext('2d');
+
+  const x,y;
   Promise.resolve()
+    .then(baseImage)
     .then(imageReader)
     .then(faceTracker)
     .then(()=>{console.log('next');});
 
+  function baseTracker() {
+    return new Promise(resolve=>{
+      const tracker = new tracking.ObjectTracker(['face']);
+      tracking.track('#canvas', tracker);
+      tracker.on('track', (e)=> {
+        const rect = e.data[0];
+        console.log(rect);
+        resolve();
+      });
+    });
+  }
+
+  function baseImage() {
+    const img = new Image();
+    return new Promise(resolve=>{
+      img.src = "/images/2017/02/sample2.PNG";
+      img.onload = ()=> {
+        console.log(img);
+        console.log(img.width);
+        canvasCxt.drawImage(img, 0, 0, img.width, img.height);
+
+        const tracker = new tracking.ObjectTracker(['face']);
+        tracking.track(img, tracker);
+        tracker.on('track', (e)=> {
+          const rect = e.data[0];
+          console.log(rect);
+          x = rect.x; y = rect.y;
+          resolve();
+        });
+      };
+    });
+  }
 
   function imageReader() {
     return new Promise(resolve=>{
@@ -33,43 +70,21 @@
         const rect = e.data[0];
         console.log(rect);
 
-        const canvas = document.getElementById('canvas');
-        const canvasCxt = canvas.getContext('2d');
+        const face = document.createElement('canvas');
+        const faceCxt = canvas.getContext('2d');
 
-        canvasCxt.beginPath();
-        canvasCxt.arc(65, 65, 45, 0, Math.PI*2, false);
-        canvasCxt.clip();
+        faceCxt.beginPath();
+        faceCxt.arc(65, 65, 45, 0, Math.PI*2, false);
+        faceCxt.clip();
 
         const img = new Image();
         img.src = preview.src;
         img.onload = () => {
-          canvasCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
+          faceCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
+          canvasCxt.putImageData(faceCxt.getImageData(0,0,faceCxt.width, faceCxt.height),x,y);
           resolve();
         };
       });
     });
   }
 })(window, document);
-
-
-// window.onload = function() {
-//   var img = document.getElementById('img');
-//   var tracker = new tracking.ObjectTracker(['face']);
-//   tracking.track('#img', tracker);
-//   tracker.on('track', function(event) {
-//     event.data.forEach(function(rect) {
-//       const canvas = document.getElementById('canvas');
-//       const canvasCxt = canvas.getContext('2d');
-//       canvasCxt.beginPath();
-//       canvasCxt.arc(65, 65, 45, 0, Math.PI*2, false);
-//       canvasCxt.clip();
-// 
-//       var img4 = new Image();
-//       img4.onload = function() {
-//         canvasCxt.drawImage(img4, 98, 187, 90, 90, 20, 20, 90, 90);
-//       };
-//       img4.src = img.src;
-//       console.log(rect);
-//     });
-//   });
-// };
