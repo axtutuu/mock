@@ -30,6 +30,9 @@
       const tracker = new tracking.ObjectTracker(['face']);
       tracking.track('.js-preview', tracker);
       tracker.on('track', (e)=> {
+        const rect = e.data[0];
+        console.log(rect);
+
         const canvas = document.getElementById('canvas');
         const canvasCxt = canvas.getContext('2d');
 
@@ -40,27 +43,12 @@
         const img = new Image();
         img.src = preview.src;
         img.onload = () => {
-          canvasCxt.drawImage(img, 98, 187, 90, 90, 20, 20, 90, 90);
+          canvasCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
           resolve();
         };
       });
     });
   }
-
-  input.addEventListener('change', (e)=>{
-    console.log(e);
-    console.log(e.target.files);
-    preview.file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (res) => {
-      console.log(res);
-      preview.src = res.target.result;
-    };
-    reader.readAsDataURL(e.target.files[0]);
-
-
-
-  });
 })(window, document);
 
 

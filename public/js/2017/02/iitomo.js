@@ -31,6 +31,9 @@
       var tracker = new tracking.ObjectTracker(['face']);
       tracking.track('.js-preview', tracker);
       tracker.on('track', function (e) {
+        var rect = e.data[0];
+        console.log(rect);
+
         var canvas = document.getElementById('canvas');
         var canvasCxt = canvas.getContext('2d');
 
@@ -41,24 +44,12 @@
         var img = new Image();
         img.src = preview.src;
         img.onload = function () {
-          canvasCxt.drawImage(img, 98, 187, 90, 90, 20, 20, 90, 90);
+          canvasCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
           resolve();
         };
       });
     });
   }
-
-  input.addEventListener('change', function (e) {
-    console.log(e);
-    console.log(e.target.files);
-    preview.file = e.target.files[0];
-    var reader = new FileReader();
-    reader.onload = function (res) {
-      console.log(res);
-      preview.src = res.target.result;
-    };
-    reader.readAsDataURL(e.target.files[0]);
-  });
 })(window, document);
 
 // window.onload = function() {
