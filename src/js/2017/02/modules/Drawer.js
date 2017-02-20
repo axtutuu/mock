@@ -1,8 +1,14 @@
 import EventEmitter from 'events';
 import RotateShape  from './RotateShape.js';
 import MoveShape    from './MoveShape.js';
+import CalcChart from './CalcChart.js';
+
 
 export default class Drawer extends EventEmitter {
+  currentDiagonalLine;
+  rotateBounds;
+  moveBounds;
+
   constructor(opts={}){
     super();
     this.stage = opts.stage;
@@ -37,10 +43,52 @@ export default class Drawer extends EventEmitter {
 
     // operation
     this.rotateShape = new RotateShape(this);
+
     this.moveShape   = new MoveShape(this);
+
+    this.on('update', (e)=>{ this.update(e); });
+  }
+
+  // radian | position | scale(未)
+  update(opts={}){
+    const instance = opts.instance;
+    const radian =
+      opts.radian || CalcChart.toRadian(instance.rotation);
+
+    /*   rotateShape move   */
+    this.rotateShape.bitmap.x =
+      CalcChart.pointX(this.currentDiagonalLine/2,
+                       radian+CalcChart.toRadian(45)) +
+      this.testShape.x-this.rotateBounds.width/2;
+
+    this.rotateShape.bitmap.y =
+      CalcChart.pointY(this.currentDiagonalLine/2,
+                       radian+CalcChart.toRadian(45)) +
+      this.testShape.y-this.rotateBounds.height/2;
+
+    /*   moveShape move   */
+    this.moveShape.bitmap.x =
+      CalcChart.pointX(this.currentDiagonalLine/2,
+                       radian+CalcChart.toRadian(-45)) +
+      this.testShape.x-this.moveBounds.width/2;
+
+    this.moveShape.bitmap.y =
+      CalcChart.pointY(this.currentDiagonalLine/2,
+                       radian+CalcChart.toRadian(-45)) +
+      this.testShape.y-this.moveBounds.height/2;
+
+
+    this.testShape.rotation = CalcChart.toDegree(radian);
+    this.stage.update();
   }
 
   active(e) {
+    this.currentDiagonalLine =
+      CalcChart.diagonalLine(this.testShape_width,
+                             this.testShape_height);
+
+    this.rotateBounds = this.rotateShape.bitmap.getBounds();
+    this.moveBounds   = this.moveShape.bitmap.getBounds();
     if(this.isActive) {
       this.rotateShape.remove();
       this.moveShape.remove();

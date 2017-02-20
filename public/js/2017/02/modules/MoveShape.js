@@ -65,14 +65,17 @@ var MoveShape = function () {
   _createClass(MoveShape, [{
     key: 'active',
     value: function active(e) {
-      var instance = e.target;
-      var r = _CalcChart2.default.toRadian(instance.rotation);
+      this.target = e.target;
 
-      this.diagonalLine = _CalcChart2.default.diagonalLine(this.drawer.testShape_width, this.drawer.testShape_height);
-      this.bounds = this.bitmap.getBounds();
-      this.position(r);
+      // this.diagonalLine =
+      //   CalcChart.diagonalLine(this.drawer.testShape_width,
+      //                          this.drawer.testShape_height);
+      // this.bounds = this.bitmap.getBounds();
+      // this.position(r);
+
       this.drawer.stage.addChild(this.bitmap);
-      this.drawer.stage.update();
+      this.drawer.emit('update', { instance: this.target });
+      // this.drawer.stage.update();
     }
   }, {
     key: 'remove',

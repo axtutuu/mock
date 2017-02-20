@@ -6,6 +6,7 @@ export default class MoveShape {
   bounds;
   offsetX;
   offsetY;
+  target;
 
   constructor(drawer) {
     this.drawer = drawer;
@@ -16,16 +17,17 @@ export default class MoveShape {
   }
 
   active(e) {
-    const instance = e.target;
-    const r = CalcChart.toRadian(instance.rotation);
+    this.target = e.target;
 
-    this.diagonalLine =
-      CalcChart.diagonalLine(this.drawer.testShape_width,
-                             this.drawer.testShape_height);
-    this.bounds = this.bitmap.getBounds();
-    this.position(r);
+    // this.diagonalLine =
+    //   CalcChart.diagonalLine(this.drawer.testShape_width,
+    //                          this.drawer.testShape_height);
+    // this.bounds = this.bitmap.getBounds();
+    // this.position(r);
+
     this.drawer.stage.addChild(this.bitmap);
-    this.drawer.stage.update();
+    this.drawer.emit('update', {instance: this.target});
+    // this.drawer.stage.update();
   }
 
   remove() {

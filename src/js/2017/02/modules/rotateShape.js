@@ -4,6 +4,7 @@ export default class RotateShape {
   bitmap;
   bounds;
   diagonalLine;
+  target;
 
   constructor(drawer) {
     this.drawer = drawer;
@@ -18,18 +19,17 @@ export default class RotateShape {
     this.bitmap.addEventListener('mousedown', this.start.bind(this));
   }
 
-  active(e) {
-    const instance = e.target;
-    const r = CalcChart.toRadian(instance.rotation);
-
-    this.diagonalLine =
-      CalcChart.diagonalLine(this.drawer.testShape_width,
-                             this.drawer.testShape_height);
-
-    this.bounds = this.bitmap.getBounds();
-    this.position(r);
-    this.drawer.stage.addChild(this.bitmap);
+  remove() {
+    this.drawer.stage.removeChild(this.bitmap);
     this.drawer.stage.update();
+  }
+
+  active(e) {
+    this.target = e.target;
+    const r = CalcChart.toRadian(this.target.rotation);
+
+    this.drawer.stage.addChild(this.bitmap);
+    this.drawer.emit('update', {instance: this.target});
   }
 
   start(e) {
@@ -38,22 +38,15 @@ export default class RotateShape {
     instance.addEventListener('pressup', this.end.bind(this));
   }
 
-  remove() {
-    this.drawer.stage.removeChild(this.bitmap);
-    this.drawer.stage.update();
-  }
 
   move(e) {
     const instance = e.target;
     let   rad      = CalcChart
-      .rotating(this.drawer.stage.mouseX-this.drawer.testShape.x,
-                this.drawer.stage.mouseY-this.drawer.testShape.y);
-    // offset
-    rad = CalcChart.toRadian(CalcChart.toDegree(rad)-45);
+      .rotating(this.drawer.stage.mouseX-this.target.x,
+                this.drawer.stage.mouseY-this.target.y);
+    rad = rad - CalcChart.toRadian(45); // offset
 
-    this.drawer.testShape.rotation = CalcChart.toDegree(rad);
-    this.position(rad);
-    this.drawer.stage.update();
+    this.drawer.emit('update', {instance: this.target, radian: rad});
   }
 
   end(e) {
