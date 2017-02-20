@@ -52,8 +52,7 @@ export default class Drawer extends EventEmitter {
   // radian | position | scale(未)
   update(opts={}){
     const instance = opts.instance;
-    const radian =
-      opts.radian || CalcChart.toRadian(instance.rotation);
+    const radian = CalcChart.toRadian(instance.rotation);
 
     /*   rotateShape move   */
     this.rotateShape.bitmap.x =

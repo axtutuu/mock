@@ -78,7 +78,6 @@ var RotateShape = function () {
     key: 'active',
     value: function active(e) {
       this.target = e.target;
-      var r = _CalcChart2.default.toRadian(this.target.rotation);
 
       this.drawer.stage.addChild(this.bitmap);
       this.drawer.emit('update', { instance: this.target });
@@ -96,8 +95,9 @@ var RotateShape = function () {
       var instance = e.target;
       var rad = _CalcChart2.default.rotating(this.drawer.stage.mouseX - this.target.x, this.drawer.stage.mouseY - this.target.y);
       rad = rad - _CalcChart2.default.toRadian(45); // offset
+      this.target.rotation = _CalcChart2.default.toDegree(rad);
 
-      this.drawer.emit('update', { instance: this.target, radian: rad });
+      this.drawer.emit('update', { instance: this.target });
     }
   }, {
     key: 'end',

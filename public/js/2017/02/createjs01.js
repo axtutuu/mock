@@ -445,7 +445,7 @@ var Drawer = function (_EventEmitter) {
       var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       var instance = opts.instance;
-      var radian = opts.radian || _CalcChart2.default.toRadian(instance.rotation);
+      var radian = _CalcChart2.default.toRadian(instance.rotation);
 
       /*   rotateShape move   */
       this.rotateShape.bitmap.x = _CalcChart2.default.pointX(this.currentDiagonalLine / 2, radian + _CalcChart2.default.toRadian(45)) + this.testShape.x - this.rotateBounds.width / 2;
@@ -526,15 +526,40 @@ var MoveShape = function () {
     value: function active(e) {
       this.target = e.target;
 
-      // this.diagonalLine =
-      //   CalcChart.diagonalLine(this.drawer.testShape_width,
-      //                          this.drawer.testShape_height);
-      // this.bounds = this.bitmap.getBounds();
-      // this.position(r);
-
       this.drawer.stage.addChild(this.bitmap);
       this.drawer.emit('update', { instance: this.target });
-      // this.drawer.stage.update();
+    }
+  }, {
+    key: 'start',
+    value: function start(e) {
+      var instance = e.target;
+      this.offsetX = instance.x - e.stageX;
+      this.offsetY = instance.y - e.stageY;
+
+      console.log(this.offsetX);
+      console.log(this.offsetY);
+
+      instance.addEventListener('pressmove', this.move.bind(this));
+      instance.addEventListener('pressup', this.end.bind(this));
+    }
+  }, {
+    key: 'move',
+    value: function move(e) {
+      var instance = e.target;
+      var r = _CalcChart2.default.toRadian(this.target.rotation - 45);
+
+      this.target.x = e.stageX + this.offsetX - _CalcChart2.default.pointX(this.drawer.currentDiagonalLine / 2, r);
+
+      this.target.y = e.stageY + this.offsetY - _CalcChart2.default.pointY(this.drawer.currentDiagonalLine / 2, r);
+
+      this.drawer.emit('update', { instance: this.target });
+    }
+  }, {
+    key: 'end',
+    value: function end(e) {
+      var instance = e.target;
+      instance.addEventListener('pressmove', this.move.bind(this));
+      instance.addEventListener('pressup', this.end.bind(this));
     }
   }, {
     key: 'remove',
@@ -559,21 +584,6 @@ var MoveShape = function () {
       this.bitmap = new createjs.Bitmap(e.result);
       this.bitmap.cursor = 'pointer';
       this.bitmap.addEventListener('mousedown', this.start.bind(this));
-    }
-  }, {
-    key: 'start',
-    value: function start(e) {
-      var instance = e.target;
-      this.offsetX = instance.x - e.stageX;
-      this.offsetY = instance.y - e.stageY;
-
-      instance.addEventListener('pressmove', this.move.bind(this));
-      instance.addEventListener('pressup', this.end.bind(this));
-    }
-  }, {
-    key: 'move',
-    value: function move(e) {
-      var instance = e.target;
     }
   }]);
 
@@ -626,7 +636,6 @@ var RotateShape = function () {
     key: 'active',
     value: function active(e) {
       this.target = e.target;
-      var r = _CalcChart2.default.toRadian(this.target.rotation);
 
       this.drawer.stage.addChild(this.bitmap);
       this.drawer.emit('update', { instance: this.target });
@@ -644,8 +653,9 @@ var RotateShape = function () {
       var instance = e.target;
       var rad = _CalcChart2.default.rotating(this.drawer.stage.mouseX - this.target.x, this.drawer.stage.mouseY - this.target.y);
       rad = rad - _CalcChart2.default.toRadian(45); // offset
+      this.target.rotation = _CalcChart2.default.toDegree(rad);
 
-      this.drawer.emit('update', { instance: this.target, radian: rad });
+      this.drawer.emit('update', { instance: this.target });
     }
   }, {
     key: 'end',

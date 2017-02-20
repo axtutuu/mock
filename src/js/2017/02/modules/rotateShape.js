@@ -26,7 +26,6 @@ export default class RotateShape {
 
   active(e) {
     this.target = e.target;
-    const r = CalcChart.toRadian(this.target.rotation);
 
     this.drawer.stage.addChild(this.bitmap);
     this.drawer.emit('update', {instance: this.target});
@@ -45,8 +44,9 @@ export default class RotateShape {
       .rotating(this.drawer.stage.mouseX-this.target.x,
                 this.drawer.stage.mouseY-this.target.y);
     rad = rad - CalcChart.toRadian(45); // offset
+    this.target.rotation = CalcChart.toDegree(rad);
 
-    this.drawer.emit('update', {instance: this.target, radian: rad});
+    this.drawer.emit('update', {instance: this.target});
   }
 
   end(e) {
