@@ -18,6 +18,7 @@
       tracking.track('#canvas', tracker);
       tracker.on('track', (e)=> {
         const rect = e.data[0];
+        console.log('-------------------base track----------------');
         console.log(rect);
         resolve();
       });
@@ -27,7 +28,7 @@
   function baseImage() {
     const img = new Image();
     return new Promise(resolve=>{
-      img.src = "/images/2017/02/sample2.PNG";
+      img.src = "/images/2017/02/sample.jpg";
       img.onload = ()=> {
         console.log(img);
         console.log(img.width);
@@ -37,6 +38,7 @@
         tracking.track(img, tracker);
         tracker.on('track', (e)=> {
           const rect = e.data[0];
+          console.log('-------------------base track----------------');
           console.log(rect);
           x = rect.x; y = rect.y;
           resolve();
@@ -71,17 +73,23 @@
         console.log(rect);
 
         const face = document.createElement('canvas');
-        const faceCxt = canvas.getContext('2d');
+        // const faceCxt = canvas.getContext('2d');
+        const faceCxt = face.getContext('2d');
 
         faceCxt.beginPath();
+        faceCxt.fillStyle = 'rgb(192, 80, 77)'; // 赤
         faceCxt.arc(65, 65, 45, 0, Math.PI*2, false);
-        faceCxt.clip();
+        faceCxt.fill();
 
         const img = new Image();
         img.src = preview.src;
         img.onload = () => {
+
           faceCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
-          canvasCxt.putImageData(faceCxt.getImageData(0,0,faceCxt.width, faceCxt.height),x,y);
+
+          faceCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
+          const newImage = faceCxt.getImageData(20, 20, 90, 90);
+          canvasCxt.putImageData(newImage,300,300);
           resolve();
         };
       });
