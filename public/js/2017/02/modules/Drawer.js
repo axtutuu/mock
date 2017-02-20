@@ -469,10 +469,12 @@ var MoveShape = function () {
   _createClass(MoveShape, [{
     key: 'active',
     value: function active(e) {
-      console.log(e);
+      var instance = e.target;
+      var r = _CalcChart2.default.toRadian(instance.rotation);
+
       this.diagonalLine = _CalcChart2.default.diagonalLine(this.drawer.testShape_width, this.drawer.testShape_height);
       this.bounds = this.bitmap.getBounds();
-      this.position();
+      this.position(r);
       this.drawer.stage.addChild(this.bitmap);
       this.drawer.stage.update();
     }
@@ -559,10 +561,13 @@ var RotateShape = function () {
   }, {
     key: 'active',
     value: function active(e) {
+      var instance = e.target;
+      var r = _CalcChart2.default.toRadian(instance.rotation);
+
       this.diagonalLine = _CalcChart2.default.diagonalLine(this.drawer.testShape_width, this.drawer.testShape_height);
 
       this.bounds = this.bitmap.getBounds();
-      this.position();
+      this.position(r);
       this.drawer.stage.addChild(this.bitmap);
       this.drawer.stage.update();
     }

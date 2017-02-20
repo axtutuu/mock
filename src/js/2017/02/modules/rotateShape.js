@@ -19,12 +19,15 @@ export default class RotateShape {
   }
 
   active(e) {
+    const instance = e.target;
+    const r = CalcChart.toRadian(instance.rotation);
+
     this.diagonalLine =
       CalcChart.diagonalLine(this.drawer.testShape_width,
                              this.drawer.testShape_height);
 
     this.bounds = this.bitmap.getBounds();
-    this.position();
+    this.position(r);
     this.drawer.stage.addChild(this.bitmap);
     this.drawer.stage.update();
   }
