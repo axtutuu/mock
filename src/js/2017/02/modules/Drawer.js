@@ -1,10 +1,12 @@
-import EventEmitter from "events";
-import RotateShape from './RotateShape.js';
+import EventEmitter from 'events';
+import RotateShape  from './RotateShape.js';
+import MoveShape    from './MoveShape.js';
 
 export default class Drawer extends EventEmitter {
   constructor(opts={}){
     super();
     this.stage = opts.stage;
+    this.isActive = false; //仮
     // {shape: shape, rotate: rotate, x: x, y: y}
     this.shapes = [];
 
@@ -33,11 +35,21 @@ export default class Drawer extends EventEmitter {
     this.stage.addChild(this.testShape);
     this.stage.update();
 
+    // operation
     this.rotateShape = new RotateShape(this);
+    this.moveShape   = new MoveShape(this);
   }
 
   active(e) {
-    this.rotateShape.active(e);
+    if(this.isActive) {
+      this.rotateShape.remove();
+      this.moveShape.remove();
+      this.isActive=false;
+    } else {
+      this.rotateShape.active(e);
+      this.moveShape.active(e);
+      this.isActive=true;
+    }
   }
 
   add() {

@@ -35,6 +35,11 @@ export default class RotateShape {
     instance.addEventListener('pressup', this.end.bind(this));
   }
 
+  remove() {
+    this.drawer.stage.removeChild(this.bitmap);
+    this.drawer.stage.update();
+  }
+
   move(e) {
     const instance = e.target;
     let   rad      = CalcChart

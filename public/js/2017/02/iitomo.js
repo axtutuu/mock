@@ -8,6 +8,8 @@
   var canvas = document.getElementById('canvas');
   var canvasCxt = canvas.getContext('2d');
 
+  var x = void 0,
+      y = void 0;
   Promise.resolve().then(baseImage).then(imageReader).then(faceTracker).then(function () {
     console.log('next');
   });
@@ -38,6 +40,7 @@
         tracker.on('track', function (e) {
           var rect = e.data[0];
           console.log(rect);
+          x = rect.x;y = rect.y;
           resolve();
         });
       };
@@ -80,6 +83,7 @@
         img.src = preview.src;
         img.onload = function () {
           faceCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
+          canvasCxt.putImageData(faceCxt.getImageData(0, 0, faceCxt.width, faceCxt.height), x, y);
           resolve();
         };
       });

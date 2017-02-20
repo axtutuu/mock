@@ -5,7 +5,7 @@
   const canvas = document.getElementById('canvas');
   const canvasCxt = canvas.getContext('2d');
 
-  const x,y;
+  let x,y;
   Promise.resolve()
     .then(baseImage)
     .then(imageReader)
