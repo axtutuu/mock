@@ -9823,82 +9823,173 @@ var _jquery2 = _interopRequireDefault(_jquery);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-window.onload = function () {
-  console.log('load');
-  var input = document.querySelector('.js-image-input');
-  var preview = document.querySelector('.js-preview');
-  var content = document.querySelector('.preview');
+var inputX = void 0,
+    inputY = void 0,
+    inputWidth = void 0,
+    inputHeight = void 0;
+var x = void 0,
+    y = void 0,
+    width = void 0,
+    height = void 0;
 
-  var x = void 0,
-      y = void 0,
-      width = void 0,
-      height = void 0;
+var mainImage = void 0;
+var input = void 0;
 
-  function baseImage() {
-    return new Promise(function (resolve) {
-      var tracker = new tracking.ObjectTracker(['face']);
-      tracking.track('#img', tracker);
-      tracker.on('track', function (e) {
-        var rect = e.data[0];
-        console.log('-------------------base track----------------');
-        console.log(rect);
-        x = rect.x;y = rect.y, width = rect.width, height = rect.height;
+var preview = document.querySelector('.js-preview');
+var face = document.createElement('canvas');
+var faceCxt = face.getContext('2d');
+
+var vContent = document.querySelector('.js-v-preview');
+var iContent = document.querySelector('.preview');
+
+// パラメータの取得
+var arg = new Object();
+var pair = location.search.substring(1).split('&');
+for (var i = 0; pair[i]; i++) {
+  var kv = pair[i].split('=');
+  arg[kv[0]] = kv[1];
+}
+
+// 初期描画
+if (arg.type == "image") {
+  var img = document.querySelector('#img');
+  img.src = arg.url;
+  input = document.querySelector('.js-image-input');
+
+  (0, _jquery2.default)(vContent).css({ "display": "none" });
+  (0, _jquery2.default)(document.querySelector('.js-video-input')).css({
+    "display": "none"
+  });
+} else {
+  var p = document.querySelector('.preview');
+  (0, _jquery2.default)(p).css({ "display": "none" });
+  input = document.querySelector('.js-video-input');
+
+  (0, _jquery2.default)(document.querySelector('.js-image-input')).css({
+    "display": "none"
+  });
+
+  vContent.src = arg.url;
+}
+
+// 投稿イメージのpreview表示
+function inputImage() {
+  return new Promise(function (resolve) {
+    input.addEventListener('change', function (e) {
+      var reader = new FileReader();
+      reader.readAsDataURL(e.target.files[0]);
+      reader.onload = function (res) {
+        preview.src = res.target.result;
         resolve();
-      });
+      };
     });
-  }
+  });
+}
 
-  function imageReader() {
-    return new Promise(function (resolve) {
-      input.addEventListener('change', function (e) {
-        var reader = new FileReader();
-        reader.readAsDataURL(e.target.files[0]);
-        reader.onload = function (res) {
-          preview.src = res.target.result;
-          resolve();
-        };
-      });
-    });
-  }
-
-  function imageTracker() {
+// 投稿イメージのトラック
+function inputTracker() {
+  return new Promise(function (resolve) {
     var tracker = new tracking.ObjectTracker(['face']);
     tracking.track('.js-preview', tracker);
     tracker.on('track', function (e) {
       var rect = e.data[0];
       console.log(rect);
-      faceCanvas(rect.x, rect.y, rect.width, rect.height);
+      inputX = rect.x;inputY = rect.y;
+      inputWidth = rect.width;inputHeight = rect.height;
+      resolve();
     });
-  }
+  });
+}
 
-  function faceCanvas(sx, sy, swidth, sheight) {
-    console.log('face canvas');
-    var face = document.createElement('canvas');
-    var faceCxt = face.getContext('2d');
-
-    face.width = face.height = swidth;
+// Canvasの作成
+function createCanvas() {
+  return new Promise(function (resolve) {
+    face.width = face.height = inputWidth;
     faceCxt.beginPath();
     faceCxt.arc(65, 65, 45, 0, Math.PI * 2, false);
     faceCxt.clip();
-
     var img = new Image();
     img.src = preview.src;
     img.onload = function () {
-      // faceCxt.drawImage(img, sx, sy, swidth, sheight, 0, 0, 90, 90);
-      faceCxt.drawImage(img, sx, sy, swidth, sheight, 20, 20, 90, 90);
-      (0, _jquery2.default)(face).css({
-        "position": "absolute",
-        "top": y,
-        "left": x,
-        "width": width,
-        "height": height
-      });
-      // face.width = face.height = swidth;
-      content.appendChild(face);
+      faceCxt.drawImage(img, inputX, inputY, inputWidth, inputHeight, 20, 20, 90, 90);
+      resolve();
     };
+  });
+}
+
+function appendCanvas(cont) {
+  (0, _jquery2.default)(face).css({
+    "position": "absolute",
+    "top": y,
+    "left": x,
+    "width": width,
+    "height": height
+  });
+  cont.appendChild(face);
+}
+
+function videoTracker() {
+  if (arg.type == "image") {
+    return;
   }
 
-  Promise.resolve().then(baseImage).then(imageReader).then(imageTracker);
+  var tracker = new tracking.ObjectTracker(['face']);
+  tracking.track('#video', tracker);
+
+  tracker.on('track', function (e) {
+    var rect = e.data[0];
+    console.log(rect);
+    if (!rect) {
+      return;
+    }
+    x = rect.x;y = rect.y;width = rect.width;height = rect.height;
+    appendCanvas(vContent);
+  });
+}
+
+function imageTracker() {
+  var tracker = new tracking.ObjectTracker(['face']);
+  tracking.track(mainImage, tracker);
+  console.log('imageTracker');
+
+  tracker.on('track', function (e) {
+    var rect = e.data[0];
+    console.log(rect);
+    x = rect.x;y = rect.y;width = rect.width;height = rect.height;
+    appendCanvas(iContent);
+  });
+}
+
+function imageLoader() {
+  return new Promise(function (resolve) {
+    var img = new Image();
+    var imgEl = document.querySelector('#img');
+    img.src = imgEl.src;
+    img.onload = function () {
+      mainImage = img;
+      resolve();
+    };
+  });
+}
+
+// image
+window.onload = function () {
+  if (arg.type == "image") {
+    Promise.resolve().then(inputImage).then(inputTracker).then(imageLoader).then(createCanvas).then(imageTracker);
+  } else {
+
+    Promise.resolve().then(inputImage).then(inputTracker).then(createCanvas).then(videoTracker);
+  }
 };
+
+// video
+// window.onload = function() {
+//   console.log('video');
+// 
+//   // if(arg.type=="image") {
+//   //   return;
+//   // }
+// 
+// }
 
 },{"jquery":1}]},{},[2]);
