@@ -85,10 +85,11 @@
         img.src = preview.src;
         img.onload = () => {
 
-          faceCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
+          face.width = face.height = 119;
+          faceCxt.drawImage(img, 86, 99, 119, 119, 0, 0, 119, 119);
 
-          faceCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
-          const newImage = faceCxt.getImageData(20, 20, 90, 90);
+          // faceCxt.drawImage(img, 86, 99, 119, 119, 20, 20, 90, 90);
+          const newImage = faceCxt.getImageData(0, 0, 90, 90);
           canvasCxt.putImageData(newImage,300,300);
           resolve();
         };
