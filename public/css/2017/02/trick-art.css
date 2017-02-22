@@ -6,13 +6,13 @@ div.stage {
   top: 100px;
   -webkit-perspective: 500; }
   div.stage div.cube {
-    width: 200px;
-    height: 200px;
+    width: 800px;
+    height: 600px;
     position: relative;
     margin: 0 auto; }
     div.stage div.cube div {
-      width: 200px;
-      height: 200px;
+      width: 800px;
+      height: 600px;
       border: 1px solid #999;
       box-sizing: border-box;
       text-align: center;
@@ -29,17 +29,23 @@ div.stage {
       -webkit-transform: translateZ(-100px); }
     div.stage div.cube div.left {
       top: 0;
-      left: 100px;
+      left: 400px;
       -webkit-transform: rotateY(90deg); }
     div.stage div.cube div.right {
       top: 0;
-      right: 100px;
+      right: 400px;
       -webkit-transform: rotateY(-90deg); }
     div.stage div.cube div.top {
-      top: 100px;
+      top: 300px;
       left: 0;
       -webkit-transform: rotateX(90deg); }
     div.stage div.cube div.bottom {
-      bottom: 100px;
+      bottom: 300px;
       left: 0;
       -webkit-transform: rotateX(-90deg); }
+
+.desc {
+  position: relative;
+  bottom: 0;
+  -webkit-perspective: 500;
+          perspective: 500; }
