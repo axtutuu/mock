@@ -69,14 +69,18 @@ var RotateShape = function () {
       this.bitmap.addEventListener('mousedown', this.start.bind(this));
     }
   }, {
+    key: 'remove',
+    value: function remove() {
+      this.drawer.stage.removeChild(this.bitmap);
+      this.drawer.stage.update();
+    }
+  }, {
     key: 'active',
     value: function active(e) {
-      this.diagonalLine = _CalcChart2.default.diagonalLine(this.drawer.testShape_width, this.drawer.testShape_height);
+      this.target = e.target;
 
-      this.bounds = this.bitmap.getBounds();
-      this.position();
       this.drawer.stage.addChild(this.bitmap);
-      this.drawer.stage.update();
+      this.drawer.emit('update', { instance: this.target });
     }
   }, {
     key: 'start',
@@ -89,13 +93,11 @@ var RotateShape = function () {
     key: 'move',
     value: function move(e) {
       var instance = e.target;
-      var rad = _CalcChart2.default.rotating(this.drawer.stage.mouseX - this.drawer.testShape.x, this.drawer.stage.mouseY - this.drawer.testShape.y);
-      // offset
-      rad = _CalcChart2.default.toRadian(_CalcChart2.default.toDegree(rad) - 45);
+      var rad = _CalcChart2.default.rotating(this.drawer.stage.mouseX - this.target.x, this.drawer.stage.mouseY - this.target.y);
+      rad = rad - _CalcChart2.default.toRadian(45); // offset
+      this.target.rotation = _CalcChart2.default.toDegree(rad);
 
-      this.drawer.testShape.rotation = _CalcChart2.default.toDegree(rad);
-      this.position(rad);
-      this.drawer.stage.update();
+      this.drawer.emit('update', { instance: this.target });
     }
   }, {
     key: 'end',
