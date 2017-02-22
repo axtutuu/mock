@@ -9861,9 +9861,13 @@ if (arg.type == "image") {
     "display": "none"
   });
 } else {
+  var video = document.querySelector('#video');
   var p = document.querySelector('.preview');
   (0, _jquery2.default)(p).css({ "display": "none" });
   input = document.querySelector('.js-video-input');
+  if (!!arg.url) {
+    video.src = arg.url;
+  }
 
   (0, _jquery2.default)(document.querySelector('.js-image-input')).css({
     "display": "none"
@@ -9929,9 +9933,6 @@ function appendCanvas(cont) {
 }
 
 function videoTracker() {
-  if (arg.type == "image") {
-    return;
-  }
 
   var tracker = new tracking.ObjectTracker(['face']);
   tracking.track('#video', tracker);
@@ -9940,6 +9941,8 @@ function videoTracker() {
     var rect = e.data[0];
     console.log(rect);
     if (!rect) {
+      x = "-5000px";
+      appendCanvas(vContent);
       return;
     }
     x = rect.x;y = rect.y;width = rect.width;height = rect.height;
@@ -9977,19 +9980,8 @@ window.onload = function () {
   if (arg.type == "image") {
     Promise.resolve().then(inputImage).then(inputTracker).then(imageLoader).then(createCanvas).then(imageTracker);
   } else {
-
     Promise.resolve().then(inputImage).then(inputTracker).then(createCanvas).then(videoTracker);
   }
 };
-
-// video
-// window.onload = function() {
-//   console.log('video');
-// 
-//   // if(arg.type=="image") {
-//   //   return;
-//   // }
-// 
-// }
 
 },{"jquery":1}]},{},[2]);

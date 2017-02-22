@@ -33,9 +33,13 @@ if(arg.type=="image") {
   });
 
 } else {
+  const video = document.querySelector('#video');
   const p = document.querySelector('.preview');
   $(p).css({"display": "none" });
   input   = document.querySelector('.js-video-input');
+  if(!!arg.url) {
+    video.src = arg.url;
+  }
 
   $(document.querySelector('.js-image-input')).css({
     "display": "none"
@@ -104,7 +108,6 @@ function appendCanvas(cont){
 }
 
 function videoTracker() {
-  if(arg.type=="image") { return; }
 
   const tracker = new tracking.ObjectTracker(['face']);
   tracking.track('#video', tracker);
@@ -112,7 +115,11 @@ function videoTracker() {
   tracker.on('track', function(e) {
     const rect = e.data[0];
     console.log(rect);
-    if(!rect) { return; }
+    if(!rect) {
+      x="-5000px";
+      appendCanvas(vContent);
+      return;
+    }
     x=rect.x;y=rect.y;width=rect.width;height=rect.height;
     appendCanvas(vContent);
   });
@@ -154,24 +161,10 @@ window.onload = function() {
       .then(createCanvas)
       .then(imageTracker);
   } else {
-
     Promise.resolve()
       .then(inputImage)
       .then(inputTracker)
       .then(createCanvas)
       .then(videoTracker);
   }
-
 };
-
-
-
-// video
-// window.onload = function() {
-//   console.log('video');
-// 
-//   // if(arg.type=="image") {
-//   //   return;
-//   // }
-// 
-// }
