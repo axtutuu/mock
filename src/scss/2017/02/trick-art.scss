@@ -55,18 +55,201 @@ $height: 600px;
   }
 }
 
+@mixin box-desc($width, $height) {
+  div.cube{
+      width: $width; height: $height;
+      position: relative;
+      margin: 0 auto;
+      div{
+          width: $width;
+          height: $height;
+          border: 1px solid #999;
+          box-sizing: border-box;
+          text-align: center;
+          position: absolute;
+          overflow: hidden;
+          background-color: rgba(255,255,255,.7);
+      }
+      div.front{
+          top: 0;
+          left: 0;
+          -webkit-transform: translateZ($width/2);
+      }
+      div.back{
+          height: $height; width: $height;
+          bottom: 0;
+          left: 0;
+          -webkit-transform: translateZ(-($width/2));
+      }
+      div.left{
+          top: 0;
+          left: $width/2;
+          -webkit-transform:rotateY(90deg);
+      }
+      div.right{
+          top: 0;
+          right: $width/2;
+          -webkit-transform:rotateY(-90deg);
+      }
+      div.top{
+          top: -130px;
+          left: 0;
+          -webkit-transform:rotateX(90deg);
+          height: $width;
+      }
+      div.bottom{
+          bottom: -130px;
+          left: 0;
+          -webkit-transform:rotateX(-90deg);
+          height: $width;
+      }
+  }
+}
+
+@mixin box-foot1($width, $height) {
+  div.cube{
+      width: $width;
+      height: $height;
+      position: relative;
+      margin: 0 auto;
+      div{
+          width: $width;
+          height: $height;
+          border: 1px solid #999;
+          box-sizing: border-box;
+          text-align: center;
+          position: absolute;
+          overflow: hidden;
+          background-color: rgba(255,255,255,.7);
+      }
+      div.front{
+          top: 0;
+          left: 0;
+          -webkit-transform: translateZ($width/2);
+      }
+      div.back{
+          height: $height; width: $width;
+          bottom: 0;
+          left: 0;
+          -webkit-transform: translateZ(-($width/2));
+      }
+      div.left{
+          top: 0;
+          left: $width/2;
+          -webkit-transform:rotateY(90deg);
+      }
+      div.right{
+          top: 0;
+          right: $width/2;
+          -webkit-transform:rotateY(-90deg);
+      }
+      div.top{
+          top: -130px;
+          left: 0;
+          -webkit-transform:rotateX(90deg);
+          height: $width;
+      }
+      div.bottom{
+          bottom: -130px;
+          left: 0;
+          -webkit-transform:rotateX(-90deg);
+          height: $width;
+      }
+  }
+}
+
+@mixin box-foot2($width, $height) {
+  div.cube{
+      width: $width;
+      height: $height;
+      position: relative;
+      margin: 0 auto;
+      div{
+          width: $width;
+          height: $height;
+          border: 1px solid #999;
+          box-sizing: border-box;
+          text-align: center;
+          position: absolute;
+          overflow: hidden;
+          background-color: rgba(255,255,255,.7);
+      }
+      div.front{
+          top: 0;
+          left: 0;
+          transform: translateZ(($width/2)+160px);
+      }
+      div.back{
+          height: $height; width: $width;
+          bottom: 0;
+          left: 0;
+          transform: translateZ(-(($width/2)+160px));
+      }
+      div.left{
+          top: 0;
+          left: $width/2;
+          transform:rotateY(90deg) translateZ(-160px);
+      }
+      div.right{
+          top: 0;
+          right: $width/2;
+          transform:rotateY(-90deg) translateZ(-160px);
+      }
+      div.top{
+          top: -130px;
+          left: 0;
+          transform:rotateX(90deg);
+          height: $width;
+      }
+      div.bottom{
+          bottom: -130px;
+          left: 0;
+          transform:rotateX(-90deg);
+          height: $width;
+      }
+  }
+}
+
+
+
+
+
+
+
+
 .stage{
+  width: 1200px;
   position: relative;
-  top: 100px;
   -webkit-perspective: 500;
   @include box($width: 700px, $height: 500px);
 }
 
 .desc {
   position: absolute;
-  bottom: 100px;
-  @include box($width: 300px, $height: 110px);
+  // perspective: 500;
+  // transform: rotateY(-15deg) rotateX(-30deg);
+  // transform-style:preserve-3d;
+  left: 70px;
+  bottom: 145px;
+  @include box-desc($width: 300px, $height: 20px);
 }
+
+.foot-1 {
+  position: absolute;
+  left: 219px;
+  bottom: -84px;
+  @include box-foot1($width: 25px, $height: 200px);
+}
+
+.foot-2 {
+  position: absolute;
+  left: 219px;
+  bottom: -84px;
+  transform: translateZ(-160px);
+  @include box-foot2($width: 25px, $height: 200px);
+}
+
+
 
 .pair {
   position: absolute;
