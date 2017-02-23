@@ -5,19 +5,6 @@ h1 {
 $width: 800px;
 $height: 600px;
 
-div.stage{
-    position: relative;
-    top: 100px;
-    -webkit-perspective: 500;
-    @include box($width: 800px, $height: 600px);
-}
-
-.desc {
-  position: relative;
-  bottom: 0;
-  perspective: 500;
-}
-
 @mixin box($width, $height) {
   div.cube{
       width: $width;
@@ -40,8 +27,9 @@ div.stage{
           -webkit-transform: translateZ(100px);
       }
       div.back{
-          top: 0;
-          left: 0;
+          height: 427px; width: 497px;
+          bottom: 0;
+          left: 100px;
           -webkit-transform: translateZ(-100px);
       }
       div.left{
@@ -65,4 +53,23 @@ div.stage{
           -webkit-transform:rotateX(-90deg);
       }
   }
+}
+
+.stage{
+  position: relative;
+  top: 100px;
+  -webkit-perspective: 500;
+  @include box($width: 700px, $height: 500px);
+}
+
+.desc {
+  position: absolute;
+  bottom: 100px;
+  @include box($width: 300px, $height: 110px);
+}
+
+.pair {
+  position: absolute;
+  bottom: 100px;
+  @include box($width: 300px, $height: 110px);
 }
