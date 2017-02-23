@@ -373,6 +373,14 @@ var _RotateShape = require('./RotateShape.js');
 
 var _RotateShape2 = _interopRequireDefault(_RotateShape);
 
+var _MoveShape = require('./MoveShape.js');
+
+var _MoveShape2 = _interopRequireDefault(_MoveShape);
+
+var _CalcChart = require('./CalcChart.js');
+
+var _CalcChart2 = _interopRequireDefault(_CalcChart);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -392,6 +400,7 @@ var Drawer = function (_EventEmitter) {
     var _this = _possibleConstructorReturn(this, (Drawer.__proto__ || Object.getPrototypeOf(Drawer)).call(this));
 
     _this.stage = opts.stage;
+    _this.isActive = false; //仮
     // {shape: shape, rotate: rotate, x: x, y: y}
     _this.shapes = [];
 
@@ -416,14 +425,57 @@ var Drawer = function (_EventEmitter) {
     _this.stage.addChild(_this.testShape);
     _this.stage.update();
 
+    // operation
     _this.rotateShape = new _RotateShape2.default(_this);
+
+    _this.moveShape = new _MoveShape2.default(_this);
+
+    _this.on('update', function (e) {
+      _this.update(e);
+    });
     return _this;
   }
 
+  // radian | position | scale(未)
+
+
   _createClass(Drawer, [{
+    key: 'update',
+    value: function update() {
+      var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      var instance = opts.instance;
+      var radian = _CalcChart2.default.toRadian(instance.rotation);
+
+      /*   rotateShape move   */
+      this.rotateShape.bitmap.x = _CalcChart2.default.pointX(this.currentDiagonalLine / 2, radian + _CalcChart2.default.toRadian(45)) + this.testShape.x - this.rotateBounds.width / 2;
+
+      this.rotateShape.bitmap.y = _CalcChart2.default.pointY(this.currentDiagonalLine / 2, radian + _CalcChart2.default.toRadian(45)) + this.testShape.y - this.rotateBounds.height / 2;
+
+      /*   moveShape move   */
+      this.moveShape.bitmap.x = _CalcChart2.default.pointX(this.currentDiagonalLine / 2, radian + _CalcChart2.default.toRadian(-45)) + this.testShape.x - this.moveBounds.width / 2;
+
+      this.moveShape.bitmap.y = _CalcChart2.default.pointY(this.currentDiagonalLine / 2, radian + _CalcChart2.default.toRadian(-45)) + this.testShape.y - this.moveBounds.height / 2;
+
+      this.testShape.rotation = _CalcChart2.default.toDegree(radian);
+      this.stage.update();
+    }
+  }, {
     key: 'active',
     value: function active(e) {
-      this.rotateShape.active(e);
+      this.currentDiagonalLine = _CalcChart2.default.diagonalLine(this.testShape_width, this.testShape_height);
+
+      this.rotateBounds = this.rotateShape.bitmap.getBounds();
+      this.moveBounds = this.moveShape.bitmap.getBounds();
+      if (this.isActive) {
+        this.rotateShape.remove();
+        this.moveShape.remove();
+        this.isActive = false;
+      } else {
+        this.rotateShape.active(e);
+        this.moveShape.active(e);
+        this.isActive = true;
+      }
     }
   }, {
     key: 'add',
@@ -441,7 +493,106 @@ var Drawer = function (_EventEmitter) {
 
 exports.default = Drawer;
 
-},{"./RotateShape.js":5,"events":1}],5:[function(require,module,exports){
+},{"./CalcChart.js":3,"./MoveShape.js":5,"./RotateShape.js":6,"events":1}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _CalcChart = require('./CalcChart.js');
+
+var _CalcChart2 = _interopRequireDefault(_CalcChart);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var MoveShape = function () {
+  function MoveShape(drawer) {
+    _classCallCheck(this, MoveShape);
+
+    this.drawer = drawer;
+    this.imageUrl = '/images/2017/02/DirectionsFilled-100.png';
+    var queue = new createjs.LoadQueue(false);
+    queue.addEventListener('fileload', this.init.bind(this));
+    queue.loadFile(this.imageUrl);
+  }
+
+  _createClass(MoveShape, [{
+    key: 'active',
+    value: function active(e) {
+      this.target = e.target;
+
+      this.drawer.stage.addChild(this.bitmap);
+      this.drawer.emit('update', { instance: this.target });
+    }
+  }, {
+    key: 'start',
+    value: function start(e) {
+      var instance = e.target;
+      this.offsetX = instance.x - e.stageX;
+      this.offsetY = instance.y - e.stageY;
+
+      console.log(this.offsetX);
+      console.log(this.offsetY);
+
+      instance.addEventListener('pressmove', this.move.bind(this));
+      instance.addEventListener('pressup', this.end.bind(this));
+    }
+  }, {
+    key: 'move',
+    value: function move(e) {
+      var instance = e.target;
+      var r = _CalcChart2.default.toRadian(this.target.rotation - 45);
+
+      this.target.x = e.stageX + this.offsetX - _CalcChart2.default.pointX(this.drawer.currentDiagonalLine / 2, r);
+
+      this.target.y = e.stageY + this.offsetY - _CalcChart2.default.pointY(this.drawer.currentDiagonalLine / 2, r);
+
+      this.drawer.emit('update', { instance: this.target });
+    }
+  }, {
+    key: 'end',
+    value: function end(e) {
+      var instance = e.target;
+      instance.addEventListener('pressmove', this.move.bind(this));
+      instance.addEventListener('pressup', this.end.bind(this));
+    }
+  }, {
+    key: 'remove',
+    value: function remove() {
+      this.drawer.stage.removeChild(this.bitmap);
+      this.drawer.stage.update();
+    }
+  }, {
+    key: 'position',
+    value: function position() {
+      var rad = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+      var r = _CalcChart2.default.toRadian(_CalcChart2.default.toDegree(rad) - 45);
+
+      this.bitmap.x = _CalcChart2.default.pointX(this.diagonalLine / 2, r) + this.drawer.testShape.x - this.bounds.width / 2;
+
+      this.bitmap.y = _CalcChart2.default.pointY(this.diagonalLine / 2, r) + this.drawer.testShape.y - this.bounds.width / 2;
+    }
+  }, {
+    key: 'init',
+    value: function init(e) {
+      this.bitmap = new createjs.Bitmap(e.result);
+      this.bitmap.cursor = 'pointer';
+      this.bitmap.addEventListener('mousedown', this.start.bind(this));
+    }
+  }]);
+
+  return MoveShape;
+}();
+
+exports.default = MoveShape;
+
+},{"./CalcChart.js":3}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -476,14 +627,18 @@ var RotateShape = function () {
       this.bitmap.addEventListener('mousedown', this.start.bind(this));
     }
   }, {
+    key: 'remove',
+    value: function remove() {
+      this.drawer.stage.removeChild(this.bitmap);
+      this.drawer.stage.update();
+    }
+  }, {
     key: 'active',
     value: function active(e) {
-      this.diagonalLine = _CalcChart2.default.diagonalLine(this.drawer.testShape_width, this.drawer.testShape_height);
+      this.target = e.target;
 
-      this.bounds = this.bitmap.getBounds();
-      this.position();
       this.drawer.stage.addChild(this.bitmap);
-      this.drawer.stage.update();
+      this.drawer.emit('update', { instance: this.target });
     }
   }, {
     key: 'start',
@@ -496,13 +651,11 @@ var RotateShape = function () {
     key: 'move',
     value: function move(e) {
       var instance = e.target;
-      var rad = _CalcChart2.default.rotating(this.drawer.stage.mouseX - this.drawer.testShape.x, this.drawer.stage.mouseY - this.drawer.testShape.y);
-      // offset
-      rad = _CalcChart2.default.toRadian(_CalcChart2.default.toDegree(rad) - 45);
+      var rad = _CalcChart2.default.rotating(this.drawer.stage.mouseX - this.target.x, this.drawer.stage.mouseY - this.target.y);
+      rad = rad - _CalcChart2.default.toRadian(45); // offset
+      this.target.rotation = _CalcChart2.default.toDegree(rad);
 
-      this.drawer.testShape.rotation = _CalcChart2.default.toDegree(rad);
-      this.position(rad);
-      this.drawer.stage.update();
+      this.drawer.emit('update', { instance: this.target });
     }
   }, {
     key: 'end',

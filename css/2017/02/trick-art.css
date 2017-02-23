@@ -1,0 +1,135 @@
+h1 {
+  color: #BB71C3; }
+
+.stage {
+  position: relative;
+  top: 100px;
+  -webkit-perspective: 500; }
+  .stage div.cube {
+    width: 700px;
+    height: 500px;
+    position: relative;
+    margin: 0 auto; }
+    .stage div.cube div {
+      width: 700px;
+      height: 500px;
+      border: 1px solid #999;
+      box-sizing: border-box;
+      text-align: center;
+      position: absolute;
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.7); }
+    .stage div.cube div.front {
+      top: 0;
+      left: 0;
+      -webkit-transform: translateZ(100px); }
+    .stage div.cube div.back {
+      height: 427px;
+      width: 497px;
+      bottom: 0;
+      left: 100px;
+      -webkit-transform: translateZ(-100px); }
+    .stage div.cube div.left {
+      top: 0;
+      left: 350px;
+      -webkit-transform: rotateY(90deg); }
+    .stage div.cube div.right {
+      top: 0;
+      right: 350px;
+      -webkit-transform: rotateY(-90deg); }
+    .stage div.cube div.top {
+      top: 250px;
+      left: 0;
+      -webkit-transform: rotateX(90deg); }
+    .stage div.cube div.bottom {
+      bottom: 250px;
+      left: 0;
+      -webkit-transform: rotateX(-90deg); }
+
+.desc {
+  position: absolute;
+  bottom: 100px; }
+  .desc div.cube {
+    width: 300px;
+    height: 110px;
+    position: relative;
+    margin: 0 auto; }
+    .desc div.cube div {
+      width: 300px;
+      height: 110px;
+      border: 1px solid #999;
+      box-sizing: border-box;
+      text-align: center;
+      position: absolute;
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.7); }
+    .desc div.cube div.front {
+      top: 0;
+      left: 0;
+      -webkit-transform: translateZ(100px); }
+    .desc div.cube div.back {
+      height: 427px;
+      width: 497px;
+      bottom: 0;
+      left: 100px;
+      -webkit-transform: translateZ(-100px); }
+    .desc div.cube div.left {
+      top: 0;
+      left: 150px;
+      -webkit-transform: rotateY(90deg); }
+    .desc div.cube div.right {
+      top: 0;
+      right: 150px;
+      -webkit-transform: rotateY(-90deg); }
+    .desc div.cube div.top {
+      top: 55px;
+      left: 0;
+      -webkit-transform: rotateX(90deg); }
+    .desc div.cube div.bottom {
+      bottom: 55px;
+      left: 0;
+      -webkit-transform: rotateX(-90deg); }
+
+.pair {
+  position: absolute;
+  bottom: 100px; }
+  .pair div.cube {
+    width: 300px;
+    height: 110px;
+    position: relative;
+    margin: 0 auto; }
+    .pair div.cube div {
+      width: 300px;
+      height: 110px;
+      border: 1px solid #999;
+      box-sizing: border-box;
+      text-align: center;
+      position: absolute;
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.7); }
+    .pair div.cube div.front {
+      top: 0;
+      left: 0;
+      -webkit-transform: translateZ(100px); }
+    .pair div.cube div.back {
+      height: 427px;
+      width: 497px;
+      bottom: 0;
+      left: 100px;
+      -webkit-transform: translateZ(-100px); }
+    .pair div.cube div.left {
+      top: 0;
+      left: 150px;
+      -webkit-transform: rotateY(90deg); }
+    .pair div.cube div.right {
+      top: 0;
+      right: 150px;
+      -webkit-transform: rotateY(-90deg); }
+    .pair div.cube div.top {
+      top: 55px;
+      left: 0;
+      -webkit-transform: rotateX(90deg); }
+    .pair div.cube div.bottom {
+      bottom: 55px;
+      left: 0;
+      -webkit-transform: rotateX(-90deg); }
