@@ -1,0 +1,10 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="css/canvas02.css")
+block ContentBlock
+  // h1 CreateJS
+  canvas.canvas#js-canvas
+  a(href="https://icons8.com/web-app/7803/Resize-Four-Directions-Filled") Resize four directions filled icon credits
+prepend JavascriptBlock
+  script(src="https://code.createjs.com/createjs-2015.11.26.min.js")
+  script(src="js/createjs01.js")

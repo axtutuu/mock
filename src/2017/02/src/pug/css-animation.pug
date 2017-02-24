@@ -1,0 +1,26 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="css/css-animation.css")
+block ContentBlock
+  h1 CSS animation
+
+  h2 FadeOut/In
+  .box.js-fade-out
+    .circle.center.fade-out-elem
+
+  h2 To right
+  .box.js-to-right
+    .circle.center
+
+  h2 Scale (loop)
+  .box.js-scale
+    .circle.center
+
+  h2 Step (multiple element)
+  .box.js-step
+    .inner
+      .circle.left
+      .circle.center
+      .circle.right
+prepend JavascriptBlock
+  script(src="js/css-animation.js")

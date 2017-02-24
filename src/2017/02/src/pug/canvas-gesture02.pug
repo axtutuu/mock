@@ -1,0 +1,14 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="css/canvas02.css")
+block ContentBlock
+  h1 CreateJS Gesture (Center)
+  p.point
+    | A点: <span class='point--a'></span>
+    | B点: <span class='point--b'></span>
+    | C点: <span class='point--c'></span>
+    | D点: <span class='point--d'></span>
+  canvas.canvas#js-canvas(width=800 height=500)
+prepend JavascriptBlock
+  script(src="https://code.createjs.com/createjs-2015.11.26.min.js")
+  script(src="js/canvas-gesture02.js")

@@ -1,0 +1,23 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="css/tab-without-javascript.css")
+block ContentBlock
+  input.tab__radio(id="tab1" type="radio" name="tab__radio" checked=true)
+  input.tab__radio(id="tab2" type="radio" name="tab__radio")
+  input.tab__radio(id="tab3" type="radio" name="tab__radio")
+
+  .tab
+    ul.tab-list
+      li.tab__item tab1
+        label.tab__label(for="tab1")
+      li.tab__item tab2
+        label.tab__label(for="tab2")
+      li.tab__item tab3
+        label.tab__label(for="tab3")
+  .article
+    .article__content.article__content--1
+      | content1
+    .article__content.article__content--2
+      | content2
+    .article__content.article__content--3
+      | content3
