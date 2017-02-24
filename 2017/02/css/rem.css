@@ -1,0 +1,16 @@
+html {
+  font-size: 100px; }
+
+body {
+  font-size: 16px;
+  font-size: 0.16rem; }
+
+.article {
+  background-color: #ECECEC;
+  border: 1px solid #5D4E79;
+  border-radius: 10px;
+  margin: 10px auto;
+  width: 80%; }
+  .article p {
+    font-size: 16px;
+    font-size: 0.16rem; }

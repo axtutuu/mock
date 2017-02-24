@@ -58,7 +58,7 @@ var RotateShape = function () {
     this.drawer = drawer;
     var queue = new createjs.LoadQueue(false);
     queue.addEventListener("fileload", this.init.bind(this));
-    queue.loadFile('/images/2017/02/Synchronize-100.png');
+    queue.loadFile('./images/Synchronize-100.png');
   }
 
   _createClass(RotateShape, [{

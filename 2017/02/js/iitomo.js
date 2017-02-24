@@ -30,7 +30,7 @@
   function baseImage() {
     var img = new Image();
     return new Promise(function (resolve) {
-      img.src = "/images/2017/02/sample.jpg";
+      img.src = "./images/sample.jpg";
       img.onload = function () {
         console.log(img);
         console.log(img.width);

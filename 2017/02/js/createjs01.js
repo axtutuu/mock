@@ -515,7 +515,7 @@ var MoveShape = function () {
     _classCallCheck(this, MoveShape);
 
     this.drawer = drawer;
-    this.imageUrl = '/images/2017/02/DirectionsFilled-100.png';
+    this.imageUrl = './images/DirectionsFilled-100.png';
     var queue = new createjs.LoadQueue(false);
     queue.addEventListener('fileload', this.init.bind(this));
     queue.loadFile(this.imageUrl);
@@ -616,7 +616,7 @@ var RotateShape = function () {
     this.drawer = drawer;
     var queue = new createjs.LoadQueue(false);
     queue.addEventListener("fileload", this.init.bind(this));
-    queue.loadFile('/images/2017/02/Synchronize-100.png');
+    queue.loadFile('./images/Synchronize-100.png');
   }
 
   _createClass(RotateShape, [{

@@ -348,7 +348,7 @@ var Canvas = function (_EventEmitter) {
   _createClass(Canvas, [{
     key: 'init',
     value: function init() {
-      var imgUrl = '/images/2017/02/image1.jpg';
+      var imgUrl = './images/image1.jpg';
       var queue = new createjs.LoadQueue(false);
       queue.addEventListener("fileload", this.draw.bind(this));
       queue.loadFile(imgUrl);
@@ -367,8 +367,13 @@ var Canvas = function (_EventEmitter) {
       this.bitmap = new createjs.Bitmap(e.result);
       this.bitmap.cursor = 'pointer';
       this.bitmap.addEventListener('click', this.active.bind(this));
-      this.bitmap.x = 50;
-      this.bitmap.y = 50;
+      this.bitmap.x = 80;
+      this.bitmap.y = 80;
+
+      // 中心軸
+      this.bitmap.regX = this.bitmap.getBounds().width / 2;
+      this.bitmap.regY = this.bitmap.getBounds().height / 2;
+
       this.stage.addChild(this.bitmap);
       this.stage.update();
     }
@@ -386,13 +391,15 @@ var Canvas = function (_EventEmitter) {
       this.isActive = true;
 
       // rotate
-      var rotateX = this.bitmap.getBounds().width + this.bitmap.x;
-      var rotateY = this.bitmap.getBounds().height + this.bitmap.y;
+      var rotateX = this.bitmap.getBounds().width / 2 + this.bitmap.x;
+      var rotateY = this.bitmap.getBounds().height / 2 + this.bitmap.y;
       this.rotateShape.graphics.drawCircle(0, 0, 25, 25);
       this.rotateShape.x = rotateX;
       this.rotateShape.y = rotateY;
 
       // 枠線
+      // this.activeShape.graphics.drawRect(instance.x,instance.y,instance.getBounds().width,instance.getBounds().height);
+      // this.stage.addChild(this.activeShape);
       this.stage.addChild(this.rotateShape);
       this.rotateShape.addEventListener('mousedown', this.rotateStart.bind(this));
       this.stage.update();
@@ -411,31 +418,39 @@ var Canvas = function (_EventEmitter) {
       var offsetX = this.stage.mouseX - this.bitmap.x;
       var offsetY = this.stage.mouseY - this.bitmap.y;
 
-      var rads = this.tan2(offsetX, offsetY);
-      this.bitmap.rotation = this.toDegree(rads);
+      var baseRads = this.tan2(offsetX, offsetY);
+      this.bitmap.rotation = this.toDegree(baseRads) - 45; // ドラッグスタートが右下になるので位置調整
+      var rads = this.toRadian(this.toDegree(baseRads) - 45);
 
       // rotate操作の移動
       var rotateX = this.bitmap.getBounds().width + this.bitmap.x;
       var rotateY = this.bitmap.getBounds().height + this.bitmap.y;
       var bitmapBounds = this.bitmap.getBounds();
 
-      // A点の座標 (原点)
-      this.pointA.innerHTML = '(0,0)';
+      // 対角線の長さ
+      var diagonalLine = this.calcDiagonalLine(this.bitmap.getBounds().width, this.bitmap.getBounds().height);
+
+      // A点の座標
+      var A_X_Offset = this.calcPointX(diagonalLine / 2, this.toRadian(this.toDegree(rads) - 135));
+      var A_Y_Offset = this.calcPointY(diagonalLine / 2, this.toRadian(this.toDegree(rads) - 135));
+      this.pointA.innerHTML = this.txtFormat(this.bitmap.x + A_X_Offset, this.bitmap.y + A_Y_Offset);
 
       // B点の座標
-      this.pointB.innerHTML = this.txtFormat(this.calcPointX(bitmapBounds.width, rads), this.calcPointY(bitmapBounds.width, rads));
+      var B_X_Offset = this.calcPointX(diagonalLine / 2, this.toRadian(this.toDegree(rads) - 45)); // 中央を基準とした点Bの座標
+      var B_Y_Offset = this.calcPointY(diagonalLine / 2, this.toRadian(this.toDegree(rads) - 45)); // 中央を基準とした点Bの座標
+      this.pointB.innerHTML = this.txtFormat(this.bitmap.x + B_X_Offset, this.bitmap.y + B_Y_Offset);
 
       // 対角線の座標
-      var diagonalLine = this.calcDiagonalLine(this.bitmap.getBounds().width, this.bitmap.getBounds().height);
+      // const diagonalLine    = this.calcDiagonalLine(this.bitmap.getBounds().width, this.bitmap.getBounds().height);
       var diagonalRasin = this.toRadian(this.toDegree(rads) + 45); //対角線のラジアン角
-      this.pointC.innerHTML = this.txtFormat(this.calcPointX(diagonalLine, diagonalRasin), this.calcPointY(diagonalLine, diagonalRasin));
+      this.pointC.innerHTML = this.txtFormat(this.bitmap.x + this.calcPointX(diagonalLine / 2, diagonalRasin), this.bitmap.y + this.calcPointY(diagonalLine / 2, diagonalRasin));
 
-      this.rotateShape.x = this.bitmap.x + this.calcPointX(diagonalLine, diagonalRasin);
-      this.rotateShape.y = this.bitmap.y + this.calcPointY(diagonalLine, diagonalRasin);
+      this.rotateShape.x = this.bitmap.x + this.calcPointX(diagonalLine / 2, diagonalRasin); // 中心軸からのdistance
+      this.rotateShape.y = this.bitmap.y + this.calcPointY(diagonalLine / 2, diagonalRasin);
 
       // D点の座標
-      var verticalRasin = this.toRadian(this.toDegree(rads) + 90);
-      this.pointD.innerHTML = this.txtFormat(this.calcPointX(bitmapBounds.height, verticalRasin), this.calcPointY(bitmapBounds.height, verticalRasin));
+      var verticalRasin = this.toRadian(this.toDegree(rads) + 135);
+      this.pointD.innerHTML = this.txtFormat(this.bitmap.x + this.calcPointX(diagonalLine / 2, verticalRasin), this.bitmap.y + this.calcPointY(diagonalLine / 2, verticalRasin));
       this.stage.update();
     }
   }, {

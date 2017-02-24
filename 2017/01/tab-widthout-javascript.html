@@ -18,23 +18,34 @@
     <meta property="twitter:title" content="😇">
     <meta property="twitter:description" content="😇">
     <!-- stylesheet-->
-    <link rel="stylesheet" href="css/canvas02.css">
+    <link rel="stylesheet" href="css/tab-without-javascript.css">
     <link rel="stylesheet" href="css/style.css?v=1">
   </head>
   <body>
     <div class="wrapper">
-      <h1>CreateJS Gesture (Center)</h1>
-      <p class="point">
-        A点: <span class='point--a'></span>
-        B点: <span class='point--b'></span>
-        C点: <span class='point--c'></span>
-        D点: <span class='point--d'></span>
-      </p>
-      <canvas class="canvas" id="js-canvas" width="800" height="500"></canvas>
+      <input class="tab__radio" id="tab1" type="radio" name="tab__radio" checked>
+      <input class="tab__radio" id="tab2" type="radio" name="tab__radio">
+      <input class="tab__radio" id="tab3" type="radio" name="tab__radio">
+      <div class="tab">
+        <ul class="tab-list">
+          <li class="tab__item">tab1
+            <label class="tab__label" for="tab1"></label>
+          </li>
+          <li class="tab__item">tab2
+            <label class="tab__label" for="tab2"></label>
+          </li>
+          <li class="tab__item">tab3
+            <label class="tab__label" for="tab3"></label>
+          </li>
+        </ul>
+      </div>
+      <div class="article">
+        <div class="article__content article__content--1">content1</div>
+        <div class="article__content article__content--2">content2</div>
+        <div class="article__content article__content--3">content3</div>
+      </div>
     </div>
     <!-- javascript-->
-    <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
-    <script src="js/canvas-gesture02.js"></script>
     <script src="js/script.js?v=1"></script>
   </body>
 </html>
