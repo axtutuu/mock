@@ -18,23 +18,28 @@
     <meta property="twitter:title" content="😇">
     <meta property="twitter:description" content="😇">
     <!-- stylesheet-->
-    <link rel="stylesheet" href="css/canvas02.css">
+    <!-- link(rel="stylesheet", href="css/canvas.css")-->
+    <style>
+      del { text-decoration: none; }
+      #target {display: none; }
+      
+    </style>
     <link rel="stylesheet" href="css/style.css?v=2">
   </head>
   <body>
     <div class="wrapper">
-      <h1>CreateJS Gesture</h1>
-      <p class="point">
-        A点: <span class='point--a'></span>
-        B点: <span class='point--b'></span>
-        C点: <span class='point--c'></span>
-        D点: <span class='point--d'></span>
-      </p>
-      <canvas class="canvas" id="js-canvas" width="800" height="500"></canvas>
+      <h1>Type Writer</h1>
+      <div id="target">嫌な女も好きな女もあり、その好きな女にも嫌なところがあって、<br>
+        <del>その京味を持っている</del>
+        その興味を持っている全ての女の中で、 <br>
+        一番あなたが好きだと云われてこそ、 <br>
+        あなたは本当に愛されているんじゃありませんか？
+      </div>
     </div>
     <!-- javascript-->
-    <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
-    <script src="js/canvas-gesture.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.js"></script>
+    <script src="js/lib/t.min.js"></script>
+    <script src="js/type-writer.js"></script>
     <script src="js/script.js?v=1"></script>
   </body>
 </html>
