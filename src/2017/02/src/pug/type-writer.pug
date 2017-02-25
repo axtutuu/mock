@@ -1,0 +1,19 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  // link(rel="stylesheet", href="css/canvas.css")
+  style.
+    del { text-decoration: none; }
+    #target {display: none; }
+
+block ContentBlock
+  h1 Type Writer
+  #target
+    | 嫌な女も好きな女もあり、その好きな女にも嫌なところがあって、<br>
+    del その京味を持っている
+    | その興味を持っている全ての女の中で、 <br>
+    | 一番あなたが好きだと云われてこそ、 <br>
+    | あなたは本当に愛されているんじゃありませんか？
+prepend JavascriptBlock
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.js")
+  script(src="js/lib/t.min.js")
+  script(src="js/type-writer.js")
