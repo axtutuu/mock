@@ -316,7 +316,6 @@ var _Drawer2 = _interopRequireDefault(_Drawer);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (function () {
-  // console.log(CalcChart.publicPropertyyy);
   new _Drawer2.default();
 })();
 

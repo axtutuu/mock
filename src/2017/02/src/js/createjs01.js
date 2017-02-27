@@ -3,6 +3,5 @@ import Drawer from "./modules/Drawer.js";
 
 
 (()=>{
-  // console.log(CalcChart.publicPropertyyy);
   new Drawer();
 })();

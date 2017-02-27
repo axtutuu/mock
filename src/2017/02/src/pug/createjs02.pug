@@ -1,0 +1,8 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  // link(rel="stylesheet", href="css/canvas02.css")
+block ContentBlock
+  canvas.js-canvas
+prepend JavascriptBlock
+  script(src="https://code.createjs.com/createjs-2015.11.26.min.js")
+  script(src="js/createjs02.js")
