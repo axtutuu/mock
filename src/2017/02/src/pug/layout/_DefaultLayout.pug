@@ -16,11 +16,12 @@ html(lang="ja")
       link(rel="shortcut icon", href=favicon_url, type="/mock/images/favicon.png")
       link(rel="icon", href=favicon_url, type="/mock/images/favicon.png")
 
-    //- IEで「互換モード」で表示されるのを防ぐための指定
-    meta(http-equiv="X-UA-Compatible", content="IE=Edge")
+    block ViewPortBlock
+      //- IEで「互換モード」で表示されるのを防ぐための指定
+      meta(http-equiv="X-UA-Compatible", content="IE=Edge")
+      // smartphone meta
+      meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no")
 
-    // smartphone meta
-    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no")
     if webclipicon_url
       meta(name="apple-mobile-web-app-capable", content='yes')
       meta(name="apple-mobile-web-app-status-bar-style", content=ios_status_bar || 'default')
