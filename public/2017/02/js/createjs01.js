@@ -335,7 +335,7 @@ var CalcChart = {
   pointX: function pointX(distance, radian) {
     return distance * Math.cos(radian);
   },
-  // 対角線 √(AD^2 + AB ^2 )
+  // 対角線 √(AD^2 + AB^2 )
   diagonalLine: function diagonalLine(width, height) {
     return Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
   },

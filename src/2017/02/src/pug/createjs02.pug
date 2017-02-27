@@ -1,8 +1,13 @@
 extends /layout/_DefaultLayout
 prepend StylesheetBlock
-  // link(rel="stylesheet", href="css/canvas02.css")
+  link(rel="stylesheet", href="css/createjs02.css")
 block ContentBlock
-  canvas.js-canvas
+  canvas.js-canvas(width=1200 height=600)
+  canvas.js-canvas-event(width=1200 height=600)
+  canvas.js-canvas-move(width=1200 height=600)
+  canvas.js-canvas-tween(width=1200 height=600)
+  canvas.js-canvas-preload(width=1200 height=600)
 prepend JavascriptBlock
   script(src="https://code.createjs.com/createjs-2015.11.26.min.js")
+  script(src="js/lib/Box2d.min.js")
   script(src="js/createjs02.js")
