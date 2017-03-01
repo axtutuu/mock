@@ -9,9 +9,19 @@
     var reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = function () {
-      var imgElem = doc.createElement('img');
-      imgElem.src = reader.result;
-      doc.body.appendChild(imgElem);
+      // const imgElem = doc.createElement('img');
+      // imgElem.src = reader.result;
+      // doc.body.appendChild(imgElem);
+
+      var img = new Image();
+      img.src = reader.result;
+
+      console.log(img.width);
+      var canvas = doc.createElement('canvas');
+      canvas.width = canvas.height = 500;
+      var canvas2d = canvas.getContext('2d');
+      canvas2d.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+      doc.body.appendChild(canvas);
     };
   };
 })(document, window);
