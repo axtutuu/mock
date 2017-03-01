@@ -30,6 +30,7 @@
       var canvas = doc.createElement('canvas');
       var canvas2d = canvas.getContext('2d');
       canvas.width = canvas.height = 500;
+      console.log(img);
       canvas2d.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
       doc.body.appendChild(canvas);
     }, { orientation: true });
