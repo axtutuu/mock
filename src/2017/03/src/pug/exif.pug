@@ -3,6 +3,11 @@ prepend StylesheetBlock
   // link(rel="stylesheet", href="css/canvas.css")
 block ContentBlock
   h1 Exif
+  h2 写真を撮ってアップロードすると横向きになる
   input.js-file(type='file')
+
+  h2 Exif情報補正
+  input.js-exif-file(type='file')
 prepend JavascriptBlock
+  script(src="js/lib/load-image.all.min.js")
   script(src="js/exif.js")
