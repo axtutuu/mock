@@ -9,10 +9,6 @@
     var reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = function () {
-      // const imgElem = doc.createElement('img');
-      // imgElem.src = reader.result;
-      // doc.body.appendChild(imgElem);
-
       var img = new Image();
       img.src = reader.result;
 
@@ -25,6 +21,36 @@
       };
     };
   };
+
+  / * exif */;
+  var exifFile = doc.querySelector('.js-exif-file');
+  console.log(exifFile);
+  exifFile.onchange = function (e) {
+    loadImage(e.target.files[0], function (img) {
+      var canvas = doc.createElement('canvas');
+      var canvas2d = canvas.getContext('2d');
+      canvas.width = canvas.height = 500;
+      canvas2d.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+      doc.body.appendChild(canvas);
+    });
+  };
+
+  // const image = e.target.files[0];
+  // const reader = new FileReader();
+  // reader.readAsDataURL(image);
+  // reader.onload = () => {
+  //   const img = new Image();
+  //   img.src = reader.result;
+
+  //   img.onload = () => {
+  //     const canvas = doc.createElement('canvas');
+  //     const canvas2d = canvas.getContext('2d');
+  //     canvas.width = canvas.height = 500;
+  //     canvas2d.drawImage(img, 0,0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+  //     doc.body.appendChild(canvas);
+  //   }
+  // }
+  // }
 })(document, window);
 
 },{}]},{},[1]);
