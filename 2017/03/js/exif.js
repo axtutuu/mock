@@ -16,12 +16,13 @@
       var img = new Image();
       img.src = reader.result;
 
-      console.log(img.width);
-      var canvas = doc.createElement('canvas');
-      canvas.width = canvas.height = 500;
-      var canvas2d = canvas.getContext('2d');
-      canvas2d.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
-      doc.body.appendChild(canvas);
+      img.onload = function () {
+        var canvas = doc.createElement('canvas');
+        canvas.width = canvas.height = 500;
+        var canvas2d = canvas.getContext('2d');
+        canvas2d.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
+        doc.body.appendChild(canvas);
+      };
     };
   };
 })(document, window);
