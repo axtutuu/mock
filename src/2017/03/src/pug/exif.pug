@@ -1,0 +1,8 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  // link(rel="stylesheet", href="css/canvas.css")
+block ContentBlock
+  h1 Exif
+  input.js-file(type='file')
+prepend JavascriptBlock
+  script(src="js/exif.js")
