@@ -1,0 +1,9 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  // link(rel="stylesheet", href="css/canvas.css")
+block ContentBlock
+  h1 Fabric
+  canvas.js-canvas
+
+prepend JavascriptBlock
+  script(src="js/fabric.js")

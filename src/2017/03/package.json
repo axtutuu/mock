@@ -49,5 +49,8 @@
       "es2015",
       "react"
     ]
+  },
+  "dependencies": {
+    "fabric": "^1.7.7"
   }
 }
