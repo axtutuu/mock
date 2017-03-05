@@ -18,18 +18,20 @@
     <meta property="twitter:title" content="😇">
     <meta property="twitter:description" content="😇">
     <!-- stylesheet-->
-    <!-- link(rel="stylesheet", href="css/iitomo2.css")-->
-    <link rel="stylesheet" href="css/style.css?v=2">
+    <!-- link(rel="stylesheet", href="css/canvas.css")-->
+    <link rel="stylesheet" href="css/style.css?v=1">
   </head>
   <body>
     <div class="wrapper">
-      <canvas class="js-canvas"></canvas>
+      <h1>Exif</h1>
+      <h2>写真を撮ってアップロードすると横向きになる</h2>
+      <input class="js-file" type="file">
+      <h2>Exif情報補正</h2>
+      <input class="js-exif-file" type="file">
     </div>
     <!-- javascript-->
-    <script src="js/lib/Box2dWeb-2.1.a.3.min.js"></script>
-    <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
-    <!-- script(src="js/lib/Box2d.min.js")-->
-    <script src="js/physic.js"></script>
+    <script src="js/lib/load-image.all.min.js"></script>
+    <script src="js/exif.js"></script>
     <script src="js/script.js?v=1"></script>
   </body>
 </html>
