@@ -51,6 +51,7 @@
     ]
   },
   "dependencies": {
-    "fabric": "^1.7.7"
+    "fabric": "^1.7.7",
+    "fabric-customise-controls": "^0.1.8"
   }
 }
