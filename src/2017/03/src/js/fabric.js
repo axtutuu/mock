@@ -10,33 +10,66 @@
     height: 100 
   });
 
-fabric.Object.prototype.customiseCornerIcons({
+
+  fabric.Canvas.prototype.customiseControls({
+      tl: {
+          action: 'rotate',
+          cursor: 'pointer'
+      },
+      tr: {
+          action: 'scale'
+      },
+      bl: {
+          action: 'remove',
+          cursor: 'pointer'
+      },
+      //  br: {
+      //      action: 'moveUp',
+      //      cursor: 'pointer'
+      //  },
+      //  mb: {
+      //      action: 'moveDown',
+      //      cursor: 'pointer'
+      //  },
+      // mt: {
+      //     action: {
+      //         'rotateByDegrees': 45
+      //     }
+      // },
+      // mr: {
+      //     action: function( e, target ) {
+      //         target.set( {
+      //             left: 200
+      //         } );
+      //         stage.renderAll();
+      //     }
+      //  }
+  }, function() {
+      stage.renderAll();
+  } );
+
+fabric.Object.prototype.customiseCornerIcons( {
     settings: {
-        borderColor: 'black',
-        cornerSize: 25,
+        borderColor: '#0094dd',
+        cornerSize: 50,
         cornerShape: 'rect',
-        cornerBackgroundColor: 'black',
-        cornerPadding: 10
+        // cornerBackgroundColor: 'black'
     },
     tl: {
-        icon: 'images/Synchronize-100.png'
+        icon: 'images/rotate.png'
     },
     tr: {
-        icon: 'icons/resize.svg'
+        icon: 'images/resize.png'
     },
     bl: {
-        icon: 'icons/remove.svg'
-    },
-    br: {
-        icon: 'icons/up.svg'
-    },
-    mb: {
-        icon: 'icons/down.svg'
+      icon: 'images/trash.png'
     }
 }, function() {
-    canvas.renderAll();
+    stage.renderAll();
 } );
 
   stage.add(rect);
+  stage.item(0)['hasRotatingPoint'] = false;
+ 
 
 })(document, window);

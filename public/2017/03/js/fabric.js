@@ -13,34 +13,43 @@
         height: 100
     });
 
-    fabric.Object.prototype.customiseCornerIcons({
-        settings: {
-            borderColor: 'black',
-            cornerSize: 25,
-            cornerShape: 'rect',
-            cornerBackgroundColor: 'black',
-            cornerPadding: 10
-        },
+    fabric.Canvas.prototype.customiseControls({
         tl: {
-            icon: 'images/Synchronize-100.png'
+            action: 'rotate',
+            cursor: 'pointer'
         },
         tr: {
-            icon: 'icons/resize.svg'
+            action: 'scale'
         },
         bl: {
-            icon: 'icons/remove.svg'
-        },
-        br: {
-            icon: 'icons/up.svg'
-        },
-        mb: {
-            icon: 'icons/down.svg'
+            action: 'remove',
+            cursor: 'pointer'
         }
     }, function () {
-        canvas.renderAll();
+        stage.renderAll();
+    });
+
+    fabric.Object.prototype.customiseCornerIcons({
+        settings: {
+            borderColor: '#0094dd',
+            cornerSize: 50,
+            cornerShape: 'rect'
+        },
+        tl: {
+            icon: 'images/rotate.png'
+        },
+        tr: {
+            icon: 'images/resize.png'
+        },
+        bl: {
+            icon: 'images/trash.png'
+        }
+    }, function () {
+        stage.renderAll();
     });
 
     stage.add(rect);
+    stage.item(0)['hasRotatingPoint'] = false;
 })(document, window);
 
 },{}]},{},[1]);
