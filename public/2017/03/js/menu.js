@@ -2,8 +2,11 @@
 'use strict';
 
 (function (win, doc) {
+  var menu = doc.querySelector('.js-menu');
   var menuBtn = doc.querySelector('.js-menu__btn');
-  console.log(menuBtn);
+  menuBtn.addEventListener('click', function (e) {
+    menu.classList.toggle('active');
+  });
 })(window, document);
 
 },{}]},{},[1]);

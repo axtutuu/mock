@@ -2,10 +2,17 @@ extends /layout/_DefaultLayout
 prepend StylesheetBlock
   link(rel="stylesheet", href="css/menu.css")
 block ContentBlock
-  h1 Menu
-  .js-menu
+  .menu.js-menu
+    .menu__items
+      .menu__items-inner
+        .menu__item
+          a(href='#') MenuItem
+        .menu__item
+          a(href='#') MenuItem
+        .menu__item
+          a(href='#') MenuItem
     .menu__btn.js-menu__btn
-    .menu__item
-
+      .menu__btn-inner
+        span
 prepend JavascriptBlock
   script(src="js/menu.js")

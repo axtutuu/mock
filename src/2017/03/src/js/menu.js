@@ -1,4 +1,7 @@
 ((win, doc)=>{
+  const menu    = doc.querySelector('.js-menu');
   const menuBtn = doc.querySelector('.js-menu__btn');
-  console.log(menuBtn);
+  menuBtn.addEventListener('click', (e)=>{
+    menu.classList.toggle('active');
+  });
 })(window, document);
