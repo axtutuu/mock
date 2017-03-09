@@ -1,0 +1,11 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="css/menu.css")
+block ContentBlock
+  h1 Menu
+  .js-menu
+    .menu__btn.js-menu__btn
+    .menu__item
+
+prepend JavascriptBlock
+  script(src="js/menu.js")

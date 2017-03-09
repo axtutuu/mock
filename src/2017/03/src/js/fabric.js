@@ -56,6 +56,7 @@ fabric.Object.prototype.customiseCornerIcons( {
         // cornerBackgroundColor: 'black'
     },
     tl: {
+  // TODO: react menu display
         icon: 'images/rotate.png'
     },
     tr: {
