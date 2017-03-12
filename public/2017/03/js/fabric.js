@@ -36,6 +36,7 @@
             cornerShape: 'rect'
         },
         tl: {
+            // TODO: react menu display
             icon: 'images/rotate.png'
         },
         tr: {
