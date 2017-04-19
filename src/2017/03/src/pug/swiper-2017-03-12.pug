@@ -1,0 +1,16 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="css/pages/swiper-2017-03-12.css")
+block ContentBlock
+  h1 Swiper
+  .swiper-container
+    .swiper-wrapper
+      .swiper-slide Slide 1
+      .swiper-slide Slide 2
+      .swiper-slide Slide 3
+    .swiper-pagination
+    .swiper-button-prev
+    .swiper-button-next
+    .swiper-scrollbar
+prepend JavascriptBlock
+  script(src="js/swiper-2017-03-12.js")
