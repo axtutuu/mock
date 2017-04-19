@@ -1,0 +1,15 @@
+.carousel {
+  width: 340px;
+  height: 150px;
+  overflow: hidden;
+  &__wrapper {
+    display: flex;
+    transform: translateX(-10px);
+  }
+  &__item {
+    flex: none;
+    &:not(:first-child) {
+      margin-left: 10px;
+    }
+  }
+}
