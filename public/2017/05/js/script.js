@@ -9820,11 +9820,75 @@ return jQuery;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.particle = particle;
-function particle($el) {
-  var cxt = $el[0].getContext('2d');
 
-  console.log(cxt);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+exports.particle = particle;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Particle = function () {
+  function Particle(opts) {
+    _classCallCheck(this, Particle);
+
+    this.scale = opts.scale;
+    this.color = opts.color;
+    this.speed = opts.speed;
+    this.pos = {
+      x: opts.x,
+      y: opts.y
+    };
+    this.ctx = opts.ctx;
+  }
+
+  _createClass(Particle, [{
+    key: 'draw',
+    value: function draw() {
+      this.ctx.beginPath();
+      this.ctx.arc(this.pos.x, this.pos.y, this.scale, 0, 2 * Math.PI, false);
+      this.ctx.fillStyle = this.color;
+      this.ctx.fill();
+    }
+  }]);
+
+  return Particle;
+}();
+
+function particle($el) {
+  var ctx = $el[0].getContext('2d');
+
+  var density = 100;
+  var particles = [];
+
+  for (var i = 0; i < density; i++) {
+    particles[i] = new Particle({
+      scale: 6,
+      color: '#D0A000',
+      speed: Math.random() * (4 - 2) + 2,
+      ctx: ctx,
+      x: Math.random() * $el[0].width,
+      y: Math.random() * $el[0].height
+    });
+    particles[i].draw();
+  }
+
+  loop();
+
+  function loop() {
+    window.requestAnimationFrame(loop);
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    for (var _i = 0; _i < density; _i++) {
+      particles[_i].pos.x += particles[_i].speed;
+      console.log(particles[_i]);
+      particles[_i].draw();
+
+      // 左端に行った場合
+      if (particles[_i].x > $el[0].width) {
+        particles[_i].x = -30;
+      }
+    }
+  }
 }
 
 },{}],3:[function(require,module,exports){
