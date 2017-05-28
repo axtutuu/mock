@@ -9840,12 +9840,13 @@ var Canvas = function () {
 
     this.image = new Image();
     this.canvas.classList.add('bewilder-canvas');
-    this.canvas.width = (0, _jquery2.default)(window).width();
-    this.canvas.height = (0, _jquery2.default)(window).height();
+    this.canvas.width = (0, _jquery2.default)(window).width() * 2;
+    this.canvas.height = (0, _jquery2.default)(window).height() * 2;
 
     document.body.appendChild(this.canvas);
 
-    this.setImage().then(function () {
+    this.loadImage().then(function () {
+      _this.setImage();
       _this.clip();
     });
 
@@ -9861,27 +9862,35 @@ var Canvas = function () {
         console.log(e.screenX, e.screenY);
         _this2.ctx.clearRect(0, 0, _this2.canvas.width, _this2.canvas.height);
         _this2.setImage();
-        _this2.clip(e.screenX, e.screenY - 100);
+        _this2.clip(e.screenX * 2, e.screenY * 2 - 150);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        console.log(e.which);
+        switch (e.which) {
+          case 32:
+            _this2.clipLine(400);
+            break;
+        }
+      });
+    }
+  }, {
+    key: 'loadImage',
+    value: function loadImage() {
+      var _this3 = this;
+
+      return new Promise(function (resolve) {
+        _this3.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
+        _this3.image.onload = function () {
+          resolve();
+        };
       });
     }
   }, {
     key: 'setImage',
     value: function setImage() {
-      var _this3 = this;
-
-      return new Promise(function (resolve) {
-        if (_this3.image.src) {
-          _this3.ctx.drawImage(_this3.image, 0, 0);
-          resolve();
-          return;
-        }
-
-        _this3.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
-        _this3.image.onload = function () {
-          _this3.ctx.drawImage(_this3.image, 0, 0);
-          resolve();
-        };
-      });
+      var scale = this.canvas.height / this.image.height;
+      this.ctx.drawImage(this.image, 0, 0, this.image.width * scale, this.image.height * scale);
     }
   }, {
     key: 'clip',
@@ -9891,6 +9900,12 @@ var Canvas = function () {
 
       this.ctx.beginPath();
       this.ctx.clearRect(x, y, 60, 30);
+    }
+  }, {
+    key: 'clipLine',
+    value: function clipLine(y) {
+      this.ctx.beginPath();
+      this.ctx.clearRect(0, y, this.canvas.width, 150);
     }
   }]);
 

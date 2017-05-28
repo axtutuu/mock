@@ -7,13 +7,14 @@ class Canvas {
 
     this.image = new Image();
     this.canvas.classList.add('bewilder-canvas');
-    this.canvas.width = $(window).width();
-    this.canvas.height = $(window).height();
+    this.canvas.width = $(window).width()*2;
+    this.canvas.height = $(window).height()*2;
 
     document.body.appendChild(this.canvas);
 
-    this.setImage()
+    this.loadImage()
       .then(()=>{
+        this.setImage();
         this.clip();
       });
 
@@ -25,29 +26,42 @@ class Canvas {
       console.log(e.screenX, e.screenY);
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.setImage();
-      this.clip(e.screenX, e.screenY-100);
+      this.clip(e.screenX*2, (e.screenY*2)-150);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      console.log(e.which);
+      switch (e.which) {
+        case 32:
+          this.clipLine(400);
+          break;
+      }
+    });
+
+  }
+
+  loadImage() {
+    return new Promise(resolve=>{
+      this.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
+      this.image.onload = () => {
+        resolve();
+      }
     });
   }
 
   setImage() {
-    return new Promise(resolve=>{
-      if(this.image.src) {
-        this.ctx.drawImage(this.image, 0, 0);
-        resolve();
-        return;
-      }
-
-      this.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
-      this.image.onload = () => {
-        this.ctx.drawImage(this.image, 0, 0);
-        resolve();
-      }
-    });
+    const scale = (this.canvas.height/this.image.height);
+    this.ctx.drawImage(this.image, 0, 0, this.image.width*scale, this.image.height*scale);
   }
 
   clip(x=50, y=50) {
     this.ctx.beginPath();
     this.ctx.clearRect(x, y, 60, 30);
+  }
+
+  clipLine(y) {
+    this.ctx.beginPath();
+    this.ctx.clearRect(0, y, this.canvas.width, 150);
   }
 }
 
