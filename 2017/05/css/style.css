@@ -1,0 +1,124 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+.ico_02, .ico_03, .ico_01, .ico_05, .ico_06, .ico_08, .ico_04, .ico_09, .ico_07, .ico_10 {
+  display: inline-block;
+  background-image: url(/2017/04/images/sprite.png);
+  background-repeat: no-repeat; }
+
+.ico_02 {
+  background-position: -0px -0px;
+  height: 150px;
+  width: 150px; }
+
+.ico_03 {
+  background-position: -150px -0px;
+  height: 150px;
+  width: 150px; }
+
+.ico_01 {
+  background-position: -0px -150px;
+  height: 150px;
+  width: 150px; }
+
+.ico_05 {
+  background-position: -150px -150px;
+  height: 150px;
+  width: 150px; }
+
+.ico_06 {
+  background-position: -300px -0px;
+  height: 150px;
+  width: 150px; }
+
+.ico_08 {
+  background-position: -300px -150px;
+  height: 150px;
+  width: 150px; }
+
+.ico_04 {
+  background-position: -0px -300px;
+  height: 150px;
+  width: 150px; }
+
+.ico_09 {
+  background-position: -150px -300px;
+  height: 150px;
+  width: 150px; }
+
+.ico_07 {
+  background-position: -300px -300px;
+  height: 150px;
+  width: 150px; }
+
+.ico_10 {
+  background-position: -450px -0px;
+  height: 150px;
+  width: 150px; }
+
+.carousel {
+  width: 340px;
+  height: 150px;
+  overflow: hidden; }
+  .carousel__wrapper {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-transform: translateX(-10px);
+            transform: translateX(-10px); }
+  .carousel__item {
+    -webkit-flex: none;
+        -ms-flex: none;
+            flex: none; }
+    .carousel__item:not(:first-child) {
+      margin-left: 10px; }
+
+.wrapper {
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 1.5; }
