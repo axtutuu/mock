@@ -9838,6 +9838,7 @@ var Canvas = function () {
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
 
+    this.image = new Image();
     this.canvas.classList.add('bewilder-canvas');
     this.canvas.width = (0, _jquery2.default)(window).width();
     this.canvas.height = (0, _jquery2.default)(window).height();
@@ -9847,19 +9848,37 @@ var Canvas = function () {
     this.setImage().then(function () {
       _this.clip();
     });
+
+    this.listener();
   }
 
   _createClass(Canvas, [{
-    key: 'setImage',
-    value: function setImage() {
+    key: 'listener',
+    value: function listener() {
       var _this2 = this;
 
-      return new Promise(function (resolve) {
-        var image = new Image();
-        image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
+      (0, _jquery2.default)(this.canvas).on('click', function (e) {
+        console.log(e.screenX, e.screenY);
+        _this2.ctx.clearRect(0, 0, _this2.canvas.width, _this2.canvas.height);
+        _this2.setImage();
+        _this2.clip(e.screenX, e.screenY - 100);
+      });
+    }
+  }, {
+    key: 'setImage',
+    value: function setImage() {
+      var _this3 = this;
 
-        image.onload = function () {
-          _this2.ctx.drawImage(image, 0, 0);
+      return new Promise(function (resolve) {
+        if (_this3.image.src) {
+          _this3.ctx.drawImage(_this3.image, 0, 0);
+          resolve();
+          return;
+        }
+
+        _this3.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
+        _this3.image.onload = function () {
+          _this3.ctx.drawImage(_this3.image, 0, 0);
           resolve();
         };
       });
@@ -9867,10 +9886,11 @@ var Canvas = function () {
   }, {
     key: 'clip',
     value: function clip() {
+      var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 50;
+      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 50;
+
       this.ctx.beginPath();
-      this.ctx.fillRect(20, 20, 100, 100);
-      this.ctx.beginPath();
-      this.ctx.clearRect(50, 70, 60, 30);
+      this.ctx.clearRect(x, y, 60, 30);
     }
   }]);
 

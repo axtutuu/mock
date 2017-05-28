@@ -5,6 +5,7 @@ class Canvas {
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
 
+    this.image = new Image();
     this.canvas.classList.add('bewilder-canvas');
     this.canvas.width = $(window).width();
     this.canvas.height = $(window).height();
@@ -15,25 +16,38 @@ class Canvas {
       .then(()=>{
         this.clip();
       });
+
+    this.listener();
+  }
+
+  listener() {
+    $(this.canvas).on('click', (e) => {
+      console.log(e.screenX, e.screenY);
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.setImage();
+      this.clip(e.screenX, e.screenY-100);
+    });
   }
 
   setImage() {
     return new Promise(resolve=>{
-      const image = new Image();
-      image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
+      if(this.image.src) {
+        this.ctx.drawImage(this.image, 0, 0);
+        resolve();
+        return;
+      }
 
-      image.onload = () => {
-        this.ctx.drawImage(image, 0, 0);
+      this.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
+      this.image.onload = () => {
+        this.ctx.drawImage(this.image, 0, 0);
         resolve();
       }
     });
   }
 
-  clip() {
+  clip(x=50, y=50) {
     this.ctx.beginPath();
-    this.ctx.fillRect(20, 20, 100, 100);
-    this.ctx.beginPath();
-    this.ctx.clearRect(50, 70, 60, 30);
+    this.ctx.clearRect(x, y, 60, 30);
   }
 }
 
