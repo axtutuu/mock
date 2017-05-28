@@ -6,6 +6,12 @@ class Canvas {
     this.ctx = this.canvas.getContext('2d');
 
     this.image = new Image();
+    this.images = [
+      'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png',
+      'https://i.gyazo.com/fb412b49fd2a3739f0d2ce347b9dc4c2.png'
+    ];
+    this.currentImage = 0;
+
     this.canvas.classList.add('bewilder-canvas');
     this.canvas.width = $(window).width()*2;
     this.canvas.height = $(window).height()*2;
@@ -53,7 +59,7 @@ class Canvas {
     document.addEventListener("keydown", (e) => {
       console.log(e.which);
       switch (e.which) {
-        case 32:
+        case 32: // space
           this.currentX = 0;
           this.currentY = 0;
           if(this.squareWidth == this.canvas.width) {
@@ -67,8 +73,17 @@ class Canvas {
           this.setImage();
           this.clip();
           break;
-        case 187:
+        case 187: // +
           this.upScale();
+          break;
+        case 65: // a
+          const next = (this.images.length-1 <= this.currentImage) ? 0 : this.currentImage+1;
+          this.currentImage = next;
+          this.loadImage()
+            .then(()=>{
+              this.setImage();
+              this.clip();
+            });
           break;
       }
     });
@@ -101,7 +116,7 @@ class Canvas {
 
   loadImage() {
     return new Promise(resolve=>{
-      this.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
+      this.image.src = this.images[this.currentImage];
       this.image.onload = () => {
         resolve();
       }

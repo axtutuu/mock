@@ -9839,6 +9839,9 @@ var Canvas = function () {
     this.ctx = this.canvas.getContext('2d');
 
     this.image = new Image();
+    this.images = ['https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png', 'https://i.gyazo.com/fb412b49fd2a3739f0d2ce347b9dc4c2.png'];
+    this.currentImage = 0;
+
     this.canvas.classList.add('bewilder-canvas');
     this.canvas.width = (0, _jquery2.default)(window).width() * 2;
     this.canvas.height = (0, _jquery2.default)(window).height() * 2;
@@ -9891,6 +9894,7 @@ var Canvas = function () {
         console.log(e.which);
         switch (e.which) {
           case 32:
+            // space
             _this2.currentX = 0;
             _this2.currentY = 0;
             if (_this2.squareWidth == _this2.canvas.width) {
@@ -9905,7 +9909,17 @@ var Canvas = function () {
             _this2.clip();
             break;
           case 187:
+            // +
             _this2.upScale();
+            break;
+          case 65:
+            // a
+            var next = _this2.images.length - 1 <= _this2.currentImage ? 0 : _this2.currentImage + 1;
+            _this2.currentImage = next;
+            _this2.loadImage().then(function () {
+              _this2.setImage();
+              _this2.clip();
+            });
             break;
         }
       });
@@ -9945,7 +9959,7 @@ var Canvas = function () {
       var _this4 = this;
 
       return new Promise(function (resolve) {
-        _this4.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
+        _this4.image.src = _this4.images[_this4.currentImage];
         _this4.image.onload = function () {
           resolve();
         };
