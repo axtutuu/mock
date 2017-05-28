@@ -10,6 +10,14 @@ class Canvas {
     this.canvas.width = $(window).width()*2;
     this.canvas.height = $(window).height()*2;
 
+    this.pointer = true;
+
+    this.squareWidth  = 50;
+    this.squareHeight = 50;
+
+    this.currentX = 0;
+    this.currentY = 0;
+
     document.body.appendChild(this.canvas);
 
     this.loadImage()
@@ -21,24 +29,75 @@ class Canvas {
     this.listener();
   }
 
-  listener() {
-    $(this.canvas).on('click', (e) => {
-      console.log(e.screenX, e.screenY);
+  clear() {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  listener() {
+    $(this.canvas).on('mousedown', (e) => {
+      console.log(e.screenX, e.screenY);
+
+      this.clear();
       this.setImage();
-      this.clip(e.screenX*2, (e.screenY*2)-150);
+      this.currentX = e.screenX*2;
+      this.currentY = (e.screenY*2)-150;
+      this.clip();
+
+      this.watchStart();
+    });
+
+    $(this.canvas).on('mouseup', (e) => {
+      this.watchStop();
     });
 
     document.addEventListener("keydown", (e) => {
       console.log(e.which);
       switch (e.which) {
         case 32:
-          this.clipLine(400);
+          this.currentX = 0;
+          this.currentY = 0;
+          if(this.squareWidth == this.canvas.width) {
+            this.squareWidth = 50;
+            this.squareHeight = 50;
+          } else {
+            this.squareWidth = this.canvas.width;
+            this.squareHeight = 150;
+          }
+          this.clear();
+          this.setImage();
+          this.clip();
+          break;
+        case 187:
+          this.upScale();
           break;
       }
     });
-
   }
+
+  upScale() {
+    this.squareWidth += 50;
+    this.squareHeight += 50;
+
+    this.clear();
+    this.setImage();
+    this.clip();
+  }
+
+  watchStart() {
+    $(this.canvas).on('mousemove', (e) => {
+      console.log(e.screenX, e.screenY);
+      this.clear();
+      this.setImage();
+      this.currentX = e.screenX*2;
+      this.currentY = (e.screenY*2)-150;
+      this.clip();
+    });
+  }
+
+  watchStop() {
+    $(this.canvas).off('mousemove');
+  }
+
 
   loadImage() {
     return new Promise(resolve=>{
@@ -54,15 +113,11 @@ class Canvas {
     this.ctx.drawImage(this.image, 0, 0, this.image.width*scale, this.image.height*scale);
   }
 
-  clip(x=50, y=50) {
+  clip(x=this.currentX, y=this.currentY) {
     this.ctx.beginPath();
-    this.ctx.clearRect(x, y, 60, 30);
+    this.ctx.clearRect(x, y, this.squareWidth, this.squareHeight);
   }
 
-  clipLine(y) {
-    this.ctx.beginPath();
-    this.ctx.clearRect(0, y, this.canvas.width, 150);
-  }
 }
 
 

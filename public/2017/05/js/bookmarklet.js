@@ -9843,6 +9843,14 @@ var Canvas = function () {
     this.canvas.width = (0, _jquery2.default)(window).width() * 2;
     this.canvas.height = (0, _jquery2.default)(window).height() * 2;
 
+    this.pointer = true;
+
+    this.squareWidth = 50;
+    this.squareHeight = 50;
+
+    this.currentX = 0;
+    this.currentY = 0;
+
     document.body.appendChild(this.canvas);
 
     this.loadImage().then(function () {
@@ -9854,34 +9862,91 @@ var Canvas = function () {
   }
 
   _createClass(Canvas, [{
+    key: 'clear',
+    value: function clear() {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  }, {
     key: 'listener',
     value: function listener() {
       var _this2 = this;
 
-      (0, _jquery2.default)(this.canvas).on('click', function (e) {
+      (0, _jquery2.default)(this.canvas).on('mousedown', function (e) {
         console.log(e.screenX, e.screenY);
-        _this2.ctx.clearRect(0, 0, _this2.canvas.width, _this2.canvas.height);
+
+        _this2.clear();
         _this2.setImage();
-        _this2.clip(e.screenX * 2, e.screenY * 2 - 150);
+        _this2.currentX = e.screenX * 2;
+        _this2.currentY = e.screenY * 2 - 150;
+        _this2.clip();
+
+        _this2.watchStart();
+      });
+
+      (0, _jquery2.default)(this.canvas).on('mouseup', function (e) {
+        _this2.watchStop();
       });
 
       document.addEventListener("keydown", function (e) {
         console.log(e.which);
         switch (e.which) {
           case 32:
-            _this2.clipLine(400);
+            _this2.currentX = 0;
+            _this2.currentY = 0;
+            if (_this2.squareWidth == _this2.canvas.width) {
+              _this2.squareWidth = 50;
+              _this2.squareHeight = 50;
+            } else {
+              _this2.squareWidth = _this2.canvas.width;
+              _this2.squareHeight = 150;
+            }
+            _this2.clear();
+            _this2.setImage();
+            _this2.clip();
+            break;
+          case 187:
+            _this2.upScale();
             break;
         }
       });
     }
   }, {
-    key: 'loadImage',
-    value: function loadImage() {
+    key: 'upScale',
+    value: function upScale() {
+      this.squareWidth += 50;
+      this.squareHeight += 50;
+
+      this.clear();
+      this.setImage();
+      this.clip();
+    }
+  }, {
+    key: 'watchStart',
+    value: function watchStart() {
       var _this3 = this;
 
+      (0, _jquery2.default)(this.canvas).on('mousemove', function (e) {
+        console.log(e.screenX, e.screenY);
+        _this3.clear();
+        _this3.setImage();
+        _this3.currentX = e.screenX * 2;
+        _this3.currentY = e.screenY * 2 - 150;
+        _this3.clip();
+      });
+    }
+  }, {
+    key: 'watchStop',
+    value: function watchStop() {
+      (0, _jquery2.default)(this.canvas).off('mousemove');
+    }
+  }, {
+    key: 'loadImage',
+    value: function loadImage() {
+      var _this4 = this;
+
       return new Promise(function (resolve) {
-        _this3.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
-        _this3.image.onload = function () {
+        _this4.image.src = 'https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png';
+        _this4.image.onload = function () {
           resolve();
         };
       });
@@ -9895,17 +9960,11 @@ var Canvas = function () {
   }, {
     key: 'clip',
     value: function clip() {
-      var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 50;
-      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 50;
+      var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.currentX;
+      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.currentY;
 
       this.ctx.beginPath();
-      this.ctx.clearRect(x, y, 60, 30);
-    }
-  }, {
-    key: 'clipLine',
-    value: function clipLine(y) {
-      this.ctx.beginPath();
-      this.ctx.clearRect(0, y, this.canvas.width, 150);
+      this.ctx.clearRect(x, y, this.squareWidth, this.squareHeight);
     }
   }]);
 
