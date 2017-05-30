@@ -11,28 +11,34 @@ rec.addEventListener('result', (e) => {
   console.log(e)
   var text = e.results[e.results.length-1][0].transcript;
   switch(text.slice(-1)) {
+    case 'ジャンプ':
+    case 'jump':
     case 'プ':
     case 'p':
-      control($u);
+      $u.mousedown();
+      setTimeout(() => {
+        $u.mouseup();
+      }, 800);
       break;
     case '右':
     case 'ぎ':
-      control($r);
+      $r.mousedown();
+      $l.mouseup();
       break;
     case '左':
     case 'り':
-      control($l);
+      $l.mousedown();
+      $r.mouseup();
+      break;
+    case '止まれ':
+    case 'とまれ':
+    case 'れ':
+      $r.mouseup();
+      $l.mouseup();
       break;
   }
   console.log(text);
 });
-
-function control($el) {
-  $el.mousedown();
-  setTimeout(() => {
-    $el.mouseup();
-  }, 800);
-}
 
 (function init() {
   console.log('start');
