@@ -1,4 +1,5 @@
 import $ from 'jquery';
 import { particle } from './particle';
-particle($('#particle'));
-console.log('hello');
+if($('#particle')[0]) {
+  particle($('#particle'));
+}
