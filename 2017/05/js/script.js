@@ -9902,7 +9902,8 @@ var _particle = require('./particle');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-(0, _particle.particle)((0, _jquery2.default)('#particle'));
-console.log('hello');
+if ((0, _jquery2.default)('#particle')[0]) {
+  (0, _particle.particle)((0, _jquery2.default)('#particle'));
+}
 
 },{"./particle":2,"jquery":1}]},{},[3]);
