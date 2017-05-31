@@ -9817,93 +9817,186 @@ return jQuery;
 },{}],2:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.particle = particle;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Particle = function () {
-  function Particle(opts) {
-    _classCallCheck(this, Particle);
-
-    this.scale = opts.scale;
-    this.color = opts.color;
-    this.speed = opts.speed;
-    this.pos = {
-      x: opts.x,
-      y: opts.y
-    };
-    this.ctx = opts.ctx;
-  }
-
-  _createClass(Particle, [{
-    key: 'draw',
-    value: function draw() {
-      this.ctx.beginPath();
-      this.ctx.arc(this.pos.x, this.pos.y, this.scale, 0, 2 * Math.PI, false);
-      this.ctx.fillStyle = this.color;
-      this.ctx.fill();
-    }
-  }]);
-
-  return Particle;
-}();
-
-function particle($el) {
-  var ctx = $el[0].getContext('2d');
-
-  var density = 100;
-  var particles = [];
-
-  for (var i = 0; i < density; i++) {
-    particles[i] = new Particle({
-      scale: 6,
-      color: '#D0A000',
-      speed: Math.random() * (4 - 2) + 2,
-      ctx: ctx,
-      x: Math.random() * $el[0].width,
-      y: Math.random() * $el[0].height
-    });
-    particles[i].draw();
-  }
-
-  loop();
-
-  function loop() {
-    window.requestAnimationFrame(loop);
-
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    for (var _i = 0; _i < density; _i++) {
-      particles[_i].pos.x += particles[_i].speed;
-      console.log(particles[_i]);
-      particles[_i].draw();
-
-      // 左端に行った場合
-      if (particles[_i].x > $el[0].width) {
-        particles[_i].x = -30;
-      }
-    }
-  }
-}
-
-},{}],3:[function(require,module,exports){
-'use strict';
 
 var _jquery = require('jquery');
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-var _particle = require('./particle');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-if ((0, _jquery2.default)('#particle')[0]) {
-  (0, _particle.particle)((0, _jquery2.default)('#particle'));
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-},{"./particle":2,"jquery":1}]},{},[3]);
+var Canvas = function () {
+  function Canvas() {
+    var _this = this;
+
+    var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    _classCallCheck(this, Canvas);
+
+    this.canvas = document.createElement('canvas');
+    this.ctx = this.canvas.getContext('2d');
+
+    this.image = new Image();
+
+    // TODO: add valiation
+    this.images = ['https://i.gyazo.com/2f180de9361c3a60fa93bd78ec56b30f.png', 'https://i.gyazo.com/fb412b49fd2a3739f0d2ce347b9dc4c2.png'];
+
+    this.currentImage = 0;
+
+    this.canvas.classList.add('bewilder-canvas');
+    this.canvas.width = (0, _jquery2.default)(window).width() * 2;
+    this.canvas.height = (0, _jquery2.default)(window).height() * 2;
+
+    this.pointer = true;
+
+    this.squareWidth = 50;
+    this.squareHeight = 50;
+
+    this.currentX = 0;
+    this.currentY = 0;
+
+    document.body.appendChild(this.canvas);
+
+    this.loadImage().then(function () {
+      _this.setImage();
+      _this.clip();
+    });
+
+    this.listener();
+  }
+
+  _createClass(Canvas, [{
+    key: 'clear',
+    value: function clear() {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  }, {
+    key: 'listener',
+    value: function listener() {
+      var _this2 = this;
+
+      (0, _jquery2.default)(this.canvas).on('mousedown', function (e) {
+        console.log(e.screenX, e.screenY);
+
+        _this2.clear();
+        _this2.setImage();
+        _this2.currentX = e.screenX * 2;
+        _this2.currentY = e.screenY * 2 - 150;
+        _this2.clip();
+
+        _this2.watchStart();
+      });
+
+      (0, _jquery2.default)(this.canvas).on('mouseup', function (e) {
+        _this2.watchStop();
+      });
+
+      document.addEventListener("keydown", function (e) {
+        console.log(e.which);
+        switch (e.which) {
+          case 32:
+            // space
+            _this2.currentX = 0;
+            _this2.currentY = 0;
+            if (_this2.squareWidth == _this2.canvas.width) {
+              _this2.squareWidth = 50;
+              _this2.squareHeight = 50;
+            } else {
+              _this2.squareWidth = _this2.canvas.width;
+              _this2.squareHeight = 150;
+            }
+            _this2.clear();
+            _this2.setImage();
+            _this2.clip();
+            break;
+          case 187:
+            // +
+            _this2.upScale();
+            break;
+          case 65:
+            // a
+            var next = _this2.images.length - 1 <= _this2.currentImage ? 0 : _this2.currentImage + 1;
+            _this2.currentImage = next;
+            _this2.loadImage().then(function () {
+              _this2.setImage();
+              _this2.clip();
+            });
+            break;
+        }
+      });
+    }
+  }, {
+    key: 'upScale',
+    value: function upScale() {
+      this.squareWidth += 50;
+      this.squareHeight += 50;
+
+      this.clear();
+      this.setImage();
+      this.clip();
+    }
+  }, {
+    key: 'watchStart',
+    value: function watchStart() {
+      var _this3 = this;
+
+      (0, _jquery2.default)(this.canvas).on('mousemove', function (e) {
+        console.log(e.screenX, e.screenY);
+        _this3.clear();
+        _this3.setImage();
+        _this3.currentX = e.screenX * 2;
+        _this3.currentY = e.screenY * 2 - 150;
+        _this3.clip();
+      });
+    }
+  }, {
+    key: 'watchStop',
+    value: function watchStop() {
+      (0, _jquery2.default)(this.canvas).off('mousemove');
+    }
+  }, {
+    key: 'loadImage',
+    value: function loadImage() {
+      var _this4 = this;
+
+      return new Promise(function (resolve) {
+        _this4.image.src = _this4.images[_this4.currentImage];
+        _this4.image.onload = function () {
+          resolve();
+        };
+      });
+    }
+  }, {
+    key: 'setImage',
+    value: function setImage() {
+      var scale = this.canvas.height / this.image.height;
+      this.ctx.drawImage(this.image, 0, 0, this.image.width * scale, this.image.height * scale);
+    }
+  }, {
+    key: 'clip',
+    value: function clip() {
+      var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.currentX;
+      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.currentY;
+
+      this.ctx.beginPath();
+      this.ctx.clearRect(x, y, this.squareWidth, this.squareHeight);
+    }
+  }]);
+
+  return Canvas;
+}();
+
+(function init() {
+  // styleの差し込み
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'http://localhost:3000/2017/05/css/bookmarklet.css';
+
+  document.body.appendChild(link);
+
+  var canvas = new Canvas();
+})();
+
+},{"jquery":1}]},{},[2]);
