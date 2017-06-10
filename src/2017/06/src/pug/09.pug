@@ -1,3 +1,11 @@
 extends /layout/_DefaultLayout
 block ContentBlock
+  script(src="js/minMatrix.js")
+  script(id="vs" type="x-shader/x-vertex")
+    include 09/_main.vert
+  script(id="fs" type="x-shader/x-fragment")
+    include 09/_main.frag
+  h1 GLSL Sample
   canvas#canvas
+prepend JavascriptBlock
+  script(src="js/09.js")

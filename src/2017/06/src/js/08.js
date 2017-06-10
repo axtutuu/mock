@@ -9,8 +9,8 @@ function init() {
   canvas.height = 300,
 
   // 初期化
-  gl.clearColor(0,0,0,1);
-  gl.clearDepth(1,0);
+  gl.clearColor(0.0,0.0,0.0,1.0);
+  gl.clearDepth(1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   const vShader = create_shader('vs'),
@@ -20,7 +20,7 @@ function init() {
         attStride = 3,
         vertexPos = [
           0.0, 1.0, 0.0,
-          1,0, 0.0, 0.0,
+          1.0, 0.0, 0.0,
           -1.0,0.0, 0.0
         ],
         vbo     = create_vbo(vertexPos);

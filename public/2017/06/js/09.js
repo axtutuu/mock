@@ -18,13 +18,20 @@ function init() {
   var vShader = create_shader('vs'),
       fShader = create_shader('fs'),
       pg = create_program(vShader, fShader),
-      attLocation = gl.getAttribLocation(pg, 'position'),
-      attStride = 3,
+      attLocation = [gl.getAttribLocation(pg, 'position'), gl.getAttribLocation(pg, 'color')],
+      attStride = [3, 4],
       vertexPos = [0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0],
-      vbo = create_vbo(vertexPos);
-  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-  gl.enableVertexAttribArray(attLocation);
-  gl.vertexAttribPointer(attLocation, attStride, gl.FLOAT, false, 0, 0);
+      vertexColor = [1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0],
+      positionVbo = create_vbo(vertexPos),
+      colorVbo = create_vbo(vertexColor);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionVbo);
+  gl.enableVertexAttribArray(attLocation[0]);
+  gl.vertexAttribPointer(attLocation[0], attStride[0], gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorVbo);
+  gl.enableVertexAttribArray(attLocation[1]);
+  gl.vertexAttribPointer(attLocation[1], attStride[1], gl.FLOAT, false, 0, 0);
 
   var m = new matIV(),
       mMatrix = m.identity(m.create()),
