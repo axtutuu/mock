@@ -22,10 +22,31 @@
   </head>
   <body>
     <div class="wrapper">
-      <iframe src="https://docs.google.com/presentation/d/1irmCHghmZ4yzaldOWXfELMyZTb7LiHaM9FceHspjnx8/embed?start=false&amp;loop=false&amp;delayms=3000" frameborder="0" width="960" height="569" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
-      <div class="bookmarklet"><a href="javascript:void function(){document.body.appendChild(document.createElement(&quot;script&quot;)).src=&quot;https://pocke777.github.io/mock/2017/05/js/bookmarkSpeech.js&quot;}();">BookmarkLet</a></div>
+      <script src="js/minMatrix.js"></script>
+      <script id="vs" type="x-shader/x-vertex">attribute vec3 position;
+attribute vec4 color;
+uniform   mat4 mvpMatrix;
+varying   vec4 vColor;
+
+void main(void){
+  vColor = color;
+  gl_Position = mvpMatrix * vec4(position, 1.0);
+}
+
+      </script>
+      <script id="fs" type="x-shader/x-fragment">precision mediump float;
+varying vec4 vColor;
+
+void main(void){
+    gl_FragColor = vColor;
+}
+
+      </script>
+      <h1>GLSL Sample</h1>
+      <canvas id="canvas"></canvas>
     </div>
     <!-- javascript-->
-    <script src="js/script.js?v=2"></script>
+    <script src="js/09.js"></script>
+    <script src="js/script.js?v=1"></script>
   </body>
 </html>
