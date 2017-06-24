@@ -41,5 +41,8 @@
     "presets": [
       "es2015"
     ]
+  },
+  "dependencies": {
+    "webvr-boilerplate": "^0.5.0"
   }
 }
