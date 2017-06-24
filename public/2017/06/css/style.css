@@ -46,6 +46,10 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
+[data-day="24"] canvas {
+  height: 100%;
+  width: 100%; }
+
 .wrapper {
   font-family: sans-serif;
   font-size: 16px;
