@@ -1,40 +1,402 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports={
-  "name": "webvr-polyfill",
-  "version": "0.9.35",
-  "homepage": "https://github.com/googlevr/webvr-polyfill",
-  "authors": [
-    "Boris Smus <boris@smus.com>",
-    "Brandon Jones <tojiro@gmail.com>",
-    "Jordan Santell <jordan@jsantell.com>"
-  ],
-  "description": "Use WebVR today, on mobile or desktop, without requiring a special browser build.",
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "jsdom": "^9.12.0",
-    "mocha": "^3.2.0",
-    "semver": "^5.3.0",
-    "webpack": "^2.6.1",
-    "webpack-dev-server": "^2.4.5"
-  },
-  "main": "src/node-entry",
-  "keywords": [
-    "vr",
-    "webvr"
-  ],
-  "license": "Apache-2.0",
-  "scripts": {
-    "start": "npm run watch",
-    "watch": "webpack-dev-server",
-    "build": "webpack",
-    "test": "mocha"
-  },
-  "repository": "googlevr/webvr-polyfill",
-  "bugs": {
-    "url": "https://github.com/googlevr/webvr-polyfill/issues"
-  }
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.WebVRPolyfill = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+'use strict';
+
+var has = Object.prototype.hasOwnProperty
+  , prefix = '~';
+
+/**
+ * Constructor to create a storage for our `EE` objects.
+ * An `Events` instance is a plain object whose properties are event names.
+ *
+ * @constructor
+ * @api private
+ */
+function Events() {}
+
+//
+// We try to not inherit from `Object.prototype`. In some engines creating an
+// instance in this way is faster than calling `Object.create(null)` directly.
+// If `Object.create(null)` is not supported we prefix the event names with a
+// character to make sure that the built-in object properties are not
+// overridden or used as an attack vector.
+//
+if (Object.create) {
+  Events.prototype = Object.create(null);
+
+  //
+  // This hack is needed because the `__proto__` property is still inherited in
+  // some old browsers like Android 4, iPhone 5.1, Opera 11 and Safari 5.
+  //
+  if (!new Events().__proto__) prefix = false;
 }
-},{}],2:[function(require,module,exports){
+
+/**
+ * Representation of a single event listener.
+ *
+ * @param {Function} fn The listener function.
+ * @param {Mixed} context The context to invoke the listener with.
+ * @param {Boolean} [once=false] Specify if the listener is a one-time listener.
+ * @constructor
+ * @api private
+ */
+function EE(fn, context, once) {
+  this.fn = fn;
+  this.context = context;
+  this.once = once || false;
+}
+
+/**
+ * Minimal `EventEmitter` interface that is molded against the Node.js
+ * `EventEmitter` interface.
+ *
+ * @constructor
+ * @api public
+ */
+function EventEmitter() {
+  this._events = new Events();
+  this._eventsCount = 0;
+}
+
+/**
+ * Return an array listing the events for which the emitter has registered
+ * listeners.
+ *
+ * @returns {Array}
+ * @api public
+ */
+EventEmitter.prototype.eventNames = function eventNames() {
+  var names = []
+    , events
+    , name;
+
+  if (this._eventsCount === 0) return names;
+
+  for (name in (events = this._events)) {
+    if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
+  }
+
+  if (Object.getOwnPropertySymbols) {
+    return names.concat(Object.getOwnPropertySymbols(events));
+  }
+
+  return names;
+};
+
+/**
+ * Return the listeners registered for a given event.
+ *
+ * @param {String|Symbol} event The event name.
+ * @param {Boolean} exists Only check if there are listeners.
+ * @returns {Array|Boolean}
+ * @api public
+ */
+EventEmitter.prototype.listeners = function listeners(event, exists) {
+  var evt = prefix ? prefix + event : event
+    , available = this._events[evt];
+
+  if (exists) return !!available;
+  if (!available) return [];
+  if (available.fn) return [available.fn];
+
+  for (var i = 0, l = available.length, ee = new Array(l); i < l; i++) {
+    ee[i] = available[i].fn;
+  }
+
+  return ee;
+};
+
+/**
+ * Calls each of the listeners registered for a given event.
+ *
+ * @param {String|Symbol} event The event name.
+ * @returns {Boolean} `true` if the event had listeners, else `false`.
+ * @api public
+ */
+EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
+  var evt = prefix ? prefix + event : event;
+
+  if (!this._events[evt]) return false;
+
+  var listeners = this._events[evt]
+    , len = arguments.length
+    , args
+    , i;
+
+  if (listeners.fn) {
+    if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
+
+    switch (len) {
+      case 1: return listeners.fn.call(listeners.context), true;
+      case 2: return listeners.fn.call(listeners.context, a1), true;
+      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
+      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
+      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
+      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
+    }
+
+    for (i = 1, args = new Array(len -1); i < len; i++) {
+      args[i - 1] = arguments[i];
+    }
+
+    listeners.fn.apply(listeners.context, args);
+  } else {
+    var length = listeners.length
+      , j;
+
+    for (i = 0; i < length; i++) {
+      if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
+
+      switch (len) {
+        case 1: listeners[i].fn.call(listeners[i].context); break;
+        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
+        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
+        case 4: listeners[i].fn.call(listeners[i].context, a1, a2, a3); break;
+        default:
+          if (!args) for (j = 1, args = new Array(len -1); j < len; j++) {
+            args[j - 1] = arguments[j];
+          }
+
+          listeners[i].fn.apply(listeners[i].context, args);
+      }
+    }
+  }
+
+  return true;
+};
+
+/**
+ * Add a listener for a given event.
+ *
+ * @param {String|Symbol} event The event name.
+ * @param {Function} fn The listener function.
+ * @param {Mixed} [context=this] The context to invoke the listener with.
+ * @returns {EventEmitter} `this`.
+ * @api public
+ */
+EventEmitter.prototype.on = function on(event, fn, context) {
+  var listener = new EE(fn, context || this)
+    , evt = prefix ? prefix + event : event;
+
+  if (!this._events[evt]) this._events[evt] = listener, this._eventsCount++;
+  else if (!this._events[evt].fn) this._events[evt].push(listener);
+  else this._events[evt] = [this._events[evt], listener];
+
+  return this;
+};
+
+/**
+ * Add a one-time listener for a given event.
+ *
+ * @param {String|Symbol} event The event name.
+ * @param {Function} fn The listener function.
+ * @param {Mixed} [context=this] The context to invoke the listener with.
+ * @returns {EventEmitter} `this`.
+ * @api public
+ */
+EventEmitter.prototype.once = function once(event, fn, context) {
+  var listener = new EE(fn, context || this, true)
+    , evt = prefix ? prefix + event : event;
+
+  if (!this._events[evt]) this._events[evt] = listener, this._eventsCount++;
+  else if (!this._events[evt].fn) this._events[evt].push(listener);
+  else this._events[evt] = [this._events[evt], listener];
+
+  return this;
+};
+
+/**
+ * Remove the listeners of a given event.
+ *
+ * @param {String|Symbol} event The event name.
+ * @param {Function} fn Only remove the listeners that match this function.
+ * @param {Mixed} context Only remove the listeners that have this context.
+ * @param {Boolean} once Only remove one-time listeners.
+ * @returns {EventEmitter} `this`.
+ * @api public
+ */
+EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
+  var evt = prefix ? prefix + event : event;
+
+  if (!this._events[evt]) return this;
+  if (!fn) {
+    if (--this._eventsCount === 0) this._events = new Events();
+    else delete this._events[evt];
+    return this;
+  }
+
+  var listeners = this._events[evt];
+
+  if (listeners.fn) {
+    if (
+         listeners.fn === fn
+      && (!once || listeners.once)
+      && (!context || listeners.context === context)
+    ) {
+      if (--this._eventsCount === 0) this._events = new Events();
+      else delete this._events[evt];
+    }
+  } else {
+    for (var i = 0, events = [], length = listeners.length; i < length; i++) {
+      if (
+           listeners[i].fn !== fn
+        || (once && !listeners[i].once)
+        || (context && listeners[i].context !== context)
+      ) {
+        events.push(listeners[i]);
+      }
+    }
+
+    //
+    // Reset the array, or remove it completely if we have no more listeners.
+    //
+    if (events.length) this._events[evt] = events.length === 1 ? events[0] : events;
+    else if (--this._eventsCount === 0) this._events = new Events();
+    else delete this._events[evt];
+  }
+
+  return this;
+};
+
+/**
+ * Remove all listeners, or those of the specified event.
+ *
+ * @param {String|Symbol} [event] The event name.
+ * @returns {EventEmitter} `this`.
+ * @api public
+ */
+EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
+  var evt;
+
+  if (event) {
+    evt = prefix ? prefix + event : event;
+    if (this._events[evt]) {
+      if (--this._eventsCount === 0) this._events = new Events();
+      else delete this._events[evt];
+    }
+  } else {
+    this._events = new Events();
+    this._eventsCount = 0;
+  }
+
+  return this;
+};
+
+//
+// Alias methods names because people roll like that.
+//
+EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
+EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+//
+// This function doesn't apply anymore.
+//
+EventEmitter.prototype.setMaxListeners = function setMaxListeners() {
+  return this;
+};
+
+//
+// Expose the prefix.
+//
+EventEmitter.prefixed = prefix;
+
+//
+// Allow `EventEmitter` to be imported as module namespace.
+//
+EventEmitter.EventEmitter = EventEmitter;
+
+//
+// Expose the module.
+//
+if ('undefined' !== typeof module) {
+  module.exports = EventEmitter;
+}
+
+},{}],2:[function(_dereq_,module,exports){
+'use strict';
+/* eslint-disable no-unused-vars */
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function toObject(val) {
+	if (val === null || val === undefined) {
+		throw new TypeError('Object.assign cannot be called with null or undefined');
+	}
+
+	return Object(val);
+}
+
+function shouldUseNative() {
+	try {
+		if (!Object.assign) {
+			return false;
+		}
+
+		// Detect buggy property enumeration order in older V8 versions.
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+		var test1 = new String('abc');  // eslint-disable-line
+		test1[5] = 'de';
+		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test2 = {};
+		for (var i = 0; i < 10; i++) {
+			test2['_' + String.fromCharCode(i)] = i;
+		}
+		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+			return test2[n];
+		});
+		if (order2.join('') !== '0123456789') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test3 = {};
+		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+			test3[letter] = letter;
+		});
+		if (Object.keys(Object.assign({}, test3)).join('') !==
+				'abcdefghijklmnopqrst') {
+			return false;
+		}
+
+		return true;
+	} catch (e) {
+		// We don't expect any of the above to throw, but better to be safe.
+		return false;
+	}
+}
+
+module.exports = shouldUseNative() ? Object.assign : function (target, source) {
+	var from;
+	var to = toObject(target);
+	var symbols;
+
+	for (var s = 1; s < arguments.length; s++) {
+		from = Object(arguments[s]);
+
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				to[key] = from[key];
+			}
+		}
+
+		if (Object.getOwnPropertySymbols) {
+			symbols = Object.getOwnPropertySymbols(from);
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					to[symbols[i]] = from[symbols[i]];
+				}
+			}
+		}
+	}
+
+	return to;
+};
+
+},{}],3:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,8 +412,8 @@ module.exports={
  * limitations under the License.
  */
 
-var Util = require('./util.js');
-var WakeLock = require('./wakelock.js');
+var Util = _dereq_('./util.js');
+var WakeLock = _dereq_('./wakelock.js');
 
 // Start at a higher number to reduce chance of conflict.
 var nextDisplayId = 1000;
@@ -254,8 +616,12 @@ VRDisplay.prototype.requestPresent = function(layers) {
       }
 
       for (var i = 0; i < 4; i++) {
-        layer.leftBounds[i] = leftBounds[i];
-        layer.rightBounds[i] = rightBounds[i];
+        if (layer.leftBounds[i] !== leftBounds[i]) {
+          layer.leftBounds[i] = leftBounds[i];
+        }
+        if (layer.rightBounds[i] !== rightBounds[i]) {
+          layer.rightBounds[i] = rightBounds[i];
+        }
       }
 
       resolve();
@@ -274,7 +640,7 @@ VRDisplay.prototype.requestPresent = function(layers) {
     if (self.layer_ && self.layer_.source) {
       var fullscreenElement = self.wrapForFullscreen(self.layer_.source);
 
-      var onFullscreenChange = function() {
+      function onFullscreenChange() {
         var actualFullscreenElement = Util.getFullscreenElement();
 
         self.isPresenting = (fullscreenElement === actualFullscreenElement);
@@ -298,7 +664,7 @@ VRDisplay.prototype.requestPresent = function(layers) {
         }
         self.fireVRDisplayPresentChange_();
       }
-      var onFullscreenError = function() {
+      function onFullscreenError() {
         if (!self.waitingForPresent_) {
           return;
         }
@@ -319,7 +685,7 @@ VRDisplay.prototype.requestPresent = function(layers) {
       if (Util.requestFullscreen(fullscreenElement)) {
         self.wakelock_.request();
         self.waitingForPresent_ = true;
-      } else if (Util.isIOS() || Util.isWebViewAndroid()) {
+      } else if (Util.isIOS()) {
         // *sigh* Just fake it.
         self.wakelock_.request();
         self.isPresenting = true;
@@ -350,13 +716,6 @@ VRDisplay.prototype.exitPresent = function() {
         self.fireVRDisplayPresentChange_();
       }
 
-      if (Util.isWebViewAndroid()) {
-        self.removeFullscreenWrapper();
-        self.removeFullscreenListeners_();
-        self.endPresent_();
-        self.fireVRDisplayPresentChange_();
-      }
-
       resolve();
     } else {
       reject(new Error('Was not presenting to VRDisplay.'));
@@ -372,18 +731,7 @@ VRDisplay.prototype.getLayers = function() {
 };
 
 VRDisplay.prototype.fireVRDisplayPresentChange_ = function() {
-  // Important: unfortunately we cannot have full spec compliance here.
-  // CustomEvent custom fields all go under e.detail (so the VRDisplay ends up
-  // being e.detail.display, instead of e.display as per WebVR spec).
   var event = new CustomEvent('vrdisplaypresentchange', {detail: {display: this}});
-  window.dispatchEvent(event);
-};
-
-VRDisplay.prototype.fireVRDisplayConnect_ = function() {
-  // Important: unfortunately we cannot have full spec compliance here.
-  // CustomEvent custom fields all go under e.detail (so the VRDisplay ends up
-  // being e.detail.display, instead of e.display as per WebVR spec).
-  var event = new CustomEvent('vrdisplayconnect', {detail: {display: this}});
   window.dispatchEvent(event);
 };
 
@@ -497,7 +845,7 @@ module.exports.VRDevice = VRDevice;
 module.exports.HMDVRDevice = HMDVRDevice;
 module.exports.PositionSensorVRDevice = PositionSensorVRDevice;
 
-},{"./util.js":22,"./wakelock.js":24}],3:[function(require,module,exports){
+},{"./util.js":22,"./wakelock.js":24}],4:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -513,9 +861,9 @@ module.exports.PositionSensorVRDevice = PositionSensorVRDevice;
  * limitations under the License.
  */
 
-var CardboardUI = require('./cardboard-ui.js');
-var Util = require('./util.js');
-var WGLUPreserveGLState = require('./deps/wglu-preserve-state.js');
+var CardboardUI = _dereq_('./cardboard-ui.js');
+var Util = _dereq_('./util.js');
+var WGLUPreserveGLState = _dereq_('./deps/wglu-preserve-state.js');
 
 var distortionVS = [
   'attribute vec2 position;',
@@ -553,7 +901,7 @@ function CardboardDistorter(gl) {
   this.meshWidth = 20;
   this.meshHeight = 20;
 
-  this.bufferScale = window.WebVRConfig.BUFFER_SCALE;
+  this.bufferScale = WebVRConfig.BUFFER_SCALE;
 
   this.bufferWidth = gl.drawingBufferWidth;
   this.bufferHeight = gl.drawingBufferHeight;
@@ -617,7 +965,7 @@ function CardboardDistorter(gl) {
 
   this.onResize();
 
-  if (!window.WebVRConfig.CARDBOARD_UI_DISABLED) {
+  if (!WebVRConfig.CARDBOARD_UI_DISABLED) {
     this.cardboardUI = new CardboardUI(gl);
   }
 };
@@ -907,7 +1255,7 @@ CardboardDistorter.prototype.submitFrame = function() {
 
   var glState = [];
 
-  if (!window.WebVRConfig.DIRTY_SUBMIT_FRAME_BINDINGS) {
+  if (!WebVRConfig.DIRTY_SUBMIT_FRAME_BINDINGS) {
     glState.push(
       gl.CURRENT_PROGRAM,
       gl.ARRAY_BUFFER_BINDING,
@@ -969,7 +1317,7 @@ CardboardDistorter.prototype.submitFrame = function() {
       gl.clear(gl.COLOR_BUFFER_BIT);
     }
 
-    if (!window.WebVRConfig.DIRTY_SUBMIT_FRAME_BINDINGS) {
+    if (!WebVRConfig.DIRTY_SUBMIT_FRAME_BINDINGS) {
       self.realBindFramebuffer.call(gl, gl.FRAMEBUFFER, self.lastBoundFramebuffer);
     }
 
@@ -1147,7 +1495,7 @@ CardboardDistorter.prototype.getOwnPropertyDescriptor_ = function(proto, attrNam
 
 module.exports = CardboardDistorter;
 
-},{"./cardboard-ui.js":4,"./deps/wglu-preserve-state.js":6,"./util.js":22}],4:[function(require,module,exports){
+},{"./cardboard-ui.js":5,"./deps/wglu-preserve-state.js":7,"./util.js":22}],5:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1163,8 +1511,8 @@ module.exports = CardboardDistorter;
  * limitations under the License.
  */
 
-var Util = require('./util.js');
-var WGLUPreserveGLState = require('./deps/wglu-preserve-state.js');
+var Util = _dereq_('./util.js');
+var WGLUPreserveGLState = _dereq_('./deps/wglu-preserve-state.js');
 
 var uiVS = [
   'attribute vec2 position;',
@@ -1300,12 +1648,13 @@ CardboardUI.prototype.onResize = function() {
 
     var midline = gl.drawingBufferWidth / 2;
 
-    // The gl buffer size will likely be smaller than the physical pixel count.
-    // So we need to scale the dps down based on the actual buffer size vs physical pixel count.
-    // This will properly size the ui elements no matter what the gl buffer resolution is
-    var physicalPixels = Math.max(screen.width, screen.height) * window.devicePixelRatio;
-    var scalingRatio = gl.drawingBufferWidth / physicalPixels;
-    var dps = scalingRatio *  window.devicePixelRatio;
+    // Assumes your canvas width and height is scaled proportionately.
+    // TODO(smus): The following causes buttons to become huge on iOS, but seems
+    // like the right thing to do. For now, added a hack. But really, investigate why.
+    var dps = (gl.drawingBufferWidth / (screen.width * window.devicePixelRatio));
+    if (!Util.isIOS()) {
+      dps *= window.devicePixelRatio;
+    }
 
     var lineWidth = kCenterLineThicknessDp * dps / 2;
     var buttonSize = kButtonWidthDp * kTouchSlopFactor * dps;
@@ -1434,7 +1783,7 @@ CardboardUI.prototype.renderNoState = function() {
 
 module.exports = CardboardUI;
 
-},{"./deps/wglu-preserve-state.js":6,"./util.js":22}],5:[function(require,module,exports){
+},{"./deps/wglu-preserve-state.js":7,"./util.js":22}],6:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1450,15 +1799,15 @@ module.exports = CardboardUI;
  * limitations under the License.
  */
 
-var CardboardDistorter = require('./cardboard-distorter.js');
-var CardboardUI = require('./cardboard-ui.js');
-var DeviceInfo = require('./device-info.js');
-var Dpdb = require('./dpdb/dpdb.js');
-var FusionPoseSensor = require('./sensor-fusion/fusion-pose-sensor.js');
-var RotateInstructions = require('./rotate-instructions.js');
-var ViewerSelector = require('./viewer-selector.js');
-var VRDisplay = require('./base.js').VRDisplay;
-var Util = require('./util.js');
+var CardboardDistorter = _dereq_('./cardboard-distorter.js');
+var CardboardUI = _dereq_('./cardboard-ui.js');
+var DeviceInfo = _dereq_('./device-info.js');
+var Dpdb = _dereq_('./dpdb/dpdb.js');
+var FusionPoseSensor = _dereq_('./sensor-fusion/fusion-pose-sensor.js');
+var RotateInstructions = _dereq_('./rotate-instructions.js');
+var ViewerSelector = _dereq_('./viewer-selector.js');
+var VRDisplay = _dereq_('./base.js').VRDisplay;
+var Util = _dereq_('./util.js');
 
 var Eye = {
   LEFT: 'left',
@@ -1475,7 +1824,7 @@ function CardboardVRDisplay() {
   this.capabilities.canPresent = true;
 
   // "Private" members.
-  this.bufferScale_ = window.WebVRConfig.BUFFER_SCALE;
+  this.bufferScale_ = WebVRConfig.BUFFER_SCALE;
   this.poseSensor_ = new FusionPoseSensor();
   this.distorter_ = null;
   this.cardboardUI_ = null;
@@ -1484,12 +1833,12 @@ function CardboardVRDisplay() {
   this.deviceInfo_ = new DeviceInfo(this.dpdb_.getDeviceParams());
 
   this.viewerSelector_ = new ViewerSelector();
-  this.viewerSelector_.onChange(this.onViewerChanged_.bind(this));
+  this.viewerSelector_.on('change', this.onViewerChanged_.bind(this));
 
   // Set the correct initial viewer.
   this.deviceInfo_.setViewer(this.viewerSelector_.getCurrentViewer());
 
-  if (!window.WebVRConfig.ROTATE_INSTRUCTIONS_DISABLED) {
+  if (!WebVRConfig.ROTATE_INSTRUCTIONS_DISABLED) {
     this.rotateInstructions_ = new RotateInstructions();
   }
 
@@ -1568,7 +1917,7 @@ CardboardVRDisplay.prototype.beginPresent_ = function() {
 
   // Provides a way to opt out of distortion
   if (this.layer_.predistorted) {
-    if (!window.WebVRConfig.CARDBOARD_UI_DISABLED) {
+    if (!WebVRConfig.CARDBOARD_UI_DISABLED) {
       gl.canvas.width = Util.getScreenWidth() * this.bufferScale_;
       gl.canvas.height = Util.getScreenHeight() * this.bufferScale_;
       this.cardboardUI_ = new CardboardUI(gl);
@@ -1638,7 +1987,6 @@ CardboardVRDisplay.prototype.endPresent_ = function() {
 
 CardboardVRDisplay.prototype.submitFrame = function(pose) {
   if (this.distorter_) {
-    this.updateBounds_();
     this.distorter_.submitFrame();
   } else if (this.cardboardUI_ && this.layer_) {
     // Hack for predistorted: true.
@@ -1674,8 +2022,6 @@ CardboardVRDisplay.prototype.onResize_ = function(e) {
     // hide the URL bar unless content is bigger than the screen.
     // This will not be visible as long as the container element (e.g. body)
     // is set to 'overflow: hidden'.
-    // Additionally, 'box-sizing: content-box' ensures renderWidth = width + padding.
-    // This is required when 'box-sizing: border-box' is used elsewhere in the page.
     var cssProperties = [
       'position: absolute',
       'top: 0',
@@ -1685,7 +2031,6 @@ CardboardVRDisplay.prototype.onResize_ = function(e) {
       'border: 0',
       'margin: 0',
       'padding: 0 10px 10px 0',
-      'box-sizing: content-box',
     ];
     gl.canvas.setAttribute('style', cssProperties.join('; ') + ';');
 
@@ -1718,12 +2063,65 @@ CardboardVRDisplay.prototype.fireVRDisplayDeviceParamsChange_ = function() {
 
 module.exports = CardboardVRDisplay;
 
-},{"./base.js":2,"./cardboard-distorter.js":3,"./cardboard-ui.js":4,"./device-info.js":7,"./dpdb/dpdb.js":11,"./rotate-instructions.js":16,"./sensor-fusion/fusion-pose-sensor.js":18,"./util.js":22,"./viewer-selector.js":23}],6:[function(require,module,exports){
-/**
- * Copyright (c) 2016, Brandon Jones.
- * https://github.com/toji/webgl-utils/blob/master/src/wglu-preserve-state.js
- * LICENSE: https://github.com/toji/webgl-utils/blob/master/LICENSE.md
- */
+},{"./base.js":3,"./cardboard-distorter.js":4,"./cardboard-ui.js":5,"./device-info.js":8,"./dpdb/dpdb.js":12,"./rotate-instructions.js":16,"./sensor-fusion/fusion-pose-sensor.js":18,"./util.js":22,"./viewer-selector.js":23}],7:[function(_dereq_,module,exports){
+/*
+Copyright (c) 2016, Brandon Jones.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
+/*
+Caches specified GL state, runs a callback, and restores the cached state when
+done.
+
+Example usage:
+
+var savedState = [
+  gl.ARRAY_BUFFER_BINDING,
+
+  // TEXTURE_BINDING_2D or _CUBE_MAP must always be followed by the texure unit.
+  gl.TEXTURE_BINDING_2D, gl.TEXTURE0,
+
+  gl.CLEAR_COLOR,
+];
+// After this call the array buffer, texture unit 0, active texture, and clear
+// color will be restored. The viewport will remain changed, however, because
+// gl.VIEWPORT was not included in the savedState list.
+WGLUPreserveGLState(gl, savedState, function(gl) {
+  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, ....);
+
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(gl.TEXTURE_2D, ...);
+
+  gl.clearColor(1, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+});
+
+Note that this is not intended to be fast. Managing state in your own code to
+avoid redundant state setting and querying will always be faster. This function
+is most useful for cases where you may not have full control over the WebGL
+calls being made, such as tooling or effect injectors.
+*/
 
 function WGLUPreserveGLState(gl, bindings, callback) {
   if (!bindings) {
@@ -1830,8 +2228,7 @@ function WGLUPreserveGLState(gl, bindings, callback) {
 }
 
 module.exports = WGLUPreserveGLState;
-
-},{}],7:[function(require,module,exports){
+},{}],8:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1847,9 +2244,9 @@ module.exports = WGLUPreserveGLState;
  * limitations under the License.
  */
 
-var Distortion = require('./distortion/distortion.js');
-var MathUtil = require('./math-util.js');
-var Util = require('./util.js');
+var Distortion = _dereq_('./distortion/distortion.js');
+var MathUtil = _dereq_('./math-util.js');
+var Util = _dereq_('./util.js');
 
 function Device(params) {
   this.width = params.width || Util.getScreenWidth();
@@ -2198,7 +2595,7 @@ function CardboardViewer(params) {
 DeviceInfo.Viewers = Viewers;
 module.exports = DeviceInfo;
 
-},{"./distortion/distortion.js":9,"./math-util.js":13,"./util.js":22}],8:[function(require,module,exports){
+},{"./distortion/distortion.js":10,"./math-util.js":14,"./util.js":22}],9:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -2213,9 +2610,9 @@ module.exports = DeviceInfo;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var VRDisplay = require('./base.js').VRDisplay;
-var HMDVRDevice = require('./base.js').HMDVRDevice;
-var PositionSensorVRDevice = require('./base.js').PositionSensorVRDevice;
+var VRDisplay = _dereq_('./base.js').VRDisplay;
+var HMDVRDevice = _dereq_('./base.js').HMDVRDevice;
+var PositionSensorVRDevice = _dereq_('./base.js').PositionSensorVRDevice;
 
 /**
  * Wraps a VRDisplay and exposes it as a HMDVRDevice
@@ -2290,7 +2687,7 @@ module.exports.VRDisplayHMDDevice = VRDisplayHMDDevice;
 module.exports.VRDisplayPositionSensorDevice = VRDisplayPositionSensorDevice;
 
 
-},{"./base.js":2}],9:[function(require,module,exports){
+},{"./base.js":3}],10:[function(_dereq_,module,exports){
 /**
  * TODO(smus): Implement coefficient inversion.
  */
@@ -2338,1532 +2735,1113 @@ Distortion.prototype.distort = function(radius) {
   return (ret + 1) * radius;
 };
 
+// Functions below roughly ported from
+// https://github.com/googlesamples/cardboard-unity/blob/master/Cardboard/Scripts/CardboardProfile.cs#L412
+
+// Solves a small linear equation via destructive gaussian
+// elimination and back substitution.  This isn't generic numeric
+// code, it's just a quick hack to work with the generally
+// well-behaved symmetric matrices for least-squares fitting.
+// Not intended for reuse.
+//
+// @param a Input positive definite symmetrical matrix. Destroyed
+//     during calculation.
+// @param y Input right-hand-side values. Destroyed during calculation.
+// @return Resulting x value vector.
+//
+Distortion.prototype.solveLinear_ = function(a, y) {
+  var n = a.length;
+
+  // Gaussian elimination (no row exchange) to triangular matrix.
+  // The input matrix is a A^T A product which should be a positive
+  // definite symmetrical matrix, and if I remember my linear
+  // algebra right this implies that the pivots will be nonzero and
+  // calculations sufficiently accurate without needing row
+  // exchange.
+  for (var j = 0; j < n - 1; ++j) {
+    for (var k = j + 1; k < n; ++k) {
+      var p = a[j][k] / a[j][j];
+      for (var i = j + 1; i < n; ++i) {
+        a[i][k] -= p * a[i][j];
+      }
+      y[k] -= p * y[j];
+    }
+  }
+  // From this point on, only the matrix elements a[j][i] with i>=j are
+  // valid. The elimination doesn't fill in eliminated 0 values.
+
+  var x = new Array(n);
+
+  // Back substitution.
+  for (var j = n - 1; j >= 0; --j) {
+    var v = y[j];
+    for (var i = j + 1; i < n; ++i) {
+      v -= a[i][j] * x[i];
+    }
+    x[j] = v / a[j][j];
+  }
+
+  return x;
+};
+
+// Solves a least-squares matrix equation.  Given the equation A * x = y, calculate the
+// least-square fit x = inverse(A * transpose(A)) * transpose(A) * y.  The way this works
+// is that, while A is typically not a square matrix (and hence not invertible), A * transpose(A)
+// is always square.  That is:
+//   A * x = y
+//   transpose(A) * (A * x) = transpose(A) * y   <- multiply both sides by transpose(A)
+//   (transpose(A) * A) * x = transpose(A) * y   <- associativity
+//   x = inverse(transpose(A) * A) * transpose(A) * y  <- solve for x
+// Matrix A's row count (first index) must match y's value count.  A's column count (second index)
+// determines the length of the result vector x.
+Distortion.prototype.solveLeastSquares_ = function(matA, vecY) {
+  var i, j, k, sum;
+  var numSamples = matA.length;
+  var numCoefficients = matA[0].length;
+  if (numSamples != vecY.Length) {
+    throw new Error("Matrix / vector dimension mismatch");
+  }
+
+  // Calculate transpose(A) * A
+  var matATA = new Array(numCoefficients);
+  for (k = 0; k < numCoefficients; ++k) {
+    matATA[k] = new Array(numCoefficients);
+    for (j = 0; j < numCoefficients; ++j) {
+      sum = 0;
+      for (i = 0; i < numSamples; ++i) {
+        sum += matA[j][i] * matA[k][i];
+      }
+      matATA[k][j] = sum;
+    }
+  }
+
+  // Calculate transpose(A) * y
+  var vecATY = new Array(numCoefficients);
+  for (j = 0; j < numCoefficients; ++j) {
+    sum = 0;
+    for (i = 0; i < numSamples; ++i) {
+      sum += matA[j][i] * vecY[i];
+    }
+    vecATY[j] = sum;
+  }
+
+  // Now solve (A * transpose(A)) * x = transpose(A) * y.
+  return this.solveLinear_(matATA, vecATY);
+};
+
+/// Calculates an approximate inverse to the given radial distortion parameters.
+Distortion.prototype.approximateInverse = function(maxRadius, numSamples) {
+  maxRadius = maxRadius || 1;
+  numSamples = numSamples || 100;
+  var numCoefficients = 6;
+  var i, j;
+
+  // R + K1*R^3 + K2*R^5 = r, with R = rp = distort(r)
+  // Repeating for numSamples:
+  //   [ R0^3, R0^5 ] * [ K1 ] = [ r0 - R0 ]
+  //   [ R1^3, R1^5 ]   [ K2 ]   [ r1 - R1 ]
+  //   [ R2^3, R2^5 ]            [ r2 - R2 ]
+  //   [ etc... ]                [ etc... ]
+  // That is:
+  //   matA * [K1, K2] = y
+  // Solve:
+  //   [K1, K2] = inverse(transpose(matA) * matA) * transpose(matA) * y
+  var matA = new Array(numCoefficients);
+  for (j = 0; j < numCoefficients; ++j) {
+    matA[j] = new Array(numSamples);
+  }
+  var vecY = new Array(numSamples);
+
+  for (i = 0; i < numSamples; ++i) {
+    var r = maxRadius * (i + 1) / numSamples;
+    var rp = this.distort(r);
+    var v = rp;
+    for (j = 0; j < numCoefficients; ++j) {
+      v *= rp * rp;
+      matA[j][i] = v;
+    }
+    vecY[i] = r - rp;
+  }
+
+  var inverseCoefficients = this.solveLeastSquares_(matA, vecY);
+
+  return new Distortion(inverseCoefficients);
+};
+
 module.exports = Distortion;
 
-},{}],10:[function(require,module,exports){
-module.exports={
+},{}],11:[function(_dereq_,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * DPDB cache.
+ */
+var DPDB_CACHE = {
   "format": 1,
-  "last_updated": "2017-06-01T22:33:42Z",
+  "last_updated": "2016-01-20T00:18:35Z",
   "devices": [
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "asus/*/Nexus 7/*"
-        },
-        {
-          "ua": "Nexus 7"
-        }
-      ],
-      "dpi": [
-        320.8,
-        323
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "asus/*/ASUS_Z00AD/*"
-        },
-        {
-          "ua": "ASUS_Z00AD"
-        }
-      ],
-      "dpi": [
-        403,
-        404.6
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Google/*/Pixel XL/*"
-        },
-        {
-          "ua": "Pixel XL"
-        }
-      ],
-      "dpi": [
-        537.9,
-        533
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Google/*/Pixel/*"
-        },
-        {
-          "ua": "Pixel"
-        }
-      ],
-      "dpi": [
-        432.6,
-        436.7
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "HTC/*/HTC6435LVW/*"
-        },
-        {
-          "ua": "HTC6435LVW"
-        }
-      ],
-      "dpi": [
-        449.7,
-        443.3
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "HTC/*/HTC One XL/*"
-        },
-        {
-          "ua": "HTC One XL"
-        }
-      ],
-      "dpi": [
-        315.3,
-        314.6
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "htc/*/Nexus 9/*"
-        },
-        {
-          "ua": "Nexus 9"
-        }
-      ],
-      "dpi": 289,
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "HTC/*/HTC One M9/*"
-        },
-        {
-          "ua": "HTC One M9"
-        }
-      ],
-      "dpi": [
-        442.5,
-        443.3
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "HTC/*/HTC One_M8/*"
-        },
-        {
-          "ua": "HTC One_M8"
-        }
-      ],
-      "dpi": [
-        449.7,
-        447.4
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "HTC/*/HTC One/*"
-        },
-        {
-          "ua": "HTC One"
-        }
-      ],
-      "dpi": 472.8,
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Huawei/*/Nexus 6P/*"
-        },
-        {
-          "ua": "Nexus 6P"
-        }
-      ],
-      "dpi": [
-        515.1,
-        518
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/Nexus 5X/*"
-        },
-        {
-          "ua": "Nexus 5X"
-        }
-      ],
-      "dpi": [
-        422,
-        419.9
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/LGMS345/*"
-        },
-        {
-          "ua": "LGMS345"
-        }
-      ],
-      "dpi": [
-        221.7,
-        219.1
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/LG-D800/*"
-        },
-        {
-          "ua": "LG-D800"
-        }
-      ],
-      "dpi": [
-        422,
-        424.1
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/LG-D850/*"
-        },
-        {
-          "ua": "LG-D850"
-        }
-      ],
-      "dpi": [
-        537.9,
-        541.9
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/VS985 4G/*"
-        },
-        {
-          "ua": "VS985 4G"
-        }
-      ],
-      "dpi": [
-        537.9,
-        535.6
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/Nexus 5/*"
-        },
-        {
-          "ua": "Nexus 5 B"
-        }
-      ],
-      "dpi": [
-        442.4,
-        444.8
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/Nexus 4/*"
-        },
-        {
-          "ua": "Nexus 4"
-        }
-      ],
-      "dpi": [
-        319.8,
-        318.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/LG-P769/*"
-        },
-        {
-          "ua": "LG-P769"
-        }
-      ],
-      "dpi": [
-        240.6,
-        247.5
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/LGMS323/*"
-        },
-        {
-          "ua": "LGMS323"
-        }
-      ],
-      "dpi": [
-        206.6,
-        204.6
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "LGE/*/LGLS996/*"
-        },
-        {
-          "ua": "LGLS996"
-        }
-      ],
-      "dpi": [
-        403.4,
-        401.5
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Micromax/*/4560MMX/*"
-        },
-        {
-          "ua": "4560MMX"
-        }
-      ],
-      "dpi": [
-        240,
-        219.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Micromax/*/A250/*"
-        },
-        {
-          "ua": "Micromax A250"
-        }
-      ],
-      "dpi": [
-        480,
-        446.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Micromax/*/Micromax AQ4501/*"
-        },
-        {
-          "ua": "Micromax AQ4501"
-        }
-      ],
-      "dpi": 240,
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/DROID RAZR/*"
-        },
-        {
-          "ua": "DROID RAZR"
-        }
-      ],
-      "dpi": [
-        368.1,
-        256.7
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT830C/*"
-        },
-        {
-          "ua": "XT830C"
-        }
-      ],
-      "dpi": [
-        254,
-        255.9
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1021/*"
-        },
-        {
-          "ua": "XT1021"
-        }
-      ],
-      "dpi": [
-        254,
-        256.7
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1023/*"
-        },
-        {
-          "ua": "XT1023"
-        }
-      ],
-      "dpi": [
-        254,
-        256.7
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1028/*"
-        },
-        {
-          "ua": "XT1028"
-        }
-      ],
-      "dpi": [
-        326.6,
-        327.6
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1034/*"
-        },
-        {
-          "ua": "XT1034"
-        }
-      ],
-      "dpi": [
-        326.6,
-        328.4
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1053/*"
-        },
-        {
-          "ua": "XT1053"
-        }
-      ],
-      "dpi": [
-        315.3,
-        316.1
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1562/*"
-        },
-        {
-          "ua": "XT1562"
-        }
-      ],
-      "dpi": [
-        403.4,
-        402.7
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/Nexus 6/*"
-        },
-        {
-          "ua": "Nexus 6 B"
-        }
-      ],
-      "dpi": [
-        494.3,
-        489.7
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1063/*"
-        },
-        {
-          "ua": "XT1063"
-        }
-      ],
-      "dpi": [
-        295,
-        296.6
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1064/*"
-        },
-        {
-          "ua": "XT1064"
-        }
-      ],
-      "dpi": [
-        295,
-        295.6
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1092/*"
-        },
-        {
-          "ua": "XT1092"
-        }
-      ],
-      "dpi": [
-        422,
-        424.1
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/XT1095/*"
-        },
-        {
-          "ua": "XT1095"
-        }
-      ],
-      "dpi": [
-        422,
-        423.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "motorola/*/G4/*"
-        },
-        {
-          "ua": "Moto G (4)"
-        }
-      ],
-      "dpi": 401,
-      "bw": 4,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "OnePlus/*/A0001/*"
-        },
-        {
-          "ua": "A0001"
-        }
-      ],
-      "dpi": [
-        403.4,
-        401
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "OnePlus/*/ONE E1005/*"
-        },
-        {
-          "ua": "ONE E1005"
-        }
-      ],
-      "dpi": [
-        442.4,
-        441.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "OnePlus/*/ONE A2005/*"
-        },
-        {
-          "ua": "ONE A2005"
-        }
-      ],
-      "dpi": [
-        391.9,
-        405.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "OPPO/*/X909/*"
-        },
-        {
-          "ua": "X909"
-        }
-      ],
-      "dpi": [
-        442.4,
-        444.1
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/GT-I9082/*"
-        },
-        {
-          "ua": "GT-I9082"
-        }
-      ],
-      "dpi": [
-        184.7,
-        185.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G360P/*"
-        },
-        {
-          "ua": "SM-G360P"
-        }
-      ],
-      "dpi": [
-        196.7,
-        205.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/Nexus S/*"
-        },
-        {
-          "ua": "Nexus S"
-        }
-      ],
-      "dpi": [
-        234.5,
-        229.8
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/GT-I9300/*"
-        },
-        {
-          "ua": "GT-I9300"
-        }
-      ],
-      "dpi": [
-        304.8,
-        303.9
-      ],
-      "bw": 5,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-T230NU/*"
-        },
-        {
-          "ua": "SM-T230NU"
-        }
-      ],
-      "dpi": 216,
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SGH-T399/*"
-        },
-        {
-          "ua": "SGH-T399"
-        }
-      ],
-      "dpi": [
-        217.7,
-        231.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SGH-M919/*"
-        },
-        {
-          "ua": "SGH-M919"
-        }
-      ],
-      "dpi": [
-        440.8,
-        437.7
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-N9005/*"
-        },
-        {
-          "ua": "SM-N9005"
-        }
-      ],
-      "dpi": [
-        386.4,
-        387
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SAMSUNG-SM-N900A/*"
-        },
-        {
-          "ua": "SAMSUNG-SM-N900A"
-        }
-      ],
-      "dpi": [
-        386.4,
-        387.7
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/GT-I9500/*"
-        },
-        {
-          "ua": "GT-I9500"
-        }
-      ],
-      "dpi": [
-        442.5,
-        443.3
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/GT-I9505/*"
-        },
-        {
-          "ua": "GT-I9505"
-        }
-      ],
-      "dpi": 439.4,
-      "bw": 4,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G900F/*"
-        },
-        {
-          "ua": "SM-G900F"
-        }
-      ],
-      "dpi": [
-        415.6,
-        431.6
-      ],
-      "bw": 5,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G900M/*"
-        },
-        {
-          "ua": "SM-G900M"
-        }
-      ],
-      "dpi": [
-        415.6,
-        431.6
-      ],
-      "bw": 5,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G800F/*"
-        },
-        {
-          "ua": "SM-G800F"
-        }
-      ],
-      "dpi": 326.8,
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G906S/*"
-        },
-        {
-          "ua": "SM-G906S"
-        }
-      ],
-      "dpi": [
-        562.7,
-        572.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/GT-I9300/*"
-        },
-        {
-          "ua": "GT-I9300"
-        }
-      ],
-      "dpi": [
-        306.7,
-        304.8
-      ],
-      "bw": 5,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-T535/*"
-        },
-        {
-          "ua": "SM-T535"
-        }
-      ],
-      "dpi": [
-        142.6,
-        136.4
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-N920C/*"
-        },
-        {
-          "ua": "SM-N920C"
-        }
-      ],
-      "dpi": [
-        515.1,
-        518.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-N920W8/*"
-        },
-        {
-          "ua": "SM-N920W8"
-        }
-      ],
-      "dpi": [
-        515.1,
-        518.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/GT-I9300I/*"
-        },
-        {
-          "ua": "GT-I9300I"
-        }
-      ],
-      "dpi": [
-        304.8,
-        305.8
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/GT-I9195/*"
-        },
-        {
-          "ua": "GT-I9195"
-        }
-      ],
-      "dpi": [
-        249.4,
-        256.7
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SPH-L520/*"
-        },
-        {
-          "ua": "SPH-L520"
-        }
-      ],
-      "dpi": [
-        249.4,
-        255.9
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SAMSUNG-SGH-I717/*"
-        },
-        {
-          "ua": "SAMSUNG-SGH-I717"
-        }
-      ],
-      "dpi": 285.8,
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SPH-D710/*"
-        },
-        {
-          "ua": "SPH-D710"
-        }
-      ],
-      "dpi": [
-        217.7,
-        204.2
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/GT-N7100/*"
-        },
-        {
-          "ua": "GT-N7100"
-        }
-      ],
-      "dpi": 265.1,
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SCH-I605/*"
-        },
-        {
-          "ua": "SCH-I605"
-        }
-      ],
-      "dpi": 265.1,
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/Galaxy Nexus/*"
-        },
-        {
-          "ua": "Galaxy Nexus"
-        }
-      ],
-      "dpi": [
-        315.3,
-        314.2
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-N910H/*"
-        },
-        {
-          "ua": "SM-N910H"
-        }
-      ],
-      "dpi": [
-        515.1,
-        518
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-N910C/*"
-        },
-        {
-          "ua": "SM-N910C"
-        }
-      ],
-      "dpi": [
-        515.2,
-        520.2
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G130M/*"
-        },
-        {
-          "ua": "SM-G130M"
-        }
-      ],
-      "dpi": [
-        165.9,
-        164.8
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G928I/*"
-        },
-        {
-          "ua": "SM-G928I"
-        }
-      ],
-      "dpi": [
-        515.1,
-        518.4
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G920F/*"
-        },
-        {
-          "ua": "SM-G920F"
-        }
-      ],
-      "dpi": 580.6,
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G920P/*"
-        },
-        {
-          "ua": "SM-G920P"
-        }
-      ],
-      "dpi": [
-        522.5,
-        577
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G925F/*"
-        },
-        {
-          "ua": "SM-G925F"
-        }
-      ],
-      "dpi": 580.6,
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G925V/*"
-        },
-        {
-          "ua": "SM-G925V"
-        }
-      ],
-      "dpi": [
-        522.5,
-        576.6
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G930F/*"
-        },
-        {
-          "ua": "SM-G930F"
-        }
-      ],
-      "dpi": 576.6,
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "samsung/*/SM-G935F/*"
-        },
-        {
-          "ua": "SM-G935F"
-        }
-      ],
-      "dpi": 533,
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Sony/*/C6903/*"
-        },
-        {
-          "ua": "C6903"
-        }
-      ],
-      "dpi": [
-        442.5,
-        443.3
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Sony/*/D6653/*"
-        },
-        {
-          "ua": "D6653"
-        }
-      ],
-      "dpi": [
-        428.6,
-        427.6
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Sony/*/E6653/*"
-        },
-        {
-          "ua": "E6653"
-        }
-      ],
-      "dpi": [
-        428.6,
-        425.7
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Sony/*/E6853/*"
-        },
-        {
-          "ua": "E6853"
-        }
-      ],
-      "dpi": [
-        403.4,
-        401.9
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "Sony/*/SGP321/*"
-        },
-        {
-          "ua": "SGP321"
-        }
-      ],
-      "dpi": [
-        224.7,
-        224.1
-      ],
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "TCT/*/ALCATEL ONE TOUCH Fierce/*"
-        },
-        {
-          "ua": "ALCATEL ONE TOUCH Fierce"
-        }
-      ],
-      "dpi": [
-        240,
-        247.5
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "THL/*/thl 5000/*"
-        },
-        {
-          "ua": "thl 5000"
-        }
-      ],
-      "dpi": [
-        480,
-        443.3
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "android",
-      "rules": [
-        {
-          "mdmh": "ZTE/*/ZTE Blade L2/*"
-        },
-        {
-          "ua": "ZTE Blade L2"
-        }
-      ],
-      "dpi": 240,
-      "bw": 3,
-      "ac": 500
-    },
-    {
-      "type": "ios",
-      "rules": [
-        {
-          "res": [
-            640,
-            960
-          ]
-        }
-      ],
-      "dpi": [
-        325.1,
-        328.4
-      ],
-      "bw": 4,
-      "ac": 1000
-    },
-    {
-      "type": "ios",
-      "rules": [
-        {
-          "res": [
-            640,
-            1136
-          ]
-        }
-      ],
-      "dpi": [
-        317.1,
-        320.2
-      ],
-      "bw": 3,
-      "ac": 1000
-    },
-    {
-      "type": "ios",
-      "rules": [
-        {
-          "res": [
-            750,
-            1334
-          ]
-        }
-      ],
-      "dpi": 326.4,
-      "bw": 4,
-      "ac": 1000
-    },
-    {
-      "type": "ios",
-      "rules": [
-        {
-          "res": [
-            1242,
-            2208
-          ]
-        }
-      ],
-      "dpi": [
-        453.6,
-        458.4
-      ],
-      "bw": 4,
-      "ac": 1000
-    },
-    {
-      "type": "ios",
-      "rules": [
-        {
-          "res": [
-            1125,
-            2001
-          ]
-        }
-      ],
-      "dpi": [
-        410.9,
-        415.4
-      ],
-      "bw": 4,
-      "ac": 1000
-    }
-  ]
-}
-},{}],11:[function(require,module,exports){
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "asus/*/Nexus 7/*" },
+      { "ua": "Nexus 7" }
+    ],
+    "dpi": [ 320.8, 323.0 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "asus/*/ASUS_Z00AD/*" },
+      { "ua": "ASUS_Z00AD" }
+    ],
+    "dpi": [ 403.0, 404.6 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "HTC/*/HTC6435LVW/*" },
+      { "ua": "HTC6435LVW" }
+    ],
+    "dpi": [ 449.7, 443.3 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "HTC/*/HTC One XL/*" },
+      { "ua": "HTC One XL" }
+    ],
+    "dpi": [ 315.3, 314.6 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "htc/*/Nexus 9/*" },
+      { "ua": "Nexus 9" }
+    ],
+    "dpi": 289.0,
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "HTC/*/HTC One M9/*" },
+      { "ua": "HTC One M9" }
+    ],
+    "dpi": [ 442.5, 443.3 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "HTC/*/HTC One_M8/*" },
+      { "ua": "HTC One_M8" }
+    ],
+    "dpi": [ 449.7, 447.4 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "HTC/*/HTC One/*" },
+      { "ua": "HTC One" }
+    ],
+    "dpi": 472.8,
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "Huawei/*/Nexus 6P/*" },
+      { "ua": "Nexus 6P" }
+    ],
+    "dpi": [ 515.1, 518.0 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/Nexus 5X/*" },
+      { "ua": "Nexus 5X" }
+    ],
+    "dpi": [ 422.0, 419.9 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/LGMS345/*" },
+      { "ua": "LGMS345" }
+    ],
+    "dpi": [ 221.7, 219.1 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/LG-D800/*" },
+      { "ua": "LG-D800" }
+    ],
+    "dpi": [ 422.0, 424.1 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/LG-D850/*" },
+      { "ua": "LG-D850" }
+    ],
+    "dpi": [ 537.9, 541.9 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/VS985 4G/*" },
+      { "ua": "VS985 4G" }
+    ],
+    "dpi": [ 537.9, 535.6 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/Nexus 5/*" },
+      { "ua": "Nexus 5 " }
+    ],
+    "dpi": [ 442.4, 444.8 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/Nexus 4/*" },
+      { "ua": "Nexus 4" }
+    ],
+    "dpi": [ 319.8, 318.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/LG-P769/*" },
+      { "ua": "LG-P769" }
+    ],
+    "dpi": [ 240.6, 247.5 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/LGMS323/*" },
+      { "ua": "LGMS323" }
+    ],
+    "dpi": [ 206.6, 204.6 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "LGE/*/LGLS996/*" },
+      { "ua": "LGLS996" }
+    ],
+    "dpi": [ 403.4, 401.5 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "Micromax/*/4560MMX/*" },
+      { "ua": "4560MMX" }
+    ],
+    "dpi": [ 240.0, 219.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "Micromax/*/A250/*" },
+      { "ua": "Micromax A250" }
+    ],
+    "dpi": [ 480.0, 446.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "Micromax/*/Micromax AQ4501/*" },
+      { "ua": "Micromax AQ4501" }
+    ],
+    "dpi": 240.0,
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/DROID RAZR/*" },
+      { "ua": "DROID RAZR" }
+    ],
+    "dpi": [ 368.1, 256.7 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT830C/*" },
+      { "ua": "XT830C" }
+    ],
+    "dpi": [ 254.0, 255.9 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1021/*" },
+      { "ua": "XT1021" }
+    ],
+    "dpi": [ 254.0, 256.7 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1023/*" },
+      { "ua": "XT1023" }
+    ],
+    "dpi": [ 254.0, 256.7 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1028/*" },
+      { "ua": "XT1028" }
+    ],
+    "dpi": [ 326.6, 327.6 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1034/*" },
+      { "ua": "XT1034" }
+    ],
+    "dpi": [ 326.6, 328.4 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1053/*" },
+      { "ua": "XT1053" }
+    ],
+    "dpi": [ 315.3, 316.1 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1562/*" },
+      { "ua": "XT1562" }
+    ],
+    "dpi": [ 403.4, 402.7 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/Nexus 6/*" },
+      { "ua": "Nexus 6 " }
+    ],
+    "dpi": [ 494.3, 489.7 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1063/*" },
+      { "ua": "XT1063" }
+    ],
+    "dpi": [ 295.0, 296.6 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1064/*" },
+      { "ua": "XT1064" }
+    ],
+    "dpi": [ 295.0, 295.6 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1092/*" },
+      { "ua": "XT1092" }
+    ],
+    "dpi": [ 422.0, 424.1 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "motorola/*/XT1095/*" },
+      { "ua": "XT1095" }
+    ],
+    "dpi": [ 422.0, 423.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "OnePlus/*/A0001/*" },
+      { "ua": "A0001" }
+    ],
+    "dpi": [ 403.4, 401.0 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "OnePlus/*/ONE E1005/*" },
+      { "ua": "ONE E1005" }
+    ],
+    "dpi": [ 442.4, 441.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "OnePlus/*/ONE A2005/*" },
+      { "ua": "ONE A2005" }
+    ],
+    "dpi": [ 391.9, 405.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "OPPO/*/X909/*" },
+      { "ua": "X909" }
+    ],
+    "dpi": [ 442.4, 444.1 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/GT-I9082/*" },
+      { "ua": "GT-I9082" }
+    ],
+    "dpi": [ 184.7, 185.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G360P/*" },
+      { "ua": "SM-G360P" }
+    ],
+    "dpi": [ 196.7, 205.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/Nexus S/*" },
+      { "ua": "Nexus S" }
+    ],
+    "dpi": [ 234.5, 229.8 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/GT-I9300/*" },
+      { "ua": "GT-I9300" }
+    ],
+    "dpi": [ 304.8, 303.9 ],
+    "bw": 5,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-T230NU/*" },
+      { "ua": "SM-T230NU" }
+    ],
+    "dpi": 216.0,
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SGH-T399/*" },
+      { "ua": "SGH-T399" }
+    ],
+    "dpi": [ 217.7, 231.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-N9005/*" },
+      { "ua": "SM-N9005" }
+    ],
+    "dpi": [ 386.4, 387.0 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SAMSUNG-SM-N900A/*" },
+      { "ua": "SAMSUNG-SM-N900A" }
+    ],
+    "dpi": [ 386.4, 387.7 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/GT-I9500/*" },
+      { "ua": "GT-I9500" }
+    ],
+    "dpi": [ 442.5, 443.3 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/GT-I9505/*" },
+      { "ua": "GT-I9505" }
+    ],
+    "dpi": 439.4,
+    "bw": 4,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G900F/*" },
+      { "ua": "SM-G900F" }
+    ],
+    "dpi": [ 415.6, 431.6 ],
+    "bw": 5,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G900M/*" },
+      { "ua": "SM-G900M" }
+    ],
+    "dpi": [ 415.6, 431.6 ],
+    "bw": 5,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G800F/*" },
+      { "ua": "SM-G800F" }
+    ],
+    "dpi": 326.8,
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G906S/*" },
+      { "ua": "SM-G906S" }
+    ],
+    "dpi": [ 562.7, 572.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/GT-I9300/*" },
+      { "ua": "GT-I9300" }
+    ],
+    "dpi": [ 306.7, 304.8 ],
+    "bw": 5,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-T535/*" },
+      { "ua": "SM-T535" }
+    ],
+    "dpi": [ 142.6, 136.4 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-N920C/*" },
+      { "ua": "SM-N920C" }
+    ],
+    "dpi": [ 515.1, 518.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/GT-I9300I/*" },
+      { "ua": "GT-I9300I" }
+    ],
+    "dpi": [ 304.8, 305.8 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/GT-I9195/*" },
+      { "ua": "GT-I9195" }
+    ],
+    "dpi": [ 249.4, 256.7 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SPH-L520/*" },
+      { "ua": "SPH-L520" }
+    ],
+    "dpi": [ 249.4, 255.9 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SAMSUNG-SGH-I717/*" },
+      { "ua": "SAMSUNG-SGH-I717" }
+    ],
+    "dpi": 285.8,
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SPH-D710/*" },
+      { "ua": "SPH-D710" }
+    ],
+    "dpi": [ 217.7, 204.2 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/GT-N7100/*" },
+      { "ua": "GT-N7100" }
+    ],
+    "dpi": 265.1,
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SCH-I605/*" },
+      { "ua": "SCH-I605" }
+    ],
+    "dpi": 265.1,
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/Galaxy Nexus/*" },
+      { "ua": "Galaxy Nexus" }
+    ],
+    "dpi": [ 315.3, 314.2 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-N910H/*" },
+      { "ua": "SM-N910H" }
+    ],
+    "dpi": [ 515.1, 518.0 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-N910C/*" },
+      { "ua": "SM-N910C" }
+    ],
+    "dpi": [ 515.2, 520.2 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G130M/*" },
+      { "ua": "SM-G130M" }
+    ],
+    "dpi": [ 165.9, 164.8 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G928I/*" },
+      { "ua": "SM-G928I" }
+    ],
+    "dpi": [ 515.1, 518.4 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G920F/*" },
+      { "ua": "SM-G920F" }
+    ],
+    "dpi": 580.6,
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G920P/*" },
+      { "ua": "SM-G920P" }
+    ],
+    "dpi": [ 522.5, 577.0 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G925F/*" },
+      { "ua": "SM-G925F" }
+    ],
+    "dpi": 580.6,
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "samsung/*/SM-G925V/*" },
+      { "ua": "SM-G925V" }
+    ],
+    "dpi": [ 522.5, 576.6 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "Sony/*/C6903/*" },
+      { "ua": "C6903" }
+    ],
+    "dpi": [ 442.5, 443.3 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "Sony/*/D6653/*" },
+      { "ua": "D6653" }
+    ],
+    "dpi": [ 428.6, 427.6 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "Sony/*/E6653/*" },
+      { "ua": "E6653" }
+    ],
+    "dpi": [ 428.6, 425.7 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "Sony/*/E6853/*" },
+      { "ua": "E6853" }
+    ],
+    "dpi": [ 403.4, 401.9 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "Sony/*/SGP321/*" },
+      { "ua": "SGP321" }
+    ],
+    "dpi": [ 224.7, 224.1 ],
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "TCT/*/ALCATEL ONE TOUCH Fierce/*" },
+      { "ua": "ALCATEL ONE TOUCH Fierce" }
+    ],
+    "dpi": [ 240.0, 247.5 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "THL/*/thl 5000/*" },
+      { "ua": "thl 5000" }
+    ],
+    "dpi": [ 480.0, 443.3 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "android",
+    "rules": [
+      { "mdmh": "ZTE/*/ZTE Blade L2/*" },
+      { "ua": "ZTE Blade L2" }
+    ],
+    "dpi": 240.0,
+    "bw": 3,
+    "ac": 500
+  },
+
+  {
+    "type": "ios",
+    "rules": [ { "res": [ 640, 960 ] } ],
+    "dpi": [ 325.1, 328.4 ],
+    "bw": 4,
+    "ac": 1000
+  },
+
+  {
+    "type": "ios",
+    "rules": [ { "res": [ 640, 960 ] } ],
+    "dpi": [ 325.1, 328.4 ],
+    "bw": 4,
+    "ac": 1000
+  },
+
+  {
+    "type": "ios",
+    "rules": [ { "res": [ 640, 1136 ] } ],
+    "dpi": [ 317.1, 320.2 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "ios",
+    "rules": [ { "res": [ 640, 1136 ] } ],
+    "dpi": [ 317.1, 320.2 ],
+    "bw": 3,
+    "ac": 1000
+  },
+
+  {
+    "type": "ios",
+    "rules": [ { "res": [ 750, 1334 ] } ],
+    "dpi": 326.4,
+    "bw": 4,
+    "ac": 1000
+  },
+
+  {
+    "type": "ios",
+    "rules": [ { "res": [ 750, 1334 ] } ],
+    "dpi": 326.4,
+    "bw": 4,
+    "ac": 1000
+  },
+
+  {
+    "type": "ios",
+    "rules": [ { "res": [ 1242, 2208 ] } ],
+    "dpi": [ 453.6, 458.4 ],
+    "bw": 4,
+    "ac": 1000
+  },
+
+  {
+    "type": "ios",
+    "rules": [ { "res": [ 1242, 2208 ] } ],
+    "dpi": [ 453.6, 458.4 ],
+    "bw": 4,
+    "ac": 1000
+  }
+]};
+
+module.exports = DPDB_CACHE;
+
+},{}],12:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -3881,12 +3859,11 @@ module.exports={
 
 // Offline cache of the DPDB, to be used until we load the online one (and
 // as a fallback in case we can't load the online one).
-var DPDB_CACHE = require('./dpdb.json');
-var Util = require('../util.js');
+var DPDB_CACHE = _dereq_('./dpdb-cache.js');
+var Util = _dereq_('../util.js');
 
 // Online DPDB URL.
-var ONLINE_DPDB_URL =
-  'https://dpdb.webvr.rocks/dpdb.json';
+var ONLINE_DPDB_URL = 'https://storage.googleapis.com/cardboard-dpdb/dpdb.json';
 
 /**
  * Calculates device parameters based on the DPDB (Device Parameter Database).
@@ -4045,7 +4022,7 @@ function DeviceParams(params) {
 
 module.exports = Dpdb;
 
-},{"../util.js":22,"./dpdb.json":10}],12:[function(require,module,exports){
+},{"../util.js":22,"./dpdb-cache.js":11}],13:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -4060,8 +4037,8 @@ module.exports = Dpdb;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var Util = require('./util.js');
-var WebVRPolyfill = require('./webvr-polyfill.js').WebVRPolyfill;
+var Util = _dereq_('./util.js');
+var WebVRPolyfill = _dereq_('./webvr-polyfill.js').WebVRPolyfill;
 
 // Initialize a WebVRConfig just in case.
 window.WebVRConfig = Util.extend({
@@ -4116,16 +4093,7 @@ window.WebVRConfig = Util.extend({
   // When set to true, this will cause a polyfilled VRDisplay to always be
   // appended to the list returned by navigator.getVRDisplays(), even if that
   // list includes a native VRDisplay.
-  ALWAYS_APPEND_POLYFILL_DISPLAY: false,
-
-  // There are versions of Chrome (M58-M60?) where the native WebVR API exists,
-  // and instead of returning 0 VR displays when none are detected,
-  // `navigator.getVRDisplays()`'s promise never resolves. This results
-  // in the polyfill hanging and not being able to provide fallback
-  // displays, so set a timeout in milliseconds to stop waiting for a response
-  // and just use polyfilled displays.
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=727969
-  GET_VR_DISPLAYS_TIMEOUT: 1000,
+  ALWAYS_APPEND_POLYFILL_DISPLAY: false
 }, window.WebVRConfig);
 
 if (!window.WebVRConfig.DEFER_INITIALIZATION) {
@@ -4136,9 +4104,7 @@ if (!window.WebVRConfig.DEFER_INITIALIZATION) {
   }
 }
 
-window.WebVRPolyfill = WebVRPolyfill;
-
-},{"./util.js":22,"./webvr-polyfill.js":25}],13:[function(require,module,exports){
+},{"./util.js":22,"./webvr-polyfill.js":25}],14:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -4497,7 +4463,7 @@ MathUtil.Quaternion.prototype = {
 
 module.exports = MathUtil;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 /*
  * Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -4513,9 +4479,9 @@ module.exports = MathUtil;
  * limitations under the License.
  */
 
-var VRDisplay = require('./base.js').VRDisplay;
-var MathUtil = require('./math-util.js');
-var Util = require('./util.js');
+var VRDisplay = _dereq_('./base.js').VRDisplay;
+var MathUtil = _dereq_('./math-util.js');
+var Util = _dereq_('./util.js');
 
 // How much to rotate per key stroke.
 var KEY_SPEED = 0.15;
@@ -4676,21 +4642,7 @@ MouseKeyboardVRDisplay.prototype.resetPose = function() {
 
 module.exports = MouseKeyboardVRDisplay;
 
-},{"./base.js":2,"./math-util.js":13,"./util.js":22}],15:[function(require,module,exports){
-(function (global){
-// This is the entry point if requiring/importing via node, or
-// a build tool that uses package.json entry (like browserify, webpack).
-// If running in node with a window mock available, globalize its members
-// if needed. Otherwise, just continue to `./main`
-if (typeof global !== 'undefined' && global.window) {
-  global.document = global.window.document;
-  global.navigator = global.window.navigator;
-}
-
-require('./main');
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./main":12}],16:[function(require,module,exports){
+},{"./base.js":3,"./math-util.js":14,"./util.js":22}],16:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -4706,7 +4658,7 @@ require('./main');
  * limitations under the License.
  */
 
-var Util = require('./util.js');
+var Util = _dereq_('./util.js');
 
 function RotateInstructions() {
   this.loadIcon_();
@@ -4836,7 +4788,7 @@ RotateInstructions.prototype.loadIcon_ = function() {
 
 module.exports = RotateInstructions;
 
-},{"./util.js":22}],17:[function(require,module,exports){
+},{"./util.js":22}],17:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -4852,9 +4804,9 @@ module.exports = RotateInstructions;
  * limitations under the License.
  */
 
-var SensorSample = require('./sensor-sample.js');
-var MathUtil = require('../math-util.js');
-var Util = require('../util.js');
+var SensorSample = _dereq_('./sensor-sample.js');
+var MathUtil = _dereq_('../math-util.js');
+var Util = _dereq_('../util.js');
 
 /**
  * An implementation of a simple complementary filter, which fuses gyroscope and
@@ -5004,7 +4956,7 @@ ComplementaryFilter.prototype.gyroToQuaternionDelta_ = function(gyro, dt) {
 
 module.exports = ComplementaryFilter;
 
-},{"../math-util.js":13,"../util.js":22,"./sensor-sample.js":20}],18:[function(require,module,exports){
+},{"../math-util.js":14,"../util.js":22,"./sensor-sample.js":20}],18:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -5019,11 +4971,11 @@ module.exports = ComplementaryFilter;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var ComplementaryFilter = require('./complementary-filter.js');
-var PosePredictor = require('./pose-predictor.js');
-var TouchPanner = require('../touch-panner.js');
-var MathUtil = require('../math-util.js');
-var Util = require('../util.js');
+var ComplementaryFilter = _dereq_('./complementary-filter.js');
+var PosePredictor = _dereq_('./pose-predictor.js');
+var TouchPanner = _dereq_('../touch-panner.js');
+var MathUtil = _dereq_('../math-util.js');
+var Util = _dereq_('../util.js');
 
 /**
  * The pose sensor, implemented using DeviceMotion APIs.
@@ -5037,8 +4989,8 @@ function FusionPoseSensor() {
 
   this.start();
 
-  this.filter = new ComplementaryFilter(window.WebVRConfig.K_FILTER);
-  this.posePredictor = new PosePredictor(window.WebVRConfig.PREDICTION_TIME_S);
+  this.filter = new ComplementaryFilter(WebVRConfig.K_FILTER);
+  this.posePredictor = new PosePredictor(WebVRConfig.PREDICTION_TIME_S);
   this.touchPanner = new TouchPanner();
 
   this.filterToWorldQ = new MathUtil.Quaternion();
@@ -5088,14 +5040,14 @@ FusionPoseSensor.prototype.getOrientation = function() {
   var out = new MathUtil.Quaternion();
   out.copy(this.filterToWorldQ);
   out.multiply(this.resetQ);
-  if (!window.WebVRConfig.TOUCH_PANNER_DISABLED) {
+  if (!WebVRConfig.TOUCH_PANNER_DISABLED) {
     out.multiply(this.touchPanner.getOrientation());
   }
   out.multiply(this.predictedQ);
   out.multiply(this.worldToScreenQ);
 
   // Handle the yaw-only case.
-  if (window.WebVRConfig.YAW_ONLY) {
+  if (WebVRConfig.YAW_ONLY) {
     // Make a quaternion that only turns around the Y-axis.
     out.x = 0;
     out.z = 0;
@@ -5125,7 +5077,7 @@ FusionPoseSensor.prototype.resetPose = function() {
   // Take into account original pose.
   this.resetQ.multiply(this.originalPoseAdjustQ);
 
-  if (!window.WebVRConfig.TOUCH_PANNER_DISABLED) {
+  if (!WebVRConfig.TOUCH_PANNER_DISABLED) {
     this.touchPanner.resetSensor();
   }
 };
@@ -5235,7 +5187,7 @@ FusionPoseSensor.prototype.stop = function() {
 
 module.exports = FusionPoseSensor;
 
-},{"../math-util.js":13,"../touch-panner.js":21,"../util.js":22,"./complementary-filter.js":17,"./pose-predictor.js":19}],19:[function(require,module,exports){
+},{"../math-util.js":14,"../touch-panner.js":21,"../util.js":22,"./complementary-filter.js":17,"./pose-predictor.js":19}],19:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -5250,8 +5202,8 @@ module.exports = FusionPoseSensor;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var MathUtil = require('../math-util');
-var Util = require('../util');
+var MathUtil = _dereq_('../math-util');
+var Util = _dereq_('../util');
 
 /**
  * Given an orientation and the gyroscope data, predicts the future orientation
@@ -5318,7 +5270,7 @@ PosePredictor.prototype.getPrediction = function(currentQ, gyro, timestampS) {
 
 module.exports = PosePredictor;
 
-},{"../math-util":13,"../util":22}],20:[function(require,module,exports){
+},{"../math-util":14,"../util":22}],20:[function(_dereq_,module,exports){
 function SensorSample(sample, timestampS) {
   this.set(sample, timestampS);
 };
@@ -5334,7 +5286,7 @@ SensorSample.prototype.copy = function(sensorSample) {
 
 module.exports = SensorSample;
 
-},{}],21:[function(require,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -5349,8 +5301,8 @@ module.exports = SensorSample;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var MathUtil = require('./math-util.js');
-var Util = require('./util.js');
+var MathUtil = _dereq_('./math-util.js');
+var Util = _dereq_('./util.js');
 
 var ROTATE_SPEED = 0.5;
 /**
@@ -5382,9 +5334,7 @@ TouchPanner.prototype.resetSensor = function() {
 
 TouchPanner.prototype.onTouchStart_ = function(e) {
   // Only respond if there is exactly one touch.
-  // Note that the Daydream controller passes in a `touchstart` event with
-  // no `touches` property, so we must check for that case too.
-  if (!e.touches || e.touches.length != 1) {
+  if (e.touches.length != 1) {
     return;
   }
   this.rotateStart.set(e.touches[0].pageX, e.touches[0].pageY);
@@ -5414,7 +5364,7 @@ TouchPanner.prototype.onTouchEnd_ = function(e) {
 
 module.exports = TouchPanner;
 
-},{"./math-util.js":13,"./util.js":22}],22:[function(require,module,exports){
+},{"./math-util.js":14,"./util.js":22}],22:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -5429,6 +5379,8 @@ module.exports = TouchPanner;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+var objectAssign = _dereq_('object-assign');
 
 var Util = window.Util || {};
 
@@ -5447,38 +5399,10 @@ Util.lerp = function(a, b, t) {
   return a + ((b - a) * t);
 };
 
-/**
- * Light polyfill for `Promise.race`. Returns
- * a promise that resolves when the first promise
- * provided resolves.
- *
- * @param {Array<Promise>} promises
- */
-Util.race = function(promises) {
-  if (Promise.race) {
-    return Promise.race(promises);
-  }
-
-  return new Promise(function (resolve, reject) {
-    for (var i = 0; i < promises.length; i++) {
-      promises[i].then(resolve, reject);
-    }
-  });
-};
-
 Util.isIOS = (function() {
   var isIOS = /iPad|iPhone|iPod/.test(navigator.platform);
   return function() {
     return isIOS;
-  };
-})();
-
-Util.isWebViewAndroid = (function() {
-  var isWebViewAndroid = navigator.userAgent.indexOf('Version') !== -1 &&
-      navigator.userAgent.indexOf('Android') !== -1 &&
-      navigator.userAgent.indexOf('Chrome') !== -1;
-  return function() {
-    return isWebViewAndroid;
   };
 })();
 
@@ -5526,9 +5450,6 @@ Util.getScreenHeight = function() {
 };
 
 Util.requestFullscreen = function(element) {
-  if (Util.isWebViewAndroid()) {
-      return false;
-  }
   if (element.requestFullscreen) {
     element.requestFullscreen();
   } else if (element.webkitRequestFullscreen) {
@@ -5627,27 +5548,13 @@ Util.orthoMatrix = function (out, left, right, bottom, top, near, far) {
   return out;
 };
 
-Util.copyArray = function (source, dest) {
-  for (var i = 0, n = source.length; i < n; i++) {
-    dest[i] = source[i];
-  }
-};
-
 Util.isMobile = function() {
   var check = false;
   (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4)))check = true})(navigator.userAgent||navigator.vendor||window.opera);
   return check;
 };
 
-Util.extend = function(dest, src) {
-  for (var key in src) {
-    if (src.hasOwnProperty(key)) {
-      dest[key] = src[key];
-    }
-  }
-
-  return dest;
-}
+Util.extend = objectAssign;
 
 Util.safariCssSizeWorkaround = function(canvas) {
   // TODO(smus): Remove this workaround when Safari for iOS is fixed.
@@ -5889,7 +5796,7 @@ Util.getDomainFromUrl = function(url) {
 
 module.exports = Util;
 
-},{}],23:[function(require,module,exports){
+},{"object-assign":2}],23:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -5905,8 +5812,9 @@ module.exports = Util;
  * limitations under the License.
  */
 
-var DeviceInfo = require('./device-info.js');
-var Util = require('./util.js');
+var DeviceInfo = _dereq_('./device-info.js');
+var EventEmitter3 = _dereq_('eventemitter3');
+var Util = _dereq_('./util.js');
 
 var DEFAULT_VIEWER = 'CardboardV1';
 var VIEWER_KEY = 'WEBVR_CARDBOARD_VIEWER';
@@ -5918,22 +5826,17 @@ var CLASS_NAME = 'webvr-polyfill-viewer-selector';
  * saving the currently selected index in localStorage.
  */
 function ViewerSelector() {
-  // Try to load the selected key from local storage.
+  // Try to load the selected key from local storage. If none exists, use the
+  // default key.
   try {
-    this.selectedKey = localStorage.getItem(VIEWER_KEY);
+    this.selectedKey = localStorage.getItem(VIEWER_KEY) || DEFAULT_VIEWER;
   } catch (error) {
     console.error('Failed to load viewer profile: %s', error);
   }
-
-  //If none exists, or if localstorage is unavailable, use the default key.
-  if (!this.selectedKey) {
-    this.selectedKey = DEFAULT_VIEWER;
-  }
-
   this.dialog = this.createDialog_(DeviceInfo.Viewers);
   this.root = null;
-  this.onChangeCallbacks_ = [];
 }
+ViewerSelector.prototype = new EventEmitter3();
 
 ViewerSelector.prototype.show = function(root) {
   this.root = root;
@@ -5967,16 +5870,6 @@ ViewerSelector.prototype.getSelectedKey_ = function() {
   return null;
 };
 
-ViewerSelector.prototype.onChange = function(cb) {
-  this.onChangeCallbacks_.push(cb);
-};
-
-ViewerSelector.prototype.fireOnChange_ = function(viewer) {
-  for (var i = 0; i < this.onChangeCallbacks_.length; i++) {
-    this.onChangeCallbacks_[i](viewer);
-  }
-};
-
 ViewerSelector.prototype.onSave_ = function() {
   this.selectedKey = this.getSelectedKey_();
   if (!this.selectedKey || !DeviceInfo.Viewers[this.selectedKey]) {
@@ -5984,7 +5877,7 @@ ViewerSelector.prototype.onSave_ = function() {
     return;
   }
 
-  this.fireOnChange_(DeviceInfo.Viewers[this.selectedKey]);
+  this.emit('change', DeviceInfo.Viewers[this.selectedKey]);
 
   // Attempt to save the viewer profile, but fails in private mode.
   try {
@@ -6102,7 +5995,7 @@ ViewerSelector.prototype.createButton_ = function(label, onclick) {
 
 module.exports = ViewerSelector;
 
-},{"./device-info.js":7,"./util.js":22}],24:[function(require,module,exports){
+},{"./device-info.js":8,"./util.js":22,"eventemitter3":1}],24:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -6118,7 +6011,7 @@ module.exports = ViewerSelector;
  * limitations under the License.
  */
 
-var Util = require('./util.js');
+var Util = _dereq_('./util.js');
 
 /**
  * Android and iOS compatible wakelock implementation.
@@ -6127,26 +6020,22 @@ var Util = require('./util.js');
  */
 function AndroidWakeLock() {
   var video = document.createElement('video');
-  video.setAttribute('loop', '');
 
-  function addSourceToVideo(element, type, dataURI) {
-    var source = document.createElement('source');
-    source.src = dataURI;
-    source.type = 'video/' + type;
-    element.appendChild(source);
-  }
-
-  addSourceToVideo(video,'webm', Util.base64('video/webm', 'GkXfo0AgQoaBAUL3gQFC8oEEQvOBCEKCQAR3ZWJtQoeBAkKFgQIYU4BnQI0VSalmQCgq17FAAw9CQE2AQAZ3aGFtbXlXQUAGd2hhbW15RIlACECPQAAAAAAAFlSua0AxrkAu14EBY8WBAZyBACK1nEADdW5khkAFVl9WUDglhohAA1ZQOIOBAeBABrCBCLqBCB9DtnVAIueBAKNAHIEAAIAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AAA='));
-  addSourceToVideo(video, 'mp4', Util.base64('video/mp4', 'AAAAHGZ0eXBpc29tAAACAGlzb21pc28ybXA0MQAAAAhmcmVlAAAAG21kYXQAAAGzABAHAAABthADAowdbb9/AAAC6W1vb3YAAABsbXZoZAAAAAB8JbCAfCWwgAAAA+gAAAAAAAEAAAEAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAIVdHJhawAAAFx0a2hkAAAAD3wlsIB8JbCAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAIAAAACAAAAAABsW1kaWEAAAAgbWRoZAAAAAB8JbCAfCWwgAAAA+gAAAAAVcQAAAAAAC1oZGxyAAAAAAAAAAB2aWRlAAAAAAAAAAAAAAAAVmlkZW9IYW5kbGVyAAAAAVxtaW5mAAAAFHZtaGQAAAABAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAEcc3RibAAAALhzdHNkAAAAAAAAAAEAAACobXA0dgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAIAAgASAAAAEgAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABj//wAAAFJlc2RzAAAAAANEAAEABDwgEQAAAAADDUAAAAAABS0AAAGwAQAAAbWJEwAAAQAAAAEgAMSNiB9FAEQBFGMAAAGyTGF2YzUyLjg3LjQGAQIAAAAYc3R0cwAAAAAAAAABAAAAAQAAAAAAAAAcc3RzYwAAAAAAAAABAAAAAQAAAAEAAAABAAAAFHN0c3oAAAAAAAAAEwAAAAEAAAAUc3RjbwAAAAAAAAABAAAALAAAAGB1ZHRhAAAAWG1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAAK2lsc3QAAAAjqXRvbwAAABtkYXRhAAAAAQAAAABMYXZmNTIuNzguMw=='));
+  video.addEventListener('ended', function() {
+    video.play();
+  });
 
   this.request = function() {
     if (video.paused) {
+      // Base64 version of videos_src/no-sleep-120s.mp4.
+      video.src = Util.base64('video/mp4', 'AAAAGGZ0eXBpc29tAAAAAG1wNDFhdmMxAAAIA21vb3YAAABsbXZoZAAAAADSa9v60mvb+gABX5AAlw/gAAEAAAEAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAdkdHJhawAAAFx0a2hkAAAAAdJr2/rSa9v6AAAAAQAAAAAAlw/gAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAQAAAAHAAAAAAAJGVkdHMAAAAcZWxzdAAAAAAAAAABAJcP4AAAAAAAAQAAAAAG3G1kaWEAAAAgbWRoZAAAAADSa9v60mvb+gAPQkAGjneAFccAAAAAAC1oZGxyAAAAAAAAAAB2aWRlAAAAAAAAAAAAAAAAVmlkZW9IYW5kbGVyAAAABodtaW5mAAAAFHZtaGQAAAABAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAZHc3RibAAAAJdzdHNkAAAAAAAAAAEAAACHYXZjMQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAMABwASAAAAEgAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABj//wAAADFhdmNDAWQAC//hABlnZAALrNlfllw4QAAAAwBAAAADAKPFCmWAAQAFaOvssiwAAAAYc3R0cwAAAAAAAAABAAAAbgAPQkAAAAAUc3RzcwAAAAAAAAABAAAAAQAAA4BjdHRzAAAAAAAAAG4AAAABAD0JAAAAAAEAehIAAAAAAQA9CQAAAAABAAAAAAAAAAEAD0JAAAAAAQBMS0AAAAABAB6EgAAAAAEAAAAAAAAAAQAPQkAAAAABAExLQAAAAAEAHoSAAAAAAQAAAAAAAAABAA9CQAAAAAEATEtAAAAAAQAehIAAAAABAAAAAAAAAAEAD0JAAAAAAQBMS0AAAAABAB6EgAAAAAEAAAAAAAAAAQAPQkAAAAABAExLQAAAAAEAHoSAAAAAAQAAAAAAAAABAA9CQAAAAAEATEtAAAAAAQAehIAAAAABAAAAAAAAAAEAD0JAAAAAAQBMS0AAAAABAB6EgAAAAAEAAAAAAAAAAQAPQkAAAAABAExLQAAAAAEAHoSAAAAAAQAAAAAAAAABAA9CQAAAAAEATEtAAAAAAQAehIAAAAABAAAAAAAAAAEAD0JAAAAAAQBMS0AAAAABAB6EgAAAAAEAAAAAAAAAAQAPQkAAAAABAExLQAAAAAEAHoSAAAAAAQAAAAAAAAABAA9CQAAAAAEATEtAAAAAAQAehIAAAAABAAAAAAAAAAEAD0JAAAAAAQBMS0AAAAABAB6EgAAAAAEAAAAAAAAAAQAPQkAAAAABAExLQAAAAAEAHoSAAAAAAQAAAAAAAAABAA9CQAAAAAEATEtAAAAAAQAehIAAAAABAAAAAAAAAAEAD0JAAAAAAQBMS0AAAAABAB6EgAAAAAEAAAAAAAAAAQAPQkAAAAABAExLQAAAAAEAHoSAAAAAAQAAAAAAAAABAA9CQAAAAAEATEtAAAAAAQAehIAAAAABAAAAAAAAAAEAD0JAAAAAAQBMS0AAAAABAB6EgAAAAAEAAAAAAAAAAQAPQkAAAAABAExLQAAAAAEAHoSAAAAAAQAAAAAAAAABAA9CQAAAAAEATEtAAAAAAQAehIAAAAABAAAAAAAAAAEAD0JAAAAAAQBMS0AAAAABAB6EgAAAAAEAAAAAAAAAAQAPQkAAAAABAExLQAAAAAEAHoSAAAAAAQAAAAAAAAABAA9CQAAAAAEATEtAAAAAAQAehIAAAAABAAAAAAAAAAEAD0JAAAAAAQBMS0AAAAABAB6EgAAAAAEAAAAAAAAAAQAPQkAAAAABAExLQAAAAAEAHoSAAAAAAQAAAAAAAAABAA9CQAAAAAEALcbAAAAAHHN0c2MAAAAAAAAAAQAAAAEAAABuAAAAAQAAAcxzdHN6AAAAAAAAAAAAAABuAAADCQAAABgAAAAOAAAADgAAAAwAAAASAAAADgAAAAwAAAAMAAAAEgAAAA4AAAAMAAAADAAAABIAAAAOAAAADAAAAAwAAAASAAAADgAAAAwAAAAMAAAAEgAAAA4AAAAMAAAADAAAABIAAAAOAAAADAAAAAwAAAASAAAADgAAAAwAAAAMAAAAEgAAAA4AAAAMAAAADAAAABIAAAAOAAAADAAAAAwAAAASAAAADgAAAAwAAAAMAAAAEgAAAA4AAAAMAAAADAAAABIAAAAOAAAADAAAAAwAAAASAAAADgAAAAwAAAAMAAAAEgAAAA4AAAAMAAAADAAAABIAAAAOAAAADAAAAAwAAAASAAAADgAAAAwAAAAMAAAAEgAAAA4AAAAMAAAADAAAABIAAAAOAAAADAAAAAwAAAASAAAADgAAAAwAAAAMAAAAEgAAAA4AAAAMAAAADAAAABIAAAAOAAAADAAAAAwAAAASAAAADgAAAAwAAAAMAAAAEgAAAA4AAAAMAAAADAAAABIAAAAOAAAADAAAAAwAAAASAAAADgAAAAwAAAAMAAAAEgAAAA4AAAAMAAAADAAAABMAAAAUc3RjbwAAAAAAAAABAAAIKwAAACt1ZHRhAAAAI6llbmMAFwAAdmxjIDIuMi4xIHN0cmVhbSBvdXRwdXQAAAAId2lkZQAACRRtZGF0AAACrgX//6vcRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTQyIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDEzIG1lPWhleCBzdWJtZT03IHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTEgbWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0xIDh4OGRjdD0xIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PS0yIHRocmVhZHM9MTIgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD00MCByYz1hYnIgbWJ0cmVlPTEgYml0cmF0ZT0xMDAgcmF0ZXRvbD0xLjAgcWNvbXA9MC42MCBxcG1pbj0xMCBxcG1heD01MSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAAAU2WIhAAQ/8ltlOe+cTZuGkKg+aRtuivcDZ0pBsfsEi9p/i1yU9DxS2lq4dXTinViF1URBKXgnzKBd/Uh1bkhHtMrwrRcOJslD01UB+fyaL6ef+DBAAAAFEGaJGxBD5B+v+a+4QqF3MgBXz9MAAAACkGeQniH/+94r6EAAAAKAZ5hdEN/8QytwAAAAAgBnmNqQ3/EgQAAAA5BmmhJqEFomUwIIf/+4QAAAApBnoZFESw//76BAAAACAGepXRDf8SBAAAACAGep2pDf8SAAAAADkGarEmoQWyZTAgh//7gAAAACkGeykUVLD//voEAAAAIAZ7pdEN/xIAAAAAIAZ7rakN/xIAAAAAOQZrwSahBbJlMCCH//uEAAAAKQZ8ORRUsP/++gQAAAAgBny10Q3/EgQAAAAgBny9qQ3/EgAAAAA5BmzRJqEFsmUwIIf/+4AAAAApBn1JFFSw//76BAAAACAGfcXRDf8SAAAAACAGfc2pDf8SAAAAADkGbeEmoQWyZTAgh//7hAAAACkGflkUVLD//voAAAAAIAZ+1dEN/xIEAAAAIAZ+3akN/xIEAAAAOQZu8SahBbJlMCCH//uAAAAAKQZ/aRRUsP/++gQAAAAgBn/l0Q3/EgAAAAAgBn/tqQ3/EgQAAAA5Bm+BJqEFsmUwIIf/+4QAAAApBnh5FFSw//76AAAAACAGePXRDf8SAAAAACAGeP2pDf8SBAAAADkGaJEmoQWyZTAgh//7gAAAACkGeQkUVLD//voEAAAAIAZ5hdEN/xIAAAAAIAZ5jakN/xIEAAAAOQZpoSahBbJlMCCH//uEAAAAKQZ6GRRUsP/++gQAAAAgBnqV0Q3/EgQAAAAgBnqdqQ3/EgAAAAA5BmqxJqEFsmUwIIf/+4AAAAApBnspFFSw//76BAAAACAGe6XRDf8SAAAAACAGe62pDf8SAAAAADkGa8EmoQWyZTAgh//7hAAAACkGfDkUVLD//voEAAAAIAZ8tdEN/xIEAAAAIAZ8vakN/xIAAAAAOQZs0SahBbJlMCCH//uAAAAAKQZ9SRRUsP/++gQAAAAgBn3F0Q3/EgAAAAAgBn3NqQ3/EgAAAAA5Bm3hJqEFsmUwIIf/+4QAAAApBn5ZFFSw//76AAAAACAGftXRDf8SBAAAACAGft2pDf8SBAAAADkGbvEmoQWyZTAgh//7gAAAACkGf2kUVLD//voEAAAAIAZ/5dEN/xIAAAAAIAZ/7akN/xIEAAAAOQZvgSahBbJlMCCH//uEAAAAKQZ4eRRUsP/++gAAAAAgBnj10Q3/EgAAAAAgBnj9qQ3/EgQAAAA5BmiRJqEFsmUwIIf/+4AAAAApBnkJFFSw//76BAAAACAGeYXRDf8SAAAAACAGeY2pDf8SBAAAADkGaaEmoQWyZTAgh//7hAAAACkGehkUVLD//voEAAAAIAZ6ldEN/xIEAAAAIAZ6nakN/xIAAAAAOQZqsSahBbJlMCCH//uAAAAAKQZ7KRRUsP/++gQAAAAgBnul0Q3/EgAAAAAgBnutqQ3/EgAAAAA5BmvBJqEFsmUwIIf/+4QAAAApBnw5FFSw//76BAAAACAGfLXRDf8SBAAAACAGfL2pDf8SAAAAADkGbNEmoQWyZTAgh//7gAAAACkGfUkUVLD//voEAAAAIAZ9xdEN/xIAAAAAIAZ9zakN/xIAAAAAOQZt4SahBbJlMCCH//uEAAAAKQZ+WRRUsP/++gAAAAAgBn7V0Q3/EgQAAAAgBn7dqQ3/EgQAAAA5Bm7xJqEFsmUwIIf/+4AAAAApBn9pFFSw//76BAAAACAGf+XRDf8SAAAAACAGf+2pDf8SBAAAADkGb4EmoQWyZTAgh//7hAAAACkGeHkUVLD//voAAAAAIAZ49dEN/xIAAAAAIAZ4/akN/xIEAAAAOQZokSahBbJlMCCH//uAAAAAKQZ5CRRUsP/++gQAAAAgBnmF0Q3/EgAAAAAgBnmNqQ3/EgQAAAA5BmmhJqEFsmUwIIf/+4QAAAApBnoZFFSw//76BAAAACAGepXRDf8SBAAAACAGep2pDf8SAAAAADkGarEmoQWyZTAgh//7gAAAACkGeykUVLD//voEAAAAIAZ7pdEN/xIAAAAAIAZ7rakN/xIAAAAAPQZruSahBbJlMFEw3//7B');
       video.play();
     }
   };
 
   this.release = function() {
     video.pause();
+    video.src = '';
   };
 }
 
@@ -6181,7 +6070,7 @@ function getWakeLock() {
 }
 
 module.exports = getWakeLock();
-},{"./util.js":22}],25:[function(require,module,exports){
+},{"./util.js":22}],25:[function(_dereq_,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -6197,18 +6086,17 @@ module.exports = getWakeLock();
  * limitations under the License.
  */
 
-var Util = require('./util.js');
-var CardboardVRDisplay = require('./cardboard-vr-display.js');
-var MouseKeyboardVRDisplay = require('./mouse-keyboard-vr-display.js');
+var Util = _dereq_('./util.js');
+var CardboardVRDisplay = _dereq_('./cardboard-vr-display.js');
+var MouseKeyboardVRDisplay = _dereq_('./mouse-keyboard-vr-display.js');
 // Uncomment to add positional tracking via webcam.
 //var WebcamPositionSensorVRDevice = require('./webcam-position-sensor-vr-device.js');
-var VRDisplay = require('./base.js').VRDisplay;
-var VRFrameData = require('./base.js').VRFrameData;
-var HMDVRDevice = require('./base.js').HMDVRDevice;
-var PositionSensorVRDevice = require('./base.js').PositionSensorVRDevice;
-var VRDisplayHMDDevice = require('./display-wrappers.js').VRDisplayHMDDevice;
-var VRDisplayPositionSensorDevice = require('./display-wrappers.js').VRDisplayPositionSensorDevice;
-var version = require('../package.json').version;
+var VRDisplay = _dereq_('./base.js').VRDisplay;
+var VRFrameData = _dereq_('./base.js').VRFrameData;
+var HMDVRDevice = _dereq_('./base.js').HMDVRDevice;
+var PositionSensorVRDevice = _dereq_('./base.js').PositionSensorVRDevice;
+var VRDisplayHMDDevice = _dereq_('./display-wrappers.js').VRDisplayHMDDevice;
+var VRDisplayPositionSensorDevice = _dereq_('./display-wrappers.js').VRDisplayPositionSensorDevice;
 
 function WebVRPolyfill() {
   this.displays = [];
@@ -6222,7 +6110,7 @@ function WebVRPolyfill() {
 
   if (!this.nativeLegacyWebVRAvailable) {
     this.enablePolyfill();
-    if (window.WebVRConfig.ENABLE_DEPRECATED_API) {
+    if (WebVRConfig.ENABLE_DEPRECATED_API) {
       this.enableDeprecatedPolyfill();
     }
   }
@@ -6239,11 +6127,6 @@ WebVRPolyfill.prototype.isDeprecatedWebVRAvailable = function() {
   return ('getVRDevices' in navigator) || ('mozGetVRDevices' in navigator);
 };
 
-WebVRPolyfill.prototype.connectDisplay = function(vrDisplay) {
-  vrDisplay.fireVRDisplayConnect_();
-  this.displays.push(vrDisplay);
-};
-
 WebVRPolyfill.prototype.populateDevices = function() {
   if (this.devicesPopulated) {
     return;
@@ -6255,30 +6138,29 @@ WebVRPolyfill.prototype.populateDevices = function() {
   // Add a Cardboard VRDisplay on compatible mobile devices
   if (this.isCardboardCompatible()) {
     vrDisplay = new CardboardVRDisplay();
-
-    this.connectDisplay(vrDisplay);
+    this.displays.push(vrDisplay);
 
     // For backwards compatibility
-    if (window.WebVRConfig.ENABLE_DEPRECATED_API) {
+    if (WebVRConfig.ENABLE_DEPRECATED_API) {
       this.devices.push(new VRDisplayHMDDevice(vrDisplay));
       this.devices.push(new VRDisplayPositionSensorDevice(vrDisplay));
     }
   }
 
   // Add a Mouse and Keyboard driven VRDisplay for desktops/laptops
-  if (!this.isMobile() && !window.WebVRConfig.MOUSE_KEYBOARD_CONTROLS_DISABLED) {
+  if (!this.isMobile() && !WebVRConfig.MOUSE_KEYBOARD_CONTROLS_DISABLED) {
     vrDisplay = new MouseKeyboardVRDisplay();
-    this.connectDisplay(vrDisplay);
+    this.displays.push(vrDisplay);
 
     // For backwards compatibility
-    if (window.WebVRConfig.ENABLE_DEPRECATED_API) {
+    if (WebVRConfig.ENABLE_DEPRECATED_API) {
       this.devices.push(new VRDisplayHMDDevice(vrDisplay));
       this.devices.push(new VRDisplayPositionSensorDevice(vrDisplay));
     }
   }
 
   // Uncomment to add positional tracking via webcam.
-  //if (!this.isMobile() && window.WebVRConfig.ENABLE_DEPRECATED_API) {
+  //if (!this.isMobile() && WebVRConfig.ENABLE_DEPRECATED_API) {
   //  positionDevice = new WebcamPositionSensorVRDevice();
   //  this.devices.push(positionDevice);
   //}
@@ -6290,48 +6172,19 @@ WebVRPolyfill.prototype.enablePolyfill = function() {
   // Provide navigator.getVRDisplays.
   navigator.getVRDisplays = this.getVRDisplays.bind(this);
 
-  // Polyfill native VRDisplay.getFrameData
-  if (this.nativeWebVRAvailable && window.VRFrameData) {
-    var NativeVRFrameData = window.VRFrameData;
-    var nativeFrameData = new window.VRFrameData();
-    var nativeGetFrameData = window.VRDisplay.prototype.getFrameData;
-    window.VRFrameData = VRFrameData;
-
-    window.VRDisplay.prototype.getFrameData = function(frameData) {
-      if (frameData instanceof NativeVRFrameData) {
-        nativeGetFrameData.call(this, frameData);
-        return;
-      }
-
-      /*
-      Copy frame data from the native object into the polyfilled object.
-      */
-
-      nativeGetFrameData.call(this, nativeFrameData);
-      frameData.pose = nativeFrameData.pose;
-      Util.copyArray(nativeFrameData.leftProjectionMatrix, frameData.leftProjectionMatrix);
-      Util.copyArray(nativeFrameData.rightProjectionMatrix, frameData.rightProjectionMatrix);
-      Util.copyArray(nativeFrameData.leftViewMatrix, frameData.leftViewMatrix);
-      Util.copyArray(nativeFrameData.rightViewMatrix, frameData.rightViewMatrix);
-      //todo: copy
-    };
-  }
-
-  // Provide the `VRDisplay` object.
+  // Provide the VRDisplay object.
   window.VRDisplay = VRDisplay;
 
-  // Provide the `navigator.vrEnabled` property.
-  if (navigator && !navigator.vrEnabled) {
-    var self = this;
-    Object.defineProperty(navigator, 'vrEnabled', {
-      get: function () {
-        return self.isCardboardCompatible() &&
-            (self.isFullScreenAvailable() || Util.isIOS());
-      }
-    });
-  }
+  // Provide navigator.vrEnabled.
+  var self = this;
+  Object.defineProperty(navigator, 'vrEnabled', {
+    get: function () {
+      return self.isCardboardCompatible() &&
+          (self.isFullScreenAvailable() || Util.isIOS());
+    }
+  });
 
-  if (!('VRFrameData' in window)) {
+  if (!'VRFrameData' in window) {
     // Provide the VRFrameData object.
     window.VRFrameData = VRFrameData;
   }
@@ -6350,32 +6203,23 @@ WebVRPolyfill.prototype.getVRDisplays = function() {
   this.populateDevices();
   var polyfillDisplays = this.displays;
 
-  if (!this.nativeWebVRAvailable) {
-    return Promise.resolve(polyfillDisplays);
+  if (this.nativeWebVRAvailable) {
+    return this.nativeGetVRDisplaysFunc.call(navigator).then(function(nativeDisplays) {
+      if (WebVRConfig.ALWAYS_APPEND_POLYFILL_DISPLAY) {
+        return nativeDisplays.concat(polyfillDisplays);
+      } else {
+        return nativeDisplays.length > 0 ? nativeDisplays : polyfillDisplays;
+      }
+    });
+  } else {
+    return new Promise(function(resolve, reject) {
+      try {
+        resolve(polyfillDisplays);
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
-
-  // Set up a race condition if this browser has a bug where
-  // `navigator.getVRDisplays()` never resolves.
-  var timeoutId;
-  var vrDisplaysNative = this.nativeGetVRDisplaysFunc.call(navigator);
-  var timeoutPromise = new Promise(function(resolve) {
-    timeoutId = setTimeout(function() {
-      console.warn('Native WebVR implementation detected, but `getVRDisplays()` failed to resolve. Falling back to polyfill.');
-      resolve([]);
-    }, window.WebVRConfig.GET_VR_DISPLAYS_TIMEOUT);
-  });
-
-  return Util.race([
-    vrDisplaysNative,
-    timeoutPromise
-  ]).then(function(nativeDisplays) {
-    clearTimeout(timeoutId);
-    if (window.WebVRConfig.ALWAYS_APPEND_POLYFILL_DISPLAY) {
-      return nativeDisplays.concat(polyfillDisplays);
-    } else {
-      return nativeDisplays.length > 0 ? nativeDisplays : polyfillDisplays;
-    }
-  });
 };
 
 WebVRPolyfill.prototype.getVRDevices = function() {
@@ -6419,8 +6263,6 @@ WebVRPolyfill.prototype.getVRDevices = function() {
   });
 };
 
-WebVRPolyfill.prototype.NativeVRFrameData = window.VRFrameData;
-
 /**
  * Determine if a device is mobile.
  */
@@ -6432,7 +6274,7 @@ WebVRPolyfill.prototype.isMobile = function() {
 WebVRPolyfill.prototype.isCardboardCompatible = function() {
   // For now, support all iOS and Android devices.
   // Also enable the WebVRConfig.FORCE_VR flag for debugging.
-  return this.isMobile() || window.WebVRConfig.FORCE_ENABLE_VR;
+  return this.isMobile() || WebVRConfig.FORCE_ENABLE_VR;
 };
 
 WebVRPolyfill.prototype.isFullScreenAvailable = function() {
@@ -6464,64 +6306,7 @@ function InstallWebVRSpecShim() {
   }
 };
 
-WebVRPolyfill.InstallWebVRSpecShim = InstallWebVRSpecShim;
-WebVRPolyfill.version = version;
-
 module.exports.WebVRPolyfill = WebVRPolyfill;
 
-},{"../package.json":1,"./base.js":2,"./cardboard-vr-display.js":5,"./display-wrappers.js":8,"./mouse-keyboard-vr-display.js":14,"./util.js":22}],26:[function(require,module,exports){
-'use strict';
-
-require('webvr-polyfill');
-
-/*
- * init setting
- */
-var main = document.getElementsByClassName('js-main')[0]; // require('webvr-boilerplate');
-
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-main.appendChild(renderer.domElement);
-
-/*
- * vr setting
- */
-var controls = new THREE.VRControls(camera);
-controls.standing = true;
-
-var effect = new THREE.VREffect(renderer);
-effect.setSize(window.innerWidth, window.innerHeight);
-
-var manager = new WebVRManager(renderer, effect);
-
-window.addEventListener('resize', onResize, true);
-window.addEventListener('vrdisplaypresentchange', onResize, true);
-
-/*
- * 箱をおく
- */
-var geometry = new THREE.BoxGeometry(1, 1, 1);
-var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-var cube = new THREE.Mesh(geometry, material);
-cube.position.set(0, 0, -5);
-scene.add(cube);
-
-function render() {
-  cube.rotation.x += 0.1;
-  cube.rotation.y += 0.1;
-  requestAnimationFrame(render);
-  // renderer.render(scene, camera);
-  manager.render(scene, camera);
-}
-
-function onResize(e) {
-  effect.setSize(window.innerWidth / window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-}
-render();
-// renderer.render(scene, camera);
-
-},{"webvr-polyfill":15}]},{},[26]);
+},{"./base.js":3,"./cardboard-vr-display.js":6,"./display-wrappers.js":9,"./mouse-keyboard-vr-display.js":15,"./util.js":22}]},{},[13])(13)
+});
