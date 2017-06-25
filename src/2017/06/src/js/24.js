@@ -31,6 +31,7 @@ function gotDevice(deviceInfos) {
     deviceInfos.forEach(v=>{
       if(v.kind === 'videoinput') {
         ids.push(v.deviceId)
+        alert(v.label, v.deviceId);
       }
     });
     resolve(option(ids[1] || ids[0]));
