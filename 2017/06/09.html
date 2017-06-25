@@ -18,15 +18,35 @@
     <meta property="twitter:title" content="😇">
     <meta property="twitter:description" content="😇">
     <!-- stylesheet-->
-    <!-- link(rel="stylesheet", href="css/canvas.css")-->
     <link rel="stylesheet" href="css/style.css?v=2">
   </head>
   <body>
     <div class="wrapper">
-      <h1>Template</h1>
+      <script src="js/minMatrix.js"></script>
+      <script id="vs" type="x-shader/x-vertex">attribute vec3 position;
+attribute vec4 color;
+uniform   mat4 mvpMatrix;
+varying   vec4 vColor;
+
+void main(void){
+  vColor = color;
+  gl_Position = mvpMatrix * vec4(position, 1.0);
+}
+
+      </script>
+      <script id="fs" type="x-shader/x-fragment">precision mediump float;
+varying vec4 vColor;
+
+void main(void){
+    gl_FragColor = vColor;
+}
+
+      </script>
+      <h1>GLSL Sample</h1>
+      <canvas id="canvas"></canvas>
     </div>
     <!-- javascript-->
-    <!-- script(src="js/fabric.js")-->
+    <script src="js/09.js"></script>
     <script src="js/script.js?v=2"></script>
   </body>
 </html>
