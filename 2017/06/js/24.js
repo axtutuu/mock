@@ -2,9 +2,9 @@
 'use strict';
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+window.URL = window.URL || window.webkitURL;
 
 var camvideo = document.getElementsByClassName('js-monitor')[0];
-console.log(navigator.getUserMedia);
 if (!navigator.getUserMedia) {
   alert('could not to access');
 } else {
@@ -12,8 +12,11 @@ if (!navigator.getUserMedia) {
 }
 
 function gotStream(stream) {
-  alert(stream);
-  camvideo.src = window.URL.createObjectURL(stream);
+  if (window.URL) {
+    camvideo.src = window.URL.createObjectURL(stream);
+  } else {
+    camvideo.src = stream;
+  }
   stream.onended = noStream;
 }
 
@@ -61,14 +64,31 @@ window.addEventListener('vrdisplaypresentchange', onResize, true);
 /*
  * video
  */
-var video = document.getElementsByClassName('jjjk');
+var video = document.getElementsByClassName('js-monitor')[0],
+    videoCanvas = document.getElementsByClassName('js-monitor-canvas')[0],
+    videoCanvasCxt = videoCanvas.getContext('2d');
+
+videoCanvasCxt.fillStyle = '#000000';
+videoCanvasCxt.fillRect(0, 0, videoCanvas.width, videoCanvas.height);
+
+// const videoTexture = new THREE.Texture(videoCanvas);
+// videoTexture.minFilter = THREE.LinearFilter;
+// videoTexture.magFilter = THREE.LinearFilter;
+
+animate();
+function animate() {
+  requestAnimationFrame(animate);
+  render();
+}
 
 function render() {
   // cube.rotation.x += 0.1;
   // cube.rotation.y += 0.1;
   // requestAnimationFrame(render);
   // renderer.render(scene, camera);
-  manager.render(scene, camera);
+  // manager.render(scene, camera);
+
+  if (video.readyState === video.HAVE_ENOUGH_DATA) videoCanvasCxt.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
 }
 
 function onResize(e) {
@@ -76,7 +96,7 @@ function onResize(e) {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
-render();
+// render();
 // renderer.render(scene, camera);
 
 },{}]},{},[1]);
