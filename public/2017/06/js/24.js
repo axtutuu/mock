@@ -1,14 +1,42 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+navigator.mediaDevices.enumerateDevices().then(gotDevice).then(getStream);
+
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 window.URL = window.URL || window.webkitURL;
 
 var camvideo = document.getElementsByClassName('js-monitor')[0];
-if (!navigator.getUserMedia) {
-  alert('could not to access');
-} else {
-  navigator.getUserMedia({ video: true }, gotStream, noStream);
+// if(!navigator.getUserMedia) {
+//   alert('could not to access');
+// } else {
+//   navigator.getUserMedia({video: true}, gotStream, noStream);
+// }
+
+function option(id) {
+  return {
+    video: {
+      optional: [{
+        sourceId: id
+      }]
+    }
+  };
+}
+
+function gotDevice(deviceInfos) {
+  var ids = [];
+  return new Promise(function (resolve) {
+    deviceInfos.forEach(function (v) {
+      if (v.kind === 'videoinput') {
+        ids.push(v.deviceId);
+      }
+    });
+    resolve(option(ids[1] || ids[0]));
+  });
+}
+
+function getStream(opts) {
+  navigator.mediaDevices.getUserMedia(opts).then(gotStream).catch(handleError);
 }
 
 function gotStream(stream) {
@@ -26,6 +54,10 @@ function noStream(e) {
     msg = 'User denied access to use camera.';
   }
   console.log(msg);
+}
+
+function handleError(error) {
+  console.log('Error: ', error);
 }
 
 //  /*

@@ -1,11 +1,45 @@
+
+navigator
+  .mediaDevices
+  .enumerateDevices()
+  .then(gotDevice)
+  .then(getStream);
+
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 window.URL = window.URL || window.webkitURL;
 
 const camvideo = document.getElementsByClassName('js-monitor')[0];
-if(!navigator.getUserMedia) {
-  alert('could not to access');
-} else {
-  navigator.getUserMedia({video: true}, gotStream, noStream);
+// if(!navigator.getUserMedia) {
+//   alert('could not to access');
+// } else {
+//   navigator.getUserMedia({video: true}, gotStream, noStream);
+// }
+
+function option(id) {
+  return {
+    video: {
+      optional: [{
+        sourceId: id
+      }]
+    }
+  }
+}
+
+function gotDevice(deviceInfos) {
+  const ids = [];
+  return new Promise(resolve=>{
+    deviceInfos.forEach(v=>{
+      if(v.kind === 'videoinput') {
+        ids.push(v.deviceId)
+      }
+    });
+    resolve(option(ids[1] || ids[0]));
+  });
+}
+
+function getStream(opts) {
+  navigator.mediaDevices.getUserMedia(opts).
+      then(gotStream).catch(handleError);
 }
 
 function gotStream(stream) {
@@ -25,6 +59,9 @@ function noStream(e) {
   console.log(msg);
 }
 
+function handleError(error) {
+  console.log('Error: ', error);
+}
 
 
 //  /*
