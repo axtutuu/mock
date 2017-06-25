@@ -25,9 +25,11 @@ function noStream(e) {
   console.log(msg);
 }
 
-/*
- * init setting
- */
+
+
+//  /*
+//   * init setting
+//   */
 const main = document.getElementsByClassName('js-main')[0];
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -54,11 +56,11 @@ window.addEventListener('vrdisplaypresentchange', onResize, true);
 /*
  * 箱をおく
  */
-// const geometry = new THREE.BoxGeometry(1, 1, 1);
-// const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-// const cube = new THREE.Mesh(geometry, material);
-// cube.position.set(0, 0, -5);
-// scene.add(cube);
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+const cube = new THREE.Mesh(geometry, material);
+cube.position.set(0, 0, -5);
+scene.add(cube);
 
 /*
  * video
@@ -67,12 +69,21 @@ const video = document.getElementsByClassName('js-monitor')[0],
       videoCanvas = document.getElementsByClassName('js-monitor-canvas')[0],
       videoCanvasCxt = videoCanvas.getContext('2d');
 
-  videoCanvasCxt.fillStyle = '#000000';
-  videoCanvasCxt.fillRect(0, 0, videoCanvas.width, videoCanvas.height);
+videoCanvasCxt.fillStyle = '#000000';
+videoCanvasCxt.fillRect(0, 0, videoCanvas.width, videoCanvas.height);
 
-  // const videoTexture = new THREE.Texture(videoCanvas);
-  // videoTexture.minFilter = THREE.LinearFilter;
-  // videoTexture.magFilter = THREE.LinearFilter;
+const videoTexture = new THREE.Texture(videoCanvas);
+videoTexture.minFilter = THREE.LinearFilter;
+videoTexture.magFilter = THREE.LinearFilter;
+
+const webcamMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, overdraw: true, side: THREE.DoubleSide }),
+      // webcamGeometry = new THREE.PlaneGeometry(100, 100, 1, 1),
+      webcamGeometry = new THREE.BoxGeometry(1, 1, 1),
+      webcamScreen   = new THREE.Mesh(webcamGeometry, webcamMaterial);
+webcamScreen.position.set(0, 0, 0);
+scene.add(webcamScreen);
+
+camera.lookAt(webcamScreen.position);
 
 animate();
 function animate() {
@@ -85,16 +96,18 @@ function render() {
   // cube.rotation.x += 0.1;
   // cube.rotation.y += 0.1;
   // requestAnimationFrame(render);
-  // renderer.render(scene, camera);
-  // manager.render(scene, camera);
 
   if(video.readyState === video.HAVE_ENOUGH_DATA)
     videoCanvasCxt.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
+  videoTexture.needsUpdate = true;
+
+  renderer.render(scene, camera);
+  manager.render(scene, camera);
 }
 
 function onResize(e) {
-  effect.setSize(window.innerWidth / window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
+  // effect.setSize(window.innerWidth / window.innerHeight);
+  // camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
 // render();
