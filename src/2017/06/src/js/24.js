@@ -34,7 +34,7 @@ function gotDevice(deviceInfos) {
         ids.push(v.deviceId)
       }
     });
-    resolve(option(ids[1] || ids[0]));
+    resolve(option(ids[0] || ids[0]));
   });
 }
 
