@@ -28,9 +28,9 @@ function noStream(e) {
   console.log(msg);
 }
 
-/*
- * init setting
- */
+//  /*
+//   * init setting
+//   */
 var main = document.getElementsByClassName('js-main')[0];
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -55,11 +55,11 @@ window.addEventListener('vrdisplaypresentchange', onResize, true);
 /*
  * 箱をおく
  */
-// const geometry = new THREE.BoxGeometry(1, 1, 1);
-// const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-// const cube = new THREE.Mesh(geometry, material);
-// cube.position.set(0, 0, -5);
-// scene.add(cube);
+var geometry = new THREE.BoxGeometry(1, 1, 1);
+var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+var cube = new THREE.Mesh(geometry, material);
+cube.position.set(0, 0, -5);
+scene.add(cube);
 
 /*
  * video
@@ -71,9 +71,19 @@ var video = document.getElementsByClassName('js-monitor')[0],
 videoCanvasCxt.fillStyle = '#000000';
 videoCanvasCxt.fillRect(0, 0, videoCanvas.width, videoCanvas.height);
 
-// const videoTexture = new THREE.Texture(videoCanvas);
-// videoTexture.minFilter = THREE.LinearFilter;
-// videoTexture.magFilter = THREE.LinearFilter;
+var videoTexture = new THREE.Texture(videoCanvas);
+videoTexture.minFilter = THREE.LinearFilter;
+videoTexture.magFilter = THREE.LinearFilter;
+
+var webcamMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, overdraw: true, side: THREE.DoubleSide }),
+
+// webcamGeometry = new THREE.PlaneGeometry(100, 100, 1, 1),
+webcamGeometry = new THREE.BoxGeometry(1, 1, 1),
+    webcamScreen = new THREE.Mesh(webcamGeometry, webcamMaterial);
+webcamScreen.position.set(0, 0, 0);
+scene.add(webcamScreen);
+
+camera.lookAt(webcamScreen.position);
 
 animate();
 function animate() {
@@ -85,15 +95,17 @@ function render() {
   // cube.rotation.x += 0.1;
   // cube.rotation.y += 0.1;
   // requestAnimationFrame(render);
-  // renderer.render(scene, camera);
-  // manager.render(scene, camera);
 
   if (video.readyState === video.HAVE_ENOUGH_DATA) videoCanvasCxt.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
+  videoTexture.needsUpdate = true;
+
+  renderer.render(scene, camera);
+  manager.render(scene, camera);
 }
 
 function onResize(e) {
-  effect.setSize(window.innerWidth / window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
+  // effect.setSize(window.innerWidth / window.innerHeight);
+  // camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
 // render();
