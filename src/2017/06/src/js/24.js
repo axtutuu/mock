@@ -29,9 +29,9 @@ function gotDevice(deviceInfos) {
   const ids = [];
   return new Promise(resolve=>{
     deviceInfos.forEach(v=>{
+      alert(v.kind);
       if(v.kind === 'videoinput') {
         ids.push(v.deviceId)
-        alert(v.label, v.deviceId);
       }
     });
     resolve(option(ids[1] || ids[0]));
