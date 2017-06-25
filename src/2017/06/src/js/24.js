@@ -34,13 +34,13 @@ function gotDevice(deviceInfos) {
         ids.push(v.deviceId)
       }
     });
-    resolve(option(ids[0] || ids[0]));
+    console.log(ids[1] || ids[0])
+    resolve(option(ids[1] || ids[0]));
   });
 }
 
 function getStream(opts) {
-  navigator.mediaDevices.getUserMedia(opts).
-      then(gotStream).catch(handleError);
+  navigator.getUserMedia(opts, gotStream, noStream);
 }
 
 function gotStream(stream) {
