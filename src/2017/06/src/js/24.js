@@ -9,11 +9,6 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
 window.URL = window.URL || window.webkitURL;
 
 const camvideo = document.getElementsByClassName('js-monitor')[0];
-// if(!navigator.getUserMedia) {
-//   alert('could not to access');
-// } else {
-//   navigator.getUserMedia({video: true}, gotStream, noStream);
-// }
 
 function option(id) {
   return {
@@ -27,14 +22,13 @@ function option(id) {
 
 function gotDevice(deviceInfos) {
   const ids = [];
+  // 背面カメラを使う
   return new Promise(resolve=>{
     deviceInfos.forEach(v=>{
-      alert(v.kind);
       if(v.kind === 'videoinput') {
         ids.push(v.deviceId)
       }
     });
-    console.log(ids[1] || ids[0])
     resolve(option(ids[1] || ids[0]));
   });
 }
@@ -65,9 +59,9 @@ function handleError(error) {
 }
 
 
-//  /*
-//   * init setting
-//   */
+/*
+ * init setting
+ */
 const main = document.getElementsByClassName('js-main')[0];
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -76,6 +70,8 @@ const camera = new THREE.PerspectiveCamera(
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 main.appendChild(renderer.domElement);
+
+// const mouseControls = new THREE.TrackballControls( camera );
 
 /*
  * vr setting
@@ -97,8 +93,7 @@ window.addEventListener('vrdisplaypresentchange', onResize, true);
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
 const cube = new THREE.Mesh(geometry, material);
-cube.position.set(0, 0, -5);
-scene.add(cube);
+cube.position.set(0, 0, 5);
 
 /*
  * video
@@ -110,18 +105,19 @@ const video = document.getElementsByClassName('js-monitor')[0],
 videoCanvasCxt.fillStyle = '#000000';
 videoCanvasCxt.fillRect(0, 0, videoCanvas.width, videoCanvas.height);
 
-const videoTexture = new THREE.Texture(videoCanvas);
+const videoTexture     = new THREE.Texture(videoCanvas);
 videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
 
 const webcamMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, overdraw: true, side: THREE.DoubleSide }),
       // webcamGeometry = new THREE.PlaneGeometry(100, 100, 1, 1),
-      webcamGeometry = new THREE.BoxGeometry(1, 1, 1),
+      webcamGeometry = new THREE.BoxGeometry(10, 10, 10),
       webcamScreen   = new THREE.Mesh(webcamGeometry, webcamMaterial);
-webcamScreen.position.set(0, 0, 0);
+webcamScreen.position.set(0, 0, -15);
 scene.add(webcamScreen);
 
 camera.lookAt(webcamScreen.position);
+
 
 animate();
 function animate() {
@@ -129,18 +125,14 @@ function animate() {
   render();
 }
 
-
 function render() {
-  // cube.rotation.x += 0.1;
-  // cube.rotation.y += 0.1;
-  // requestAnimationFrame(render);
-
   if(video.readyState === video.HAVE_ENOUGH_DATA)
     videoCanvasCxt.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
   videoTexture.needsUpdate = true;
 
   renderer.render(scene, camera);
   manager.render(scene, camera);
+  // mouseControls.update();
 }
 
 function onResize(e) {
@@ -148,5 +140,3 @@ function onResize(e) {
   // camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 }
-// render();
-// renderer.render(scene, camera);
