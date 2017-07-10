@@ -11,7 +11,7 @@
   const c4 = line(r, -162);
   const c5 = line(r, -306);
 
-  context.fillStyle = 'yellow';
+  context.fillStyle = 'red';
   context.moveTo(x,y-r);
 
   context.beginPath();
