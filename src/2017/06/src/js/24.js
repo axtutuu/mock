@@ -125,7 +125,7 @@ function init() {
 	light.position.set(0,250,0);
 	scene.add(light);
 
-	let floorTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+	let floorTexture = new THREE.ImageUtils.loadTexture( 'img/checkerboard.jpg' );
 	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
 	floorTexture.repeat.set( 10, 10 );
 	let floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
@@ -150,11 +150,13 @@ function init() {
   videoTexture.magFilter = THREE.LinearFilter;
 
   const webcamMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, overdraw: true, side: THREE.DoubleSide }),
-        webcamGeometry = new THREE.BoxGeometry(10, 10, 10),
+        webcamGeometry = new THREE.PlaneGeometry(100, 100, 1, 1),
+        // webcamGeometry = new THREE.BoxGeometry(10, 10, 10),
         webcamScreen   = new THREE.Mesh(webcamGeometry, webcamMaterial);
   webcamScreen.position.set(0, 50, 0);
   scene.add(webcamScreen);
 
+  camera.position.set(0,150,300);
   camera.lookAt(webcamScreen.position);
 }
 
