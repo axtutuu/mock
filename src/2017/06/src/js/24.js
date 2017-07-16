@@ -74,7 +74,7 @@ function handleError(error) {
 /*
  * init setting
  */
-let container, scene, camera, renderer, controls, stats;
+let container, scene, camera, renderer, controls, stats, manager;
 
 let video, videoImage, videoImageContext, videoTexture;
 
@@ -91,7 +91,7 @@ function init() {
         ANGLE = 45,
         ASPECT = WIDTH / HEIGHT,
         NEAR = 0.1,
-        FAR = 20000;
+        FAR = 2000;
 
   camera = new THREE.PerspectiveCamera(ANGLE, ASPECT, NEAR, FAR);
   scene.add(camera);
@@ -125,15 +125,26 @@ function init() {
 	light.position.set(0,250,0);
 	scene.add(light);
 
-	let floorTexture = new THREE.ImageUtils.loadTexture( 'img/checkerboard.jpg' );
-	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-	floorTexture.repeat.set( 10, 10 );
-	let floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-	let floorGeometry = new THREE.PlaneGeometry(1000, 1000, 10, 10);
-	let floor = new THREE.Mesh(floorGeometry, floorMaterial);
-	floor.position.y = -0.5;
-	floor.rotation.x = Math.PI / 2;
-	scene.add(floor);
+  // floor
+	// let floorTexture = new THREE.ImageUtils.loadTexture( 'img/checkerboard.jpg' );
+	// floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+	// floorTexture.repeat.set( 10, 10 );
+	// let floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+	// let floorGeometry = new THREE.PlaneGeometry(1000, 1000, 10, 10);
+	// let floor = new THREE.Mesh(floorGeometry, floorMaterial);
+	// floor.position.y = -0.5;
+	// floor.rotation.x = Math.PI / 2;
+	// scene.add(floor);
+
+
+  /*
+   * vr setting
+   */
+  // controls = new THREE.VRControls(camera);
+  // controls.standing = true;
+  // const effect = new THREE.VREffect(renderer);
+  // effect.setSize(window.innerWidth, window.innerHeight);
+  // manager = new WebVRManager(renderer, effect);
 
   /*
    * video
@@ -150,14 +161,20 @@ function init() {
   videoTexture.magFilter = THREE.LinearFilter;
 
   const webcamMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, overdraw: true, side: THREE.DoubleSide }),
-        webcamGeometry = new THREE.PlaneGeometry(100, 100, 1, 1),
-        // webcamGeometry = new THREE.BoxGeometry(10, 10, 10),
+        // webcamGeometry = new THREE.PlaneGeometry(100, 100, 1, 1),
+        webcamGeometry = new THREE.BoxGeometry(500, 500, 500),
         webcamScreen   = new THREE.Mesh(webcamGeometry, webcamMaterial);
-  webcamScreen.position.set(0, 50, 0);
+  webcamScreen.position.set(0, 100, 0);
   scene.add(webcamScreen);
 
-  camera.position.set(0,150,300);
-  camera.lookAt(webcamScreen.position);
+
+  // cube
+  const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+  const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+  const cube = new THREE.Mesh( geometry, material );
+  scene.add( cube );
+  camera.lookAt(cube.position);
+  camera.position.set(0,15,30);
 }
 
 function animate() 
@@ -179,6 +196,7 @@ function render()
 		if ( videoTexture ) 
 			videoTexture.needsUpdate = true;
 	}
+  // manager.render( scene, camera);
 	renderer.render( scene, camera );
 }
 
