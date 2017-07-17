@@ -175,8 +175,13 @@ function init() {
   scene.add(webcamScreen);
 
   // cube
+  var cubeTexture = new THREE.TextureLoader().load('img/kado.jpg');
+  cubeTexture.minFilter = THREE.LinearFilter;
+  cubeTexture.magFilter = THREE.LinearFilter;
+
   var geometry = new THREE.BoxGeometry(1, 1, 1);
-  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  // const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+  var material = new THREE.MeshBasicMaterial({ map: cubeTexture });
   var cube = new THREE.Mesh(geometry, material);
   scene.add(cube);
   camera.lookAt(cube.position);

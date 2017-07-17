@@ -169,8 +169,13 @@ function init() {
 
 
   // cube
+  const cubeTexture = new THREE.TextureLoader().load('img/kado.jpg');
+  cubeTexture.minFilter = THREE.LinearFilter;
+  cubeTexture.magFilter = THREE.LinearFilter;
+
   const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+  // const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+  const material = new THREE.MeshBasicMaterial({ map: cubeTexture });
   const cube = new THREE.Mesh( geometry, material );
   scene.add( cube );
   camera.lookAt(cube.position);
