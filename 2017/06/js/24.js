@@ -146,11 +146,11 @@ function init() {
   /*
    * vr setting
    */
-  // controls = new THREE.VRControls(camera);
-  // controls.standing = true;
-  // const effect = new THREE.VREffect(renderer);
-  // effect.setSize(window.innerWidth, window.innerHeight);
-  // manager = new WebVRManager(renderer, effect);
+  controls = new THREE.VRControls(camera);
+  controls.standing = true;
+  var effect = new THREE.VREffect(renderer);
+  effect.setSize(window.innerWidth, window.innerHeight);
+  manager = new WebVRManager(renderer, effect);
 
   /*
    * video
@@ -175,8 +175,13 @@ function init() {
   scene.add(webcamScreen);
 
   // cube
+  var cubeTexture = new THREE.TextureLoader().load('img/kado.jpg');
+  cubeTexture.minFilter = THREE.LinearFilter;
+  cubeTexture.magFilter = THREE.LinearFilter;
+
   var geometry = new THREE.BoxGeometry(1, 1, 1);
-  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  // const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+  var material = new THREE.MeshBasicMaterial({ map: cubeTexture });
   var cube = new THREE.Mesh(geometry, material);
   scene.add(cube);
   camera.lookAt(cube.position);
@@ -197,8 +202,8 @@ function render() {
     videoImageContext.drawImage(video, 0, 0, videoImage.width, videoImage.height);
     if (videoTexture) videoTexture.needsUpdate = true;
   }
-  // manager.render( scene, camera);
-  renderer.render(scene, camera);
+  manager.render(scene, camera);
+  // renderer.render( scene, camera );
 }
 
 // const main = document.getElementsByClassName('js-main')[0];
