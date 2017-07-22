@@ -180,6 +180,19 @@ function init() {
   scene.add( cube );
   camera.lookAt(cube.position);
   camera.position.set(0,15,30);
+
+  // kado
+  const geo = new THREE.PlaneBufferGeometry( 2.0, 2.0 );
+  const mate = new THREE.ShaderMaterial( {
+  	uniforms: {
+  		time: { value: 1.0 },
+  		resolution: { value: new THREE.Vector2() }
+  	},
+  	vertexShader: document.getElementById('fragment_shader').textContent,
+  	fragmentShader: document.getElementById('vertex_shader').textContent
+  } );
+  const plane = new THREE.Mesh(geo, mate);
+  scene.add( plane );
 }
 
 function animate() 
@@ -188,11 +201,13 @@ function animate()
 	render();		
 	update();
 }
+
 function update()
 {		
 	controls.update();
 	// stats.update();
 }
+
 function render() 
 {	
 	if ( video.readyState === video.HAVE_ENOUGH_DATA ) 
@@ -204,8 +219,6 @@ function render()
   // manager.render( scene, camera);
 	renderer.render( scene, camera );
 }
-
-
 
 // const main = document.getElementsByClassName('js-main')[0];
 // const scene = new THREE.Scene();
