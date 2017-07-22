@@ -27,31 +27,23 @@
       <canvas class="js-monitor-canvas monitor-canavs"></canvas>
     </div>
     <!-- javascript-->
-    <script id="fragment_shader" type="x-shader/x-fragment">precision mediump float;
-precision mediump int;
-uniform float time;
-varying vec3 vPosition;
-varying vec4 vColor;
-void main()	{
-	vec4 color = vec4( vColor );
-	color.r += sin( vPosition.x * 10.0 + time ) * 0.5;
-	gl_FragColor = color;
-}
+    <script id="fragmentShader" type="x-shader/x-fragment">			uniform sampler2D tex1;
+			varying float vAlpha;
+			void main() {
+				gl_FragColor = texture2D( tex1, gl_PointCoord );
+				gl_FragColor.r = ( 1.0 - gl_FragColor.r ) * vAlpha + gl_FragColor.r;
+			}
 
     </script>
-    <script script id="vertex_shader" type="x-shader/x-vertex">precision mediump float;
-precision mediump int;
-uniform mat4 modelViewMatrix; // optional
-uniform mat4 projectionMatrix; // optional
-attribute vec3 position;
-attribute vec4 color;
-varying vec3 vPosition;
-varying vec4 vColor;
-void main()	{
-	vPosition = position;
-	vColor = color;
-	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-}
+    <script script id="vertexShader" type="x-shader/x-vertex">			//uniform float zoom;
+			attribute float alpha;
+			varying float vAlpha;
+			void main() {
+				vAlpha = 1.0 - alpha;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_PointSize = 4.0 * ( 300.0 / -mvPosition.z );
+				gl_Position = projectionMatrix * mvPosition;
+			}
 
     </script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/three.js/r76/three.min.js"></script>
@@ -60,6 +52,7 @@ void main()	{
     <script src="js/lib/VREffect.js"></script>
     <script src="js/lib/webvr-polyfill.js"></script>
     <script src="js/lib/webvr-manager.js"></script>
+    <script src="js/lib/TypedArrayUtils.js"></script>
     <script src="js/kado.js"></script>
     <script src="js/script.js?v=1"></script>
   </body>

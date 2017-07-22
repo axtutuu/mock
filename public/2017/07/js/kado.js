@@ -1,9 +1,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
+"use strict";
 
 /*
- * Refer: https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/Webcam-Texture.html
- * http://stemkoski.github.io/Three.js/Webcam-Texture.html
+ * fork: https://threejs.org/examples/#webgl_buffergeometry_rawshader
  */
 
 /*
@@ -59,44 +58,32 @@ function init() {
   scene.add(light);
 
   //  // cube
-  //  const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  //  const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-  //  // const material = new THREE.MeshBasicMaterial({ map: 'red' });
-  //  const cube = new THREE.Mesh( geometry, material );
-  //  scene.add( cube );
-  //  camera.lookAt(cube.position);
-  //  camera.position.set(0,15,30);
+  var geometry = new THREE.BoxGeometry(1, 1, 1);
+  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  // const material = new THREE.MeshBasicMaterial({ map: 'red' });
+  var cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+  camera.lookAt(cube.position);
+  camera.position.set(0, 15, 30);
 
-  // kado
-  var triangles = 500;
-  var geometry = new THREE.BufferGeometry();
-  var vertices = new Float32Array(triangles * 3 * 3);
-  for (var i = 0, l = triangles * 3 * 3; i < l; i += 3) {
-    vertices[i] = Math.random() - 0.5;
-    vertices[i + 1] = Math.random() - 0.5;
-    vertices[i + 2] = Math.random() - 0.5;
-  }
-  geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+  // sky
+  var cubeTexLoader = new THREE.CubeTextureLoader();
+  var urls = ["img/px.jpg", "img/nx.jpg", "img/py.jpg", "img/ny.jpg", "img/pz.jpg", "img/nz.jpg"];
 
-  var colors = new Uint8Array(triangles * 3 * 4);
-  for (var i = 0, l = triangles * 3 * 4; i < l; i += 4) {
-    colors[i] = Math.random() * 255;
-    colors[i + 1] = Math.random() * 255;
-    colors[i + 2] = Math.random() * 255;
-  }
-  geometry.addAttribute('color', new THREE.BufferAttribute(colors, 4, true));
+  cubeTexLoader.load(urls, function (tex) {
+    var cubeShader = THREE.ShaderLib['cube'];
+    cubeShader.uniforms['tCube'].value = tex;
 
-  var mate = new THREE.RawShaderMaterial({
-    uniforms: {
-      time: { value: 1.0 }
-    },
-    vertexShader: document.getElementById('vertex_shader').textContent,
-    fragmentShader: document.getElementById('fragment_shader').textContent
+    var skyBoxMaterial = new THREE.ShaderMaterial({
+      fragmentShader: cubeShader.fragmentShader,
+      vertexShader: cubeShader.vertexShader,
+      uniforms: cubeShader.uniforms,
+      depthWrite: false,
+      side: THREE.BackSide
+    });
+    var mesh = new THREE.Mesh(new THREE.BoxGeometry(3000, 3000, 3000, 1, 1, 1), skyBoxMaterial);
+    scene.add(mesh);
   });
-  var plane = new THREE.Mesh(geometry, mate);
-  scene.add(plane);
-  console.log(plane.position);
-  camera.lookAt(plane.position);
 }
 
 function animate() {

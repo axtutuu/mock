@@ -1,10 +1,6 @@
-precision mediump float;
-precision mediump int;
-uniform float time;
-varying vec3 vPosition;
-varying vec4 vColor;
-void main()	{
-	vec4 color = vec4( vColor );
-	color.r += sin( vPosition.x * 10.0 + time ) * 0.5;
-	gl_FragColor = color;
+uniform sampler2D tex1;
+varying float vAlpha;
+void main() {
+	gl_FragColor = texture2D( tex1, gl_PointCoord );
+	gl_FragColor.r = ( 1.0 - gl_FragColor.r ) * vAlpha + gl_FragColor.r;
 }
