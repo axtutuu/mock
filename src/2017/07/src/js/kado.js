@@ -55,6 +55,10 @@ function init() {
   camera.lookAt(cube.position);
   camera.position.set(0,15,30);
 
+  // debug
+  var axes = new THREE.AxisHelper(100);
+  scene.add(axes);
+
   // sky
   const cubeTexLoader = new THREE.CubeTextureLoader();
   var urls = ["img/px.jpg", "img/nx.jpg", "img/py.jpg", "img/ny.jpg", "img/pz.jpg", "img/nz.jpg"];
@@ -70,8 +74,10 @@ function init() {
         depthWrite: false,
         side: THREE.BackSide
     });
-    const mesh = new THREE.Mesh( new THREE.BoxGeometry( 3000, 3000, 3000, 1, 1, 1 ), 
-                              skyBoxMaterial);
+    const mesh = new THREE.Mesh(
+      new THREE.CubeGeometry(100000, 100000, 100000), 
+      skyBoxMaterial
+    );
     scene.add( mesh );
   });
 }
