@@ -5,7 +5,6 @@
 var camera, orbitControls, renderer;
 var prevCameraMatrixWorld;
 var textureScene, mainScene;
-var mouse = new THREE.Vector2( 0.5, 0.5 );
 var canvas;
 var stats;
 var textureCube, texture2Ds;
@@ -88,7 +87,6 @@ function init() {
 			cameraDir: {type: 'v3', value: camera.getWorldDirection()},
 
 			kadoScale: {type: 'f', value: config.kadoScale},
-			textureCube: {type: 'tc', value: textureCube},
 		},
 		vertexShader: document.getElementById('vertexShader').textContent,
 		fragmentShader: document.getElementById('fragmentShader').textContent
