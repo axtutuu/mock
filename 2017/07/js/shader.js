@@ -2,8 +2,7 @@
 'use strict';
 
 /*
- * Refer: https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/Webcam-Texture.html
- * http://stemkoski.github.io/Three.js/Webcam-Texture.html
+ * fork: https://threejs.org/examples/#webgl_buffergeometry_rawshader
  */
 
 /*
