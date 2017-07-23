@@ -46,7 +46,17 @@ function init() {
 	light.position.set(0,250,0);
 	scene.add(light);
 
-  //  // cube
+  /*
+   * vr setting
+   */
+  // controls = new THREE.VRControls(camera);
+  // controls.standing = true;
+  // const effect = new THREE.VREffect(renderer);
+  // effect.setSize(window.innerWidth, window.innerHeight);
+  // manager = new WebVRManager(renderer, effect);
+
+
+  // cube
   const geometry = new THREE.BoxGeometry( 1, 1, 1 );
   const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
   // const material = new THREE.MeshBasicMaterial({ map: 'red' });
@@ -55,31 +65,48 @@ function init() {
   camera.lookAt(cube.position);
   camera.position.set(0,15,30);
 
-  // debug
   var axes = new THREE.AxisHelper(100);
   scene.add(axes);
 
   // sky
-  const cubeTexLoader = new THREE.CubeTextureLoader();
-  var urls = ["img/px.jpg", "img/nx.jpg", "img/py.jpg", "img/ny.jpg", "img/pz.jpg", "img/nz.jpg"];
+  //     const cubeTexLoader = new THREE.CubeTextureLoader();
+  //     const urls = ["img/px.jpg", "img/nx.jpg", "img/py.jpg", "img/ny.jpg", "img/pz.jpg", "img/nz.jpg"];
 
-  cubeTexLoader.load( urls, (tex) => {
-    const cubeShader = THREE.ShaderLib[ 'cube' ];
-    cubeShader.uniforms[ 'tCube' ].value = tex;
+  //     cubeTexLoader.load( urls, tex => {
+  //       const cubeShader = THREE.ShaderLib[ 'cube' ];
+  //       cubeShader.uniforms[ 'tCube' ].value = tex;
 
-    const skyBoxMaterial = new THREE.ShaderMaterial({
-        fragmentShader: cubeShader.fragmentShader,
-        vertexShader: cubeShader.vertexShader,
-        uniforms: cubeShader.uniforms,
+  //       const skyBoxMaterial = new THREE.ShaderMaterial({
+  //           fragmentShader: cubeShader.fragmentShader,
+  //           vertexShader: cubeShader.vertexShader,
+  //           uniforms: cubeShader.uniforms,
+  //           depthWrite: false,
+  //           side: THREE.BackSide
+  //       });
+  //       const mesh = new THREE.Mesh(
+  //         new THREE.BoxGeometry( 3000, 3000, 3000, 1, 1, 1 ), 
+  //         skyBoxMaterial
+  //       );
+  //       scene.add( mesh );
+  //     });
+
+  const urls = ["img/px.jpg", "img/nx.jpg", "img/py.jpg", "img/ny.jpg", "img/pz.jpg", "img/nz.jpg"];
+  const scCube = THREE.ImageUtils.loadTextureCube(urls);
+  scCube.format = THREE.RGBFormat;
+  const  skyShader = THREE.ShaderLib["cube"];
+  skyShader.uniforms["tCube"].value = scCube;
+  const skyMaterial = new THREE.ShaderMaterial({
+        fragmentShader: skyShader.fragmentShader,
+        vertexShader: skyShader.vertexShader,
+        uniforms: skyShader.uniforms,
         depthWrite: false,
         side: THREE.BackSide
     });
-    const mesh = new THREE.Mesh(
-      new THREE.CubeGeometry(100000, 100000, 100000), 
-      skyBoxMaterial
-    );
-    scene.add( mesh );
-  });
+  const skyBox = new THREE.Mesh(new THREE.CubeGeometry(500, 500, 500), skyMaterial);
+  skyMaterial.needsUpdate = true;
+  scene.add(skyBox);
+
+
 }
 
 function animate() 
