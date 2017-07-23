@@ -1,0 +1,23 @@
+extends /layout/_DefaultLayout
+block ContentBlock
+  main.js-main(data-day="22")
+  video.js-monitor
+  canvas.js-monitor-canvas.monitor-canavs
+prepend JavascriptBlock
+  script(id="fragmentShader" type="x-shader/x-fragment")
+    include partials/kado.frag
+  script(script id="vertexShader" type="x-shader/x-vertex")
+    include partials/kado.vert
+
+  script(src="./js/lib/three.min.js")
+  script(src="./js/lib/OrbitControls.js")
+  script(src="./js/lib/stats.min.js")
+  script(src="./js/lib/dat.gui.min.js")
+  script(src="./js/lib/noise.js")
+
+  script(src="js/lib/VRControls.js")
+  script(src="js/lib/VREffect.js")
+  script(src="js/lib/webvr-polyfill.js")
+  script(src="js/lib/webvr-manager.js")
+
+  script(src="js/webvr.js")
