@@ -35,22 +35,22 @@ function init() {
       ANGLE = 45,
       ASPECT = WIDTH / HEIGHT,
       NEAR = 0.1,
-      FAR = 2000;
+      FAR = 15;
 
   camera = new THREE.PerspectiveCamera(ANGLE, ASPECT, NEAR, FAR);
   scene.add(camera);
-  // camera.position.set(0, 150, 400);
-  // camera.lookAt(scene.position);
+  // camera.position.z = 16;
+  camera.position.set(3, -5, 5);
+  camera.lookAt(scene.position);
 
   // camera = new THREE.PerspectiveCamera(35, 800/600);
-  camera.position.z = 16;
-  camera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
+  // camera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
 
   // renderer
   renderer = new THREE.WebGLRenderer();
-  // renderer.setSize(WIDTH, HEIGHT);
+  renderer.setSize(WIDTH, HEIGHT);
   renderer.setPixelRatio(config.pixelRatio);
-  renderer.setSize(config.resolution * config.aspectRatio, config.resolution);
+  // renderer.setSize(config.resolution * config.aspectRatio, config.resolution);
 
   var container = document.querySelector('.js-main');
   container.appendChild(renderer.domElement);
@@ -65,9 +65,9 @@ function init() {
 
   // controls = new THREE.VRControls(camera);
   // controls.standing = true;
-  var effect = new THREE.VREffect(renderer);
-  effect.setSize(window.innerWidth, window.innerHeight);
-  manager = new WebVRManager(renderer, effect);
+  // const effect = new THREE.VREffect(renderer);
+  // effect.setSize(window.innerWidth, window.innerHeight);
+  // manager = new WebVRManager(renderer, effect);
 
   // debug
   var axes = new THREE.AxisHelper(100);
@@ -122,7 +122,7 @@ function animate() {
 
   requestAnimationFrame(animate);
   controls.update();
-  render(true);
+  render(needsUpdate);
 }
 
 function render(needsUpdate) {
@@ -134,10 +134,10 @@ function render(needsUpdate) {
   kado.material.uniforms.time.value = config.time;
 
   renderer.render(scene, camera);
-  // if(needsUpdate) {
-  //   renderer.render( scene, camera );
-  //   // manager.render( scene, camera);
-  // }
+  if (needsUpdate) {
+    renderer.render(scene, camera);
+    // manager.render( scene, camera);
+  }
 }
 
 },{}]},{},[1]);
