@@ -146,11 +146,11 @@ function init() {
   /*
    * vr setting
    */
-  // controls = new THREE.VRControls(camera);
-  // controls.standing = true;
-  // const effect = new THREE.VREffect(renderer);
-  // effect.setSize(window.innerWidth, window.innerHeight);
-  // manager = new WebVRManager(renderer, effect);
+  controls = new THREE.VRControls(camera);
+  controls.standing = true;
+  var effect = new THREE.VREffect(renderer);
+  effect.setSize(window.innerWidth, window.innerHeight);
+  manager = new WebVRManager(renderer, effect);
 
   /*
    * video
