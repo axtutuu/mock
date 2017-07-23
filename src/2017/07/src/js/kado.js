@@ -1,5 +1,3 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
 
 /*
  * constants
@@ -7,23 +5,23 @@
 var camera, orbitControls, renderer;
 var prevCameraMatrixWorld;
 var textureScene, mainScene;
-var mouse = new THREE.Vector2(0.5, 0.5);
+var mouse = new THREE.Vector2( 0.5, 0.5 );
 var canvas;
 var stats;
 var textureCube, texture2Ds;
 
 // camera
-var WIDTH = window.innerWidth,
-    HEIGHT = window.innerHeight,
-    ANGLE = 45,
-    ASPECT = WIDTH / HEIGHT,
-    NEAR = 0.1,
-    FAR = 2000;
+const WIDTH = window.innerWidth,
+      HEIGHT = window.innerHeight,
+      ANGLE = 45,
+      ASPECT = WIDTH / HEIGHT,
+      NEAR = 0.1,
+      FAR = 2000;
 
 var clock = new THREE.Clock();
 
 var config = {
-	saveImage: function saveImage() {
+	saveImage: function() {
 		render(true);
 		window.open(canvas.toDataURL());
 	},
@@ -33,7 +31,7 @@ var config = {
 	pixelRatio: 2.0,
 	time: 0,
 	// mandel box
-	kadoScale: 2.7
+	kadoScale: 2.7,
 };
 
 init();
@@ -45,7 +43,7 @@ function createQuadScene(parameters) {
 	var material = new THREE.RawShaderMaterial({
 		uniforms: parameters.uniforms,
 		vertexShader: parameters.vertexShader,
-		fragmentShader: parameters.fragmentShader
+		fragmentShader: parameters.fragmentShader,
 	});
 	var plane = new THREE.Mesh(geometry, material);
 	plane.frustumCulled = false;
@@ -54,51 +52,53 @@ function createQuadScene(parameters) {
 	return {
 		scene: scene,
 		geometry: geometry,
-		material: material
+		material: material,
 	};
 }
 
 function init() {
-	// renderer
-	var main = document.querySelector('.js-main');
-	renderer = new THREE.WebGLRenderer({ antialias: true });
+  // renderer
+  const main = document.querySelector('.js-main');
+  renderer = new THREE.WebGLRenderer({ antialias:true });
 
 	// renderer = new THREE.WebGLRenderer();
 	// renderer.setPixelRatio(config.pixelRatio);
 	// renderer.setSize(config.resolution * config.aspectRatio, config.resolution);
-	renderer.setSize(WIDTH, HEIGHT);
+  renderer.setSize(WIDTH, HEIGHT);
 
 	canvas = renderer.domElement;
 	main.appendChild(canvas);
+
 
 	if (!renderer.extensions.get("EXT_shader_texture_lod")) {
 		alert("EXT_shader_texture_lod is not supported.");
 		return;
 	}
 
-	// camera
-	camera = new THREE.PerspectiveCamera(35, 800 / 600);
+  // camera
+	camera = new THREE.PerspectiveCamera(35, 800/600);
 	camera.position.z = 16;
 	camera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
 
 	mainScene = createQuadScene({
 		uniforms: {
-			resolution: { type: 'v2', value: new THREE.Vector2(config.resolution, config.resolution) },
-			time: { type: 'f', value: 0.0 },
-			cameraPos: { type: 'v3', value: camera.getWorldPosition() },
-			cameraDir: { type: 'v3', value: camera.getWorldDirection() },
+			resolution: {type: 'v2', value: new THREE.Vector2(config.resolution, config.resolution)},
+			time: {type: 'f', value: 0.0 },
+			cameraPos: {type: 'v3', value: camera.getWorldPosition()},
+			cameraDir: {type: 'v3', value: camera.getWorldDirection()},
 
-			kadoScale: { type: 'f', value: config.kadoScale },
-			textureCube: { type: 'tc', value: textureCube }
+			kadoScale: {type: 'f', value: config.kadoScale},
+			textureCube: {type: 'tc', value: textureCube},
 		},
 		vertexShader: document.getElementById('vertexShader').textContent,
 		fragmentShader: document.getElementById('fragmentShader').textContent
 	});
 
-	var axes = new THREE.AxisHelper(100);
-	mainScene.scene.add(axes);
 
-	// controls
+  var axes = new THREE.AxisHelper(100);
+  mainScene.scene.add(axes);
+
+  // controls
 	orbitControls = new THREE.OrbitControls(camera, canvas);
 	// orbitControls.enablePan = true;
 	// orbitControls.enableDamping = false;
@@ -117,12 +117,12 @@ function animate(timestamp) {
 
 	var needsUpdate = config.time !== mainScene.material.uniforms.time.value;
 
-	orbitControls.update();
+  orbitControls.update();
 
-	if (camera && prevCameraMatrixWorld && !camera.matrixWorld.equals(prevCameraMatrixWorld)) {
-		needsUpdate = true;
-	}
-	prevCameraMatrixWorld = camera.matrixWorld.clone();
+  if (camera && prevCameraMatrixWorld && !camera.matrixWorld.equals(prevCameraMatrixWorld)) {
+    needsUpdate = true;
+  }
+  prevCameraMatrixWorld = camera.matrixWorld.clone();
 
 	render(needsUpdate);
 	requestAnimationFrame(animate);
@@ -139,5 +139,3 @@ function render(needsUpdate) {
 		renderer.render(mainScene.scene, camera);
 	}
 }
-
-},{}]},{},[1]);
