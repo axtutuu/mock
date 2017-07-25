@@ -1,3 +1,5 @@
+import qs from 'query-string';
+
 let scene, camera, renderer, controls, stats, manager;
 let kado = {};
 let prevCameraMatrixWorld;
@@ -67,8 +69,19 @@ function init() {
   var axes = new THREE.AxisHelper(100);
   scene.add(axes);
 
-  // sky
-  const urls = ["img/px.jpg", "img/nx.jpg", "img/py.jpg", "img/ny.jpg", "img/pz.jpg", "img/nz.jpg"];
+  const opts = qs.parse(location.search);
+  let urls;
+  switch(opts.view) {
+    case 'city':
+      urls = ["img/city/px.jpg", "img/city/nx.jpg", "img/city/py.jpg", "img/city/ny.jpg", "img/city/pz.jpg", "img/city/nz.jpg"];
+      break;
+    case 'space':
+      urls = ["img/space/px.jpg", "img/space/nx.jpg", "img/space/py.jpg", "img/space/ny.jpg", "img/space/pz.jpg", "img/space/nz.jpg"];
+      break;
+    default:
+      urls = ["img/px.jpg", "img/nx.jpg", "img/py.jpg", "img/ny.jpg", "img/pz.jpg", "img/nz.jpg"];
+      break;
+  }
   const scCube = THREE.ImageUtils.loadTextureCube(urls);
   scCube.format = THREE.RGBFormat;
   const  skyShader = THREE.ShaderLib["cube"];
