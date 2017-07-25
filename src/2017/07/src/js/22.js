@@ -1,3 +1,4 @@
+// fork http://q068891.hatenablog.com/entry/2016/10/02/111033
 const canvas = document.getElementsByClassName('day-22')[0];
 const ctx    = canvas.getContext('2d');
 const width = 600,
