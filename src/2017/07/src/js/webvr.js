@@ -1,8 +1,74 @@
 import qs from 'query-string';
 
+/*
+ * video setting
+ */
+//  navigator
+//    .mediaDevices
+//    .enumerateDevices()
+//    .then(gotDevice)
+//    .then(getStream);
+//  
+//  const camvideo = document.querySelector('.js-monitor');
+//  
+//  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+//  window.URL = window.URL || window.webkitURL;
+//  
+//  function option(id) {
+//    return {
+//      video: {
+//        optional: [{
+//          sourceId: id
+//        }]
+//      }
+//    }
+//  }
+//  
+//  function gotDevice(deviceInfos) {
+//    const ids = [];
+//    // 背面カメラを使う
+//    return new Promise(resolve=>{
+//      deviceInfos.forEach(v=>{
+//        if(v.kind === 'videoinput') {
+//          ids.push(v.deviceId)
+//        }
+//      });
+//      resolve(option(ids[1] || ids[0]));
+//    });
+//  }
+//  
+//  function getStream(opts) {
+//    navigator.getUserMedia(opts, gotStream, noStream);
+//  }
+//  
+//  function gotStream(stream) {
+//    if(window.URL) {
+//      camvideo.src = window.URL.createObjectURL(stream);
+//    } else {
+//      camvideo.src = stream;
+//    }
+//    stream.onended = noStream;
+//  }
+//  
+//  function noStream(e) {
+//    let msg = 'No camera available.';
+//    if(e.code === 1) {
+//      msg = 'User denied access to use camera.'; 
+//    }
+//    console.log(msg);
+//  }
+//  
+//  function handleError(error) {
+//    console.log('Error: ', error);
+//  }
+
+
+
 let scene, camera, renderer, controls, stats, manager;
 let kado = {};
 let prevCameraMatrixWorld;
+
+let video, videoImage, videoImageContext, videoTexture;
 
 const clock = new THREE.Clock();
 
@@ -97,6 +163,29 @@ function init() {
   skyMaterial.needsUpdate = true;
   scene.add(skyBox);
 
+
+  /*
+   * video
+   */
+  //  video = document.querySelector('.js-monitor');
+  //  videoImage = document.getElementsByClassName('js-monitor-canvas')[0];
+  //  videoImageContext = videoImage.getContext('2d');
+
+  //  videoImageContext.fillStyle = '#000000';
+  //  videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
+
+  //  videoTexture= new THREE.Texture(videoImage);
+  //  videoTexture.minFilter = THREE.LinearFilter;
+  //  videoTexture.magFilter = THREE.LinearFilter;
+
+  //  const webcamMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, overdraw: true, side: THREE.DoubleSide }),
+  //        // webcamGeometry = new THREE.PlaneGeometry(100, 100, 1, 1),
+  //        webcamGeometry = new THREE.BoxGeometry(2000, 2000, 2000),
+  //        webcamScreen   = new THREE.Mesh(webcamGeometry, webcamMaterial);
+  //  webcamScreen.position.set(0,0,0);
+  //  scene.add(webcamScreen);
+
+
   // kado
 	kado.geometry = new THREE.PlaneBufferGeometry(2.0, 2.0);
   kado.material = new THREE.RawShaderMaterial({
@@ -135,6 +224,13 @@ function animate()
 
 function render(needsUpdate) 
 {	
+
+	// if ( video.readystate === video.have_enough_data ) 
+	// {
+	// 	videoImageContext.drawImage( video, 0, 0, videoImage.width, videoImage.height );
+	// 	if ( videoTexture ) 
+	// 		videoTexture.needsupdate = true;
+	// }
 
 	kado.material.uniforms.resolution.value = new THREE.Vector2(renderer.domElement.width, renderer.domElement.height);
 	kado.material.uniforms.cameraPos.value = camera.getWorldPosition();
