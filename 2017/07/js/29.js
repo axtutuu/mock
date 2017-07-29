@@ -7,6 +7,11 @@ var view = document.querySelector('.day-29');
 
 var container = new PIXI.Container();
 
+// background
+var background = new PIXI.Graphics();
+background.beginFill(0x40FF00, 1).drawRect(0, 0, WIDTH, HEIGHT).endFill();
+container.addChild(background);
+
 // circleのアニメーション
 var circle = new PIXI.Graphics();
 circle.beginFill(0xffffff);
@@ -31,6 +36,11 @@ timeline.add(TweenMax.to(circle, 4, {
   height: 450,
   ease: Expo.easeInOut
 }));
+timeline.add(TweenMax.to(circle, 4, {
+  width: 600 * 1.5,
+  height: 450 * 1.5,
+  ease: Expo.easeInOut
+}));
 
 timeline.play();
 
@@ -43,6 +53,5 @@ var renderer = PIXI.autoDetectRenderer({
 PIXI.ticker.shared.add(function () {
   renderer.render(container);
 });
-console.log(renderer);
 
 },{}]},{},[1]);
