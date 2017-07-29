@@ -4,6 +4,14 @@ const view = document.querySelector('.day-29');
 
 const container = new PIXI.Container();
 
+// background
+const background = new PIXI.Graphics();
+background
+  .beginFill(0x40FF00, 1)
+  .drawRect(0, 0, WIDTH, HEIGHT)
+  .endFill();
+container.addChild(background);
+
 // circleのアニメーション
 const circle = new PIXI.Graphics();
 circle.beginFill(0xffffff);
@@ -30,6 +38,13 @@ timeline.add(
     ease: Expo.easeInOut
   })
 )
+timeline.add(
+  TweenMax.to(circle, 4, {
+    width: 600*1.5,
+    height: 450*1.5,
+    ease: Expo.easeInOut
+  })
+)
 
 timeline.play();
 
@@ -42,4 +57,3 @@ const renderer = PIXI.autoDetectRenderer({
 PIXI.ticker.shared.add(() => {
   renderer.render(container);
 });
-console.log(renderer);
