@@ -9823,12 +9823,6 @@ var _jquery2 = _interopRequireDefault(_jquery);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// require("jquery.scrollbar");
-
-var sample = new Sample({
-    name: 'world'
-});
-
 (0, _jquery2.default)('.wrapper').on('click', function () {
     console.log('hello, ' + sample.name + '.');
 });
