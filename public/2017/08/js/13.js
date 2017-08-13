@@ -5,6 +5,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/*
+ * forked : https://codepen.io/paultrone/pen/XbLWMj
+ */
 var Sphere3D = function () {
   function Sphere3D(radius) {
     _classCallCheck(this, Sphere3D);

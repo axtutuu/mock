@@ -1,3 +1,6 @@
+/*
+ * forked : https://codepen.io/paultrone/pen/XbLWMj
+ */
 class Sphere3D {
   constructor(radius) {
     this.radius = radius;
