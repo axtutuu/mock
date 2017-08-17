@@ -17,8 +17,6 @@ function tick() {
   velocityY += accelY;
   y += velocityY;
 
-  console.log(y, velocityY);
-
   if (x > 600) x = 0;
   if (y > 600) {
     velocityY = -20;
