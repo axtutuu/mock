@@ -6,23 +6,13 @@ var canvas = document.querySelector('.canvas'),
 canvas.width = canvas.height = 600;
 
 var isFlying = false,
-    velocityY = -20,
+    velocityY = -0.1,
     y = 300,
     offset = 0,
-    speed = 10,
-    accelY = 0.5,
+    speed = 3,
+    accelY = 0.1,
+    stop = false,
     anime = null;
-
-function tick() {
-  velocityY += isFlying ? -accelY : accelY;
-  y += velocityY;
-  offset += speed;
-  if (offset % 100 == 0) {
-    speed += 1;
-  }
-  paint();
-  anime = requestAnimationFrame(tick);
-}
 
 function paint() {
   ctx.fillStyle = 'green';
@@ -36,7 +26,7 @@ function paint() {
     var up = 200 + Math.sin((i + offset) * Math.PI / 360) * 80;
     ctx.lineTo(i, up);
     if (i == 10 && y < up) {
-      cancelAnimationFrame(anime);
+      stop = true;
     }
   }
   ctx.lineTo(600, 0);
@@ -46,10 +36,10 @@ function paint() {
   ctx.moveTo(0, 600);
 
   for (var _i = 0; _i <= 600; _i += 10) {
-    var down = 400 + Math.sin((_i + offset) * Math.PI / 340) * 80;
+    var down = 500 + Math.sin((_i + offset) * Math.PI / 340) * 80;
     ctx.lineTo(_i, down);
     if (_i == 10 && y + 10 > down) {
-      cancelAnimationFrame(anime);
+      stop = true;
     }
   }
   ctx.lineTo(620, 600);
@@ -60,6 +50,21 @@ function paint() {
   ctx.fillText(offset, 500, 50);
 }
 
+(function tick() {
+  velocityY += isFlying ? -accelY : accelY;
+  y += velocityY;
+  offset += speed;
+  if (offset % 100 == 0) {
+    speed += 0.1;
+  }
+  paint();
+  anime = requestAnimationFrame(tick);
+
+  if (stop) {
+    cancelAnimationFrame(anime);
+  }
+})();
+
 onkeydown = function onkeydown() {
   isFlying = true;
 };
@@ -67,7 +72,5 @@ onkeydown = function onkeydown() {
 onkeyup = function onkeyup() {
   isFlying = false;
 };
-
-tick();
 
 },{}]},{},[1]);
