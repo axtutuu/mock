@@ -17,7 +17,6 @@ Vec.prototype.add = function (v) {
 };
 
 Vec.prototype.mul = function (x, y) {
-  // console.log(this);
   return new Vec(this.x * x, this.y * (y || x));
 };
 
@@ -126,7 +125,7 @@ function CircleEntity(x, y, radius, type, restitution, deceleration) {
     var nx = Math.max(r.y, Math.min(this.x, r.x + r.w));
     var ny = Math.max(r.y, Math.min(this.y, r.y + r.h));
 
-    if (this.isHit(nx, ny)) {
+    if (!this.isHit(nx, ny)) {
       // 衝突なし
       return;
     }
@@ -159,7 +158,6 @@ function CircleEntity(x, y, radius, type, restitution, deceleration) {
       my = -this.velocity.y;
     }
 
-    this.move(mx, my);
     if (mx) {
       // X軸方向へ反転
       this.velocity = this.velocity.mul(-1 * this.restitution, 1);
@@ -169,6 +167,7 @@ function CircleEntity(x, y, radius, type, restitution, deceleration) {
       // Y軸方向へ反転
       this.velocity = this.velocity.mul(1, -1 * this.restitution);
     }
+    this.move(mx, my);
   };
 
   this.collidedWithLine = function (line) {
@@ -180,8 +179,9 @@ function CircleEntity(x, y, radius, type, restitution, deceleration) {
     var t1 = v0.cross(v1) / cv1v2;
     var t2 = v0.cross(v2) / cv1v2;
     var crossed = 0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1;
+
     if (crossed) {
-      this.move(-this.velosj.x, -this.velocity.y);
+      this.move(-this.velocity.x, -this.velocity.y);
       var dot0 = this.velocity.dot(line.norm); // 法線と速度の内積
       var vec0 = line.norm.mul(-2 * dot0);
       this.velocity = vec0.add(this.velocity);
@@ -252,8 +252,6 @@ function Engine(x, y, width, height, gravityX, gravityY) {
   this.gravity = new Vec(gravityX, gravityY);
   this.entities = [];
 
-  console.log(this.gravity);
-
   this.setGravity = function (x, y) {
     this.gravity.x = x;
     this.gravity.y = y;
@@ -280,24 +278,25 @@ function Engine(x, y, width, height, gravityX, gravityY) {
     }, this);
 
     // 衝突判定 & 衝突処理
-    // for (let i=0; i<entities.length-1; i++) {
-    //   for (let j = i + 1; j < entities.length; j++) {
-    //     const e0 = entities[i], e1 = entities[j];
-    //     if(e0.type == BodyStatic && e1.type == BodyStatic) continue;
+    for (var i = 0; i < entities.length - 1; i++) {
+      for (var j = i + 1; j < entities.length; j++) {
+        var e0 = entities[i],
+            e1 = entities[j];
+        if (e0.type == BodyStatic && e1.type == BodyStatic) continue;
 
-    //     if(e0.shape == ShapeCircle && e1.shape == ShapeCircle) {
-    //       e0.collidedWithCircle(e1);
-    //     } else if (e0.shape == ShapeCircle && e1.shape == ShapeLine) {
-    //       e0.collidedWithLine(e1);
-    //     } else if (e0.shape == ShapeLine && e1.shape == ShapeCircle) {
-    //       e1.collidedWithLine(e0);
-    //     } else if (e0.shape == ShapeCircle && e1.shape == ShapeRectangle) {
-    //       e0.collidedWithRect(e1);
-    //     } else if (e0.shape == ShapeRectangle && e1.shape == ShapeCircle) {
-    //       e1.collidedWithRect(e0);
-    //     }
-    //   }
-    // }
+        if (e0.shape == ShapeCircle && e1.shape == ShapeCircle) {
+          e0.collidedWithCircle(e1);
+        } else if (e0.shape == ShapeCircle && e1.shape == ShapeLine) {
+          e0.collidedWithLine(e1);
+        } else if (e0.shape == ShapeLine && e1.shape == ShapeCircle) {
+          e1.collidedWithLine(e0);
+        } else if (e0.shape == ShapeCircle && e1.shape == ShapeRectangle) {
+          e0.collidedWithRect(e1);
+        } else if (e0.shape == ShapeRectangle && e1.shape == ShapeCircle) {
+          // e1.collidedWithRect(e0);
+        }
+      }
+    }
   };
 }
 
