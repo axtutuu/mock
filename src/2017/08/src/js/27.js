@@ -15,6 +15,7 @@ Vec.prototype.add = function (v) {
 }
 
 Vec.prototype.mul = function (x, y) {
+  // console.log(this);
   return new Vec(this.x*x, this.y*(y || x));
 }
 
@@ -247,6 +248,8 @@ function Engine(x, y, width, height, gravityX, gravityY) {
   this.gravity = new Vec(gravityX, gravityY);
   this.entities = [];
 
+  console.log(this.gravity);
+
   this.setGravity = function (x, y) {
     this.gravity.x = x;
     this.gravity.y = y;
@@ -268,12 +271,12 @@ function Engine(x, y, width, height, gravityX, gravityY) {
     });
 
     // 範囲外のオブジェクトを削除
-    // this.entities = entities.filter(function(e) {
-    //   return this.worldX <= e.x &&
-    //     e.x <= this.worldX + this.worldW &&
-    //     this.worldY <= e.y &&
-    //     e.y <= this.worldY + this.worldH;
-    // }, this);
+    this.entities = entities.filter(function(e) {
+      return this.worldX <= e.x &&
+        e.x <= this.worldX + this.worldW &&
+        this.worldY <= e.y &&
+        e.y <= this.worldY + this.worldH;
+    }, this);
 
     // 衝突判定 & 衝突処理
     for (let i=0; i<entities.length-1; i++) {
@@ -308,7 +311,7 @@ function Engine(x, y, width, height, gravityX, gravityY) {
 
 const canvas = document.querySelector('.canvas'),
       ctx    = canvas.getContext('2d'),
-      engine = new Engine(500, 50, 50, 400, BodyStatic);
+      engine = new Engine(0, 0, 600, 800, 0, 9.8);
 canvas.width = canvas.height = 600;
 
 const colors = ["yellow", "green", "orange", "blue", "white"];
@@ -383,7 +386,7 @@ function tick() {
   engine.step(0.01);
   repaint();
 
-  // requestAnimationFrame(tick);
+  requestAnimationFrame(tick);
 }
 
 init();
