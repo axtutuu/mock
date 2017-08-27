@@ -279,24 +279,24 @@ function Engine(x, y, width, height, gravityX, gravityY) {
     }, this);
 
     // 衝突判定 & 衝突処理
-    for (let i=0; i<entities.length-1; i++) {
-      for (let j = i + 1; j < entities.length; j++) {
-        const e0 = entities[i], e1 = entities[j];
-        if(e0.type == BodyStatic && e1.type == BodyStatic) continue;
+    // for (let i=0; i<entities.length-1; i++) {
+    //   for (let j = i + 1; j < entities.length; j++) {
+    //     const e0 = entities[i], e1 = entities[j];
+    //     if(e0.type == BodyStatic && e1.type == BodyStatic) continue;
 
-        if(e0.shape == ShapeCircle && e1.shape == ShapeCircle) {
-          e0.collidedWithCircle(e1);
-        } else if (e0.shape == ShapeCircle && e1.shape == ShapeLine) {
-          e0.collidedWithLine(e1);
-        } else if (e0.shape == ShapeLine && e1.shape == ShapeCircle) {
-          e1.collidedWithLine(e0);
-        } else if (e0.shape == ShapeCircle && e1.shape == ShapeRectangle) {
-          e0.collidedWithRect(e1);
-        } else if (e0.shape == ShapeRectangle && e1.shape == ShapeCircle) {
-          e1.collidedWithRect(e0);
-        }
-      }
-    }
+    //     if(e0.shape == ShapeCircle && e1.shape == ShapeCircle) {
+    //       e0.collidedWithCircle(e1);
+    //     } else if (e0.shape == ShapeCircle && e1.shape == ShapeLine) {
+    //       e0.collidedWithLine(e1);
+    //     } else if (e0.shape == ShapeLine && e1.shape == ShapeCircle) {
+    //       e1.collidedWithLine(e0);
+    //     } else if (e0.shape == ShapeCircle && e1.shape == ShapeRectangle) {
+    //       e0.collidedWithRect(e1);
+    //     } else if (e0.shape == ShapeRectangle && e1.shape == ShapeCircle) {
+    //       e1.collidedWithRect(e0);
+    //     }
+    //   }
+    // }
   }
 }
 
@@ -357,7 +357,7 @@ function init() {
 }
 
 function repaint() {
-  ctx.fillStyle ="white";
+  ctx.fillStyle ="black";
   ctx.fillRect(0, 0, 600, 600);
   for (let i=0; i<engine.entities.length; i++) {
     const e = engine.entities[i];
@@ -376,6 +376,8 @@ function repaint() {
         ctx.beginPath();
         ctx.moveTo(e.x0, e.y0);
         ctx.lineTo(e.x1, e.y1);
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = '#ff0000';
         ctx.stroke();
         break;
     }
