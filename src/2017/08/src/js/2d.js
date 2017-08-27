@@ -1,33 +1,68 @@
-export default class Vec {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
+const BodyStatic = 1,
+      BodyDynamic = 2,
+      ShapeCircle = 3,
+      ShapeRectangle = 4,
+      ShapeLine = 5;
 
-  add(v) {
-    return new Vec(this.x+v.x, this.y+v.y);
-  }
-
-  mul(x, y) { // 掛算
-    return new Vec(this.x*x, this.y*y);
-  }
-
-  dot(v) {
-    // 内積
-    return this.x * v.x + this.y * v.y;
-  }
-
-  cross(v) {
-    // 外積
-    return this.x * v.y - v.x * this.y;
-  }
-
-  move(dx, dy) {
-    // 自分を移動
-    this.x += dx;
-    this.y += dy;
-  }
+function Vec(x, y) {
+  this.x = x;
+  this.y = y;
 }
+
+Vec.prototype.add = function (v) {
+  return new Vec(this.x+v.x, this.y+v.y);
+}
+
+Vec.prototype.mul = function (x, y) {
+  return new Vec(this.x*x, this.y*(y || x));
+}
+
+Vec.prototype.dot = function (v) {
+  // 内積
+  return this.x * v.x + this.y * v.y;
+}
+
+Vec.prototype.cross = function (v) {
+  // 外積
+  return this.x * v.y - v.x * this.y;
+}
+
+Vec.prototype.move = function (dx, dy) {
+  // 自分を移動
+  this.x += dx;
+  this.y += dy;
+}
+
+// export default class Vec {
+//   constructor(x, y) {
+//     this.x = x;
+//     this.y = y;
+//   }
+// 
+//   add(v) {
+//     return new Vec(this.x+v.x, this.y+v.y);
+//   }
+// 
+//   mul(x, y) { // 掛算
+//     return new Vec(this.x*x, this.y*y);
+//   }
+// 
+//   dot(v) {
+//     // 内積
+//     return this.x * v.x + this.y * v.y;
+//   }
+// 
+//   cross(v) {
+//     // 外積
+//     return this.x * v.y - v.x * this.y;
+//   }
+// 
+//   move(dx, dy) {
+//     // 自分を移動
+//     this.x += dx;
+//     this.y += dy;
+//   }
+// }
 
 // 短形オブジェクト
 function RectangleEntity(x, y, width, height) {

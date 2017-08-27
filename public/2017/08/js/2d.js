@@ -1,61 +1,73 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+var BodyStatic = 1,
+    BodyDynamic = 2,
+    ShapeCircle = 3,
+    ShapeRectangle = 4,
+    ShapeLine = 5;
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+function Vec(x, y) {
+  this.x = x;
+  this.y = y;
+}
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+Vec.prototype.add = function (v) {
+  return new Vec(this.x + v.x, this.y + v.y);
+};
 
-var Vec = function () {
-  function Vec(x, y) {
-    _classCallCheck(this, Vec);
+Vec.prototype.mul = function (x, y) {
+  return new Vec(this.x * x, this.y * (y || x));
+};
 
-    this.x = x;
-    this.y = y;
-  }
+Vec.prototype.dot = function (v) {
+  // 内積
+  return this.x * v.x + this.y * v.y;
+};
 
-  _createClass(Vec, [{
-    key: "add",
-    value: function add(v) {
-      return new Vec(this.x + v.x, this.y + v.y);
-    }
-  }, {
-    key: "mul",
-    value: function mul(x, y) {
-      // 掛算
-      return new Vec(this.x * x, this.y * y);
-    }
-  }, {
-    key: "dot",
-    value: function dot(v) {
-      // 内積
-      return this.x * v.x + this.y * v.y;
-    }
-  }, {
-    key: "cross",
-    value: function cross(v) {
-      // 外積
-      return this.x * v.y - v.x * this.y;
-    }
-  }, {
-    key: "move",
-    value: function move(dx, dy) {
-      // 自分を移動
-      this.x += dx;
-      this.y += dy;
-    }
-  }]);
+Vec.prototype.cross = function (v) {
+  // 外積
+  return this.x * v.y - v.x * this.y;
+};
 
-  return Vec;
-}();
+Vec.prototype.move = function (dx, dy) {
+  // 自分を移動
+  this.x += dx;
+  this.y += dy;
+};
+
+// export default class Vec {
+//   constructor(x, y) {
+//     this.x = x;
+//     this.y = y;
+//   }
+// 
+//   add(v) {
+//     return new Vec(this.x+v.x, this.y+v.y);
+//   }
+// 
+//   mul(x, y) { // 掛算
+//     return new Vec(this.x*x, this.y*y);
+//   }
+// 
+//   dot(v) {
+//     // 内積
+//     return this.x * v.x + this.y * v.y;
+//   }
+// 
+//   cross(v) {
+//     // 外積
+//     return this.x * v.y - v.x * this.y;
+//   }
+// 
+//   move(dx, dy) {
+//     // 自分を移動
+//     this.x += dx;
+//     this.y += dy;
+//   }
+// }
 
 // 短形オブジェクト
-
-
-exports.default = Vec;
 function RectangleEntity(x, y, width, height) {
   this.shape = ShapeRectangle;
   this.type = BodyStatic;
