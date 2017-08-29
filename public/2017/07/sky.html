@@ -18,7 +18,7 @@
     <meta property="twitter:title" content="😇">
     <meta property="twitter:description" content="😇">
     <!-- stylesheet-->
-    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/style.css?v=1">
   </head>
   <body>
     <div class="wrapper">
@@ -231,15 +231,19 @@ void calcRadiance(inout Intersection intersection, inout Ray ray, int bounce) {
 	intersectScene(intersection, ray);
 
 	if ( intersection.hit ) {
+    // float diffuse = 0.75164;
 		float diffuse = clamp(dot(lightDir, intersection.normal), 0.2, 1.0) * 0.5 + 0.5;
 		float specular = pow(saturate(dot(reflect(lightDir, intersection.normal), ray.direction)), 10.0);
 		float ao = calcAo(intersection.position, intersection.normal);
 		float shadow = calcShadow(intersection.position, lightDir);
 
+		// vec3 metalBase = hsv2rgb(vec3(0.1 * intersection.count + sin(0.05 * PI2 * lTime), 0.7 * 0.5 + abs(0.05 * PI2 * sin(0.1 * lTime)), 0.9));
+		// intersection.color = metalBase * diffuse * ao * shadow + 0.1 * specular;
+		// intersection.reflectance = 0.6;
 		if (intersection.material == METAL_MATERIAL) {
 			vec3 metalBase = hsv2rgb(vec3(0.1 * intersection.count + sin(0.05 * PI2 * lTime), 0.7 * 0.5 + abs(0.05 * PI2 * sin(0.1 * lTime)), 0.9));
 			intersection.color = metalBase * diffuse * ao * shadow + 0.1 * specular;
-			intersection.reflectance = 0.7;
+			intersection.reflectance = 0.6;
 		} else {
 			vec3 metalBase = vec3(0.17, 0.25, 0.28);
 			intersection.color = metalBase * diffuse * ao * shadow + 0.5 * specular;
@@ -254,7 +258,7 @@ void calcRadiance(inout Intersection intersection, inout Ray ray, int bounce) {
 void main(void) {
 	// set globals
 	lTime = mod(time, WORK_TIME);
-	kadoScale = 2.6 + 0.2 * cos(0.1 * PI2 * time);
+	kadoScale = 2.6 + 0.5 * cos(0.1 * PI2 * time);
 
 	// fragment position
 	vec2 uv = ( gl_FragCoord.xy * 2.0 - resolution ) / min( resolution.x, resolution.y );
