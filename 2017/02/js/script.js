@@ -9815,31 +9815,7 @@ return jQuery;
 }));
 
 },{}],2:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Sample = function Sample() {
-    var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-    _classCallCheck(this, Sample);
-
-    this.name = opts.name;
-};
-
-exports.default = Sample;
-;
-
-},{}],3:[function(require,module,exports){
 'use strict';
-
-var _Sample = require('./lib/Sample');
-
-var _Sample2 = _interopRequireDefault(_Sample);
 
 var _jquery = require('jquery');
 
@@ -9849,7 +9825,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // require("jquery.scrollbar");
 
-var sample = new _Sample2.default({
+var sample = new Sample({
     name: 'world'
 });
 
@@ -9858,4 +9834,4 @@ var sample = new _Sample2.default({
 });
 // $(".scrollbar-chrome").scrollbar();
 
-},{"./lib/Sample":2,"jquery":1}]},{},[3]);
+},{"jquery":1}]},{},[2]);
