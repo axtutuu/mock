@@ -21,14 +21,19 @@ var Line = function () {
 
     this.toX = 0;
     this.toY = 50;
+
+    this.theta = Math.random() * 2;
+    this.radius = Math.random() * 15;
   }
 
   _createClass(Line, [{
     key: 'draw',
     value: function draw() {
       ctx.beginPath();
-      ctx.moveTo(this.x, this.y);
-      ctx.lineTo(this.toX, this.toY);
+      ctx.moveTo(this.x, this.toY);
+      // ctx.lineTo(this.toX, this.toY);
+      ctx.bezierCurveTo(this.toY, this.toY + Math.sin(this.theta) * this.radius, 70, 90, 90, this.toY);
+      this.x = this.toX;
       ctx.strokeStyle = 'red';
     }
   }]);
@@ -39,7 +44,11 @@ var Line = function () {
 var line = new Line();
 
 function tick() {
-  line.toX += 1;
+  // ctx.fillStyle = 'yellow';
+  // ctx.fillRect(0,0, 800, 800);	
+
+  line.toX += 0.5;
+  line.theta += 0.1;
   line.draw();
   ctx.stroke();
 
