@@ -1,0 +1,8 @@
+extends /layout/_DefaultLayout
+block ContentBlock
+  canvas(class='day-29-2' style='width: 600px; height: 450px;')
+prepend JavascriptBlock
+  script(src="js/lib/pixi.min.js")
+  script(src="js/lib/TweenMax.min.js")
+  script(src="js/lib/CustomEase.min.js")
+  script(src="js/29-2.js")
