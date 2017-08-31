@@ -28,7 +28,7 @@ function paint() {
   ctx.strokeStyle = 'green';
   ctx.beginPath();
   ctx.moveTo(c, s);
-  for(let i=0; i < 500; i++) {
+  for(let i=0; i < 200; i++) {
     let s = Math.sin((degree+i) * Math.PI / 180) * -50;
     ctx.lineTo(i, s);
   }

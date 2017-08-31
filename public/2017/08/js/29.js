@@ -7,6 +7,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var canvas = document.querySelector('.canvas');
 var ctx = canvas.getContext('2d');
+var degree = 0;
 
 canvas.width = canvas.height = 800;
 ctx.fillStyle = 'yellow';
@@ -22,8 +23,9 @@ var Line = function () {
     this.toX = 0;
     this.toY = 150;
 
-    this.theta = 555;
+    this.theta = 50;
     this.radius = Math.random() * 15;
+    ctx.strokeStyle = 'red';
   }
 
   _createClass(Line, [{
@@ -31,11 +33,12 @@ var Line = function () {
     value: function draw() {
       ctx.beginPath();
 
-      ctx.moveTo(this.x, this.toY);
-      for (var i = 0; i < this.toX; i += 1) {
-        ctx.lineTo(i, (this.toY + Math.sin(50 + i) * 50) * 2);
+      ctx.moveTo(Math.sin(), this.y);
+      for (var i = 0; i < this.toX; i++) {
+        var s = Math.sin((degree + i) * Math.PI / 180) * -50;
+        ctx.lineTo(i, this.toY + s);
       }
-      ctx.strokeStyle = 'red';
+      ctx.stroke();
     }
   }]);
 
@@ -48,10 +51,11 @@ function tick() {
   ctx.fillStyle = 'yellow';
   ctx.fillRect(0, 0, 800, 800);
 
+  degree++;
+
   line.toX += 1;
   // line.theta += 0.1;
   line.draw();
-  ctx.stroke();
 
   if (line.toX > 800) {
     line.toX = 0;
