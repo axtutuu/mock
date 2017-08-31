@@ -31,7 +31,7 @@ function paint() {
   ctx.strokeStyle = 'green';
   ctx.beginPath();
   ctx.moveTo(c, s);
-  for (var i = 0; i < 500; i++) {
+  for (var i = 0; i < 200; i++) {
     var _s = Math.sin((degree + i) * Math.PI / 180) * -50;
     ctx.lineTo(i, _s);
   }
