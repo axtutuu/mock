@@ -1,20 +1,17 @@
 const canvas = document.querySelector('.canvas');
 const ctx    = canvas.getContext('2d');
-let   degree = 0;
-
 canvas.width = canvas.height = 800;
-ctx.fillStyle = 'yellow';
-ctx.fillRect(0,0, 800, 800);	
 
 class Line {
-  constructor() {
-    this.x = 0;
-    this.y = 50;
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
     
     this.toX = 0;
-    this.toY = 150;
 
-    this.theta = 50;
+    this.degree = 0;
+    this.speed = 3;
+
     this.radius = Math.random() * 15;
     ctx.strokeStyle = 'red';
   }
@@ -22,31 +19,39 @@ class Line {
   draw() {
     ctx.beginPath();
 
-    ctx.moveTo(Math.sin(), this.y);
+    ctx.moveTo(this.x, this.y);
     for(let i=0; i<this.toX; i++) {
-      let s = Math.sin((degree+i) * Math.PI / 180) * -50;
-      ctx.lineTo(i, this.toY+s);
+      let s = Math.sin((this.degree+i) * Math.PI / 180) * 50;
+      ctx.lineTo(i, this.y+s);
     }
     ctx.stroke();
   }
 }
 
-const line = new Line();
 
 function tick() {
   ctx.fillStyle = 'yellow';
   ctx.fillRect(0,0, 800, 800);	
 
-  degree++
+  lines.forEach(v => {
+    v.toX += v.speed;
+    v.draw();
+    if(v.toX>800) {
+      v.toX = 0;
+    }
+  });
 
-  line.toX += 1;
-  // line.theta += 0.1;
-  line.draw();
-  
-  if(line.toX > 800) {
-    line.toX = 0;
-  }
   requestAnimationFrame(tick);
+}
+
+/*
+ * init
+ */
+const lines = [];
+for(let i=1; i<15; i++) {
+  lines.push(
+    new Line(0, 50*i)
+  )
 }
 
 tick();
