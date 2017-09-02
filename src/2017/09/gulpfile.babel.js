@@ -19,8 +19,7 @@ import $ from 'jquery';
 // const
 const SRC = './src';
 const CONFIG = './src/config';
-// const HTDOCS = './public';
-const HTDOCS = '../../../public/2017/02'; // TODO: set direcory
+const HTDOCS = '../../../public/2017/09'; // TODO: set direcory
 const PUBLIC = '../../../public';
 
 const BASE_PATH = '';
