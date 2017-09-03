@@ -3,20 +3,25 @@
   overflow: hidden; }
 
 .items {
-  -webkit-transform: translateX(-100px);
-          transform: translateX(-100px);
   display: -webkit-flex;
   display: -ms-flexbox;
-  display: flex;
-  -webkit-justify-content: center;
-      -ms-flex-pack: center;
-          justify-content: center; }
+  display: flex; }
 
 .item {
   width: 150px;
   min-width: 150px;
   height: 150px;
-  margin: 0 10px; }
+  margin: 0 10px;
+  position: relative; }
+  .item p {
+    display: block;
+    color: white;
+    font-size: 50px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%); }
 
 .item:nth-child(odd) {
   background-color: #6992d3; }

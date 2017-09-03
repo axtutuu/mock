@@ -12,7 +12,6 @@ var Slider = function () {
     this.x = 0;
     this.slider = new Hammer(document.querySelector('.slider'));
     this.items = this.slider.element.children[0];
-    console.log(this.items);
 
     this.listener();
   }
