@@ -1,7 +1,14 @@
 extends /layout/_DefaultLayout
 prepend StylesheetBlock
-  // link(rel="stylesheet", href="css/canvas.css")
+  link(rel="stylesheet", href="css/02.css")
 block ContentBlock
-  | HELLO
+  .slider
+    ul.items
+      li.item
+      li.item
+      li.item
+      li.item
+      li.item
 prepend JavascriptBlock
+  script(src="js/lib/hammer.min.js")
   script(src="js/02.js")

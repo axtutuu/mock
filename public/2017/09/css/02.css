@@ -1,0 +1,25 @@
+.slider {
+  width: 300px;
+  overflow: hidden; }
+
+.items {
+  -webkit-transform: translateX(-100px);
+          transform: translateX(-100px);
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-justify-content: center;
+      -ms-flex-pack: center;
+          justify-content: center; }
+
+.item {
+  width: 150px;
+  min-width: 150px;
+  height: 150px;
+  margin: 0 10px; }
+
+.item:nth-child(odd) {
+  background-color: #6992d3; }
+
+.item:nth-child(even) {
+  background-color: #49af50; }
