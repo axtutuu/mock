@@ -17104,6 +17104,7 @@ var Slider = function () {
     _classCallCheck(this, Slider);
 
     this.x = 0;
+    this.inertia = 0;
     this.slider = new Hammer(document.querySelector('.slider'));
     this.items = this.slider.element.children[0];
     this.width = this.items.scrollWidth;
@@ -17123,7 +17124,20 @@ var Slider = function () {
         return _this._setTransformX(_this.x + ev.deltaX);
       });
       this.slider.on('panend', function (ev) {
-        return _this._save(_this.x + ev.deltaX);
+        _this._save(_this.x + ev.deltaX);
+        /*
+         * 慣性で移動する距離
+         */
+        var distance = ev.distance * ev.overallVelocity;
+
+        if (_this.x + distance > 0) {
+          distance = distance - (_this.x + distance);
+        }
+
+        if (_this.x + distance < _this.width * -3) {
+          distance = distance - Math.abs(_this.width * -3 - distance);
+        }
+        _this.inertia = distance;
       });
 
       /*
@@ -17141,17 +17155,25 @@ var Slider = function () {
       this.items.appendChild(fragment);
 
       /*
-       * set pos
+       * 現在地の監視
        */
       this._setTransformX(this.width * -1);
       this._save(this.width * -1);
 
       var tick = function tick() {
+        _this._leap();
         _this._posFix();
         requestAnimationFrame(tick);
       };
       tick();
     }
+
+    /*
+     * 位置調整用関数
+     * ex:)
+     *  x: -800 => 840*-2+Math.abs(-800-(-840))
+     */
+
   }, {
     key: '_posFix',
     value: function _posFix() {
@@ -17159,18 +17181,35 @@ var Slider = function () {
       var isInRange = _lodash2.default.inRange(this.x, this.width * -1 + offset, this.width * -2 + -offset);
       if (!isInRange) {
         if (this.x > this.width * -1) {
-          console.log('left');
           var diff = Math.abs(this.x - this.width * -1);
           this._save(this.width * -2 + diff);
           this._setTransformX(this.width * -2 + diff);
         }
 
         if (this.x < this.width * -2) {
-          console.log('right');
           var _diff = Math.abs(this.x - this.width * -2);
           this._save(this.width * -1 - _diff);
           this._setTransformX(this.width * -1 - _diff);
         }
+      }
+    }
+
+    /*
+     * 慣性
+     */
+
+  }, {
+    key: '_leap',
+    value: function _leap() {
+      if (Math.abs(this.inertia) < 1) return;
+
+      var distance = this.inertia * 0.9;
+      this.inertia = distance;
+      this._save(this.x + distance);
+      this._setTransformX(this.x + distance);
+
+      if (Math.abs(distance) < 1) {
+        this.inertia = 0;
       }
     }
   }, {
