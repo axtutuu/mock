@@ -17141,9 +17141,9 @@ var Slider = function () {
       });
 
       /*
-       * copy
+       * clone dom
        */
-      var items = (0, _lodash2.default)(this.items.children).toArray().cloneDeep();
+      var items = _lodash2.default.toArray(this.items.children);
       var fragment = document.createDocumentFragment();
 
       for (var i = 0; i < items.length; i++) {
