@@ -35,9 +35,9 @@ class Slider {
 
 
     /*
-     * copy
+     * clone dom
      */
-    const items = _(this.items.children).toArray().cloneDeep();
+    const items = _.toArray(this.items.children);
     const fragment = document.createDocumentFragment();
 
     for(let i=0; i<(items.length); i++) {
