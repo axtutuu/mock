@@ -21,7 +21,6 @@ var Circle = function () {
     this.vx = 0;
     this.vy = 0;
     this.angle = 30;
-    this.radians = 0;
     this.speed = 3.0;
     this.ctx = ctx;
   }
@@ -30,14 +29,16 @@ var Circle = function () {
     key: 'update',
     value: function update() {
 
-      // if(this.x < 10) {
-      //   this.angle = 180-this.angle;
-      // }
-      // console.log(this.x, this.angle);
+      if (this.x < 10 || this.x > 600 - 10) {
+        this.angle = 180 - this.angle;
+      }
 
-      this.redians = this.angle * Math.PI / 180;
-      this.vx = Math.cos(this.radians) * this.speed;
-      this.vy = Math.sin(this.radians) * this.speed;
+      if (this.y < 10 || this.y > 600 - 10) {
+        this.angle = 360 - this.angle;
+      }
+      var r = this.angle * Math.PI / 180;
+      this.vx = Math.cos(r) * this.speed;
+      this.vy = Math.sin(r) * this.speed;
     }
   }, {
     key: 'draw',
@@ -53,11 +54,10 @@ var Circle = function () {
 }();
 
 var c = new Circle(ctx);
+
 function tick() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (c.x > 600 - 10) {
-    c.angle = 180 - c.angle;
-  }
+
   c.x += c.vx;
   c.y += c.vy;
 
