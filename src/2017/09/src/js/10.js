@@ -1,3 +1,4 @@
+// link: http://www.lessmilk.com/tutorial/flappy-bird-phaser-1
 const main = {
   preload: function() {
     game.load.image('bird', 'assets/bird.png')
