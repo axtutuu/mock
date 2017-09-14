@@ -18,11 +18,21 @@
     <meta property="twitter:title" content="😇">
     <meta property="twitter:description" content="😇">
     <!-- stylesheet-->
+    <style type="text/css">
+      .box {
+        width:  500px;
+        height: 500px;
+        background-color: black;
+      }
+    </style>
     <link rel="stylesheet" href="css/style.css?v=1">
   </head>
   <body>
     <div class="wrapper">
-      <h2>pinch</h2>
+      <p><span>Width:</span><span class="js-width"></span></p>
+      <p><span>InnerWidth:</span><span class="js-display-width"></span></p>
+      <p><span>Scale:</span><span class="js-scale"></span></p>
+      <div class="box"></div>
     </div>
     <!-- javascript-->
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>

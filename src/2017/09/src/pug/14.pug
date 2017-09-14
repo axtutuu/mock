@@ -1,7 +1,22 @@
 extends /layout/_DefaultLayout
 prepend StylesheetBlock
+  style(type='text/css').
+    .box {
+      width:  500px;
+      height: 500px;
+      background-color: black;
+    }
 block ContentBlock
-  h2 pinch
+  p
+    span Width:
+    span.js-width
+  p
+    span InnerWidth:
+    span.js-display-width
+  p
+    span Scale:
+    span.js-scale
+  .box
 prepend JavascriptBlock
   script(src='https://code.jquery.com/jquery-2.2.4.min.js' integrity='sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=' crossorigin='anonymous')
   script(src="js/14.js")
