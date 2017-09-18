@@ -1,0 +1,12 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  // link(rel="stylesheet", href="css/canvas.css")
+  style(type='text/css').
+    .canvas {
+      width: 300px;
+      height: 300px;
+    }
+block ContentBlock
+prepend JavascriptBlock
+  script(src="js/lib/phaser.min.js")
+  script(src="js/10.js")
