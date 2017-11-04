@@ -2658,7 +2658,13 @@ var Pudding = function Pudding(opts) {
   _classCallCheck(this, Pudding);
 
   var mc = new Hammer(opts.el);
+
+  mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
   console.log(mc);
+
+  mc.on('panstart', function (e) {
+    console.log(e);
+  });
 };
 
 exports.default = Pudding;
