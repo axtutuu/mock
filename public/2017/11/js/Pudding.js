@@ -2650,22 +2650,85 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 require('hammerjs');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Pudding = function Pudding(opts) {
-  _classCallCheck(this, Pudding);
-
-  var mc = new Hammer(opts.el);
-
-  mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-  console.log(mc);
-
-  mc.on('panstart', function (e) {
-    console.log(e);
-  });
+var Ease = {
+  linear: function linear(n) {
+    return n;
+  },
+  outBack: function outBack(n) {
+    var s = 0.60158; // default 1.70158
+    return --n * n * ((s + 1) * n + s) + 1;
+  },
+  inExpo: function inExpo(n) {
+    return 0 == n ? 0 : Math.pow(1024, n - 1);
+  }
 };
+
+var Pudding = function () {
+  function Pudding(opts) {
+    var _this = this;
+
+    _classCallCheck(this, Pudding);
+
+    this.dom = opts.el.children[0];
+    this.x = 0;
+    this.y = 0;
+    this.tmpX = 0;
+    this.tmpY = 0;
+
+    var mc = new Hammer(opts.el);
+
+    mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+    console.log(opts.el.children);
+
+    mc.on('panstart', function (e) {
+      _this.dom.style.willChange = 'transform';
+    });
+
+    mc.on('panmove', function (e) {
+      _this.tmpX = e.deltaX + _this.x;
+      _this.tmpY = e.deltaY + _this.y;
+      _this.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
+    });
+
+    mc.on('panend', function (e) {
+      _this.x = _this.tmpX;
+      _this.y = _this.tmpY;
+      _this.dom.style.willChange = '';
+
+      var velocity = Math.abs(e.velocity);
+      var x = e.distance * velocity * Math.cos(e.angle * (Math.PI / 180));
+      var y = e.distnce * velocity * Math.sin(e.angle * (Math.PI / 180));
+
+      _this._leap(x);
+    });
+  }
+
+  _createClass(Pudding, [{
+    key: '_leap',
+    value: function _leap(x) {
+      console.log(x);
+      var duration = 1500;
+      var startTime = Date.now();
+      var tick = function tick() {
+        var now = Date.now();
+        if (now - startTime >= duration) return;
+        var percent = (now - startTime) / duration;
+
+        console.log(x * Ease.inExpo(percent));
+        requestAnimationFrame(tick);
+      };
+      tick();
+    }
+  }]);
+
+  return Pudding;
+}();
 
 exports.default = Pudding;
 
