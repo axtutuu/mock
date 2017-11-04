@@ -1,0 +1,2 @@
+((win, doc)=>{
+})(window, document);
