@@ -2679,6 +2679,9 @@ var Ease = {
   },
   inExpo: function inExpo(n) {
     return 0 == n ? 0 : Math.pow(1024, n - 1);
+  },
+  outCube: function outCube(n) {
+    return --n * n * n + 1;
   }
 };
 
@@ -2725,6 +2728,8 @@ var Pudding = function () {
   _createClass(Pudding, [{
     key: '_leap',
     value: function _leap(x) {
+      var _this2 = this;
+
       console.log(x);
       var duration = 1500;
       var startTime = Date.now();
@@ -2733,8 +2738,10 @@ var Pudding = function () {
         if (now - startTime >= duration) return;
         var percent = (now - startTime) / duration;
 
-        console.log(x * Ease.inExpo(percent));
+        console.log(percent, Ease.outCube(percent), x * Ease.inExpo(percent));
         requestAnimationFrame(tick);
+
+        _this2.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + _this2.tmpX + ', ' + _this2.tmpY + ')';
       };
       tick();
     }

@@ -9,6 +9,9 @@ const Ease = {
   },
   inExpo: n => {
     return 0 == n ? 0 : Math.pow(1024, n - 1);
+  },
+  outCube: n => {
+    return --n * n * n + 1;
   }
 }
 
@@ -57,8 +60,10 @@ export default class Pudding {
           if (now - startTime >= duration) return
           const percent = (now - startTime) / duration;
 
-          console.log(x*Ease.inExpo(percent))
+          console.log(percent, Ease.outCube(percent), x*Ease.inExpo(percent))
           requestAnimationFrame(tick)
+
+          this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${this.tmpX}, ${this.tmpY})`
       }
       tick();
   }
