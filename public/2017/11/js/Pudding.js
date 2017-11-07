@@ -2708,7 +2708,7 @@ var Pudding = function () {
       var x = e.distance * velocity * Math.cos(e.angle * (Math.PI / 180));
       var y = e.distnce * velocity * Math.sin(e.angle * (Math.PI / 180));
 
-      _this._leap(x);
+      _this._leap(_this.x + x);
     });
   }
 
@@ -2717,18 +2717,20 @@ var Pudding = function () {
     value: function _leap(x) {
       var _this2 = this;
 
-      console.log(x);
       var duration = 1500;
       var startTime = Date.now();
       var tick = function tick() {
         var now = Date.now();
-        if (now - startTime >= duration) return;
+        if (now - startTime >= duration) {
+          _this2.x = x;
+          return;
+        }
         var percent = (now - startTime) / duration;
 
-        console.log(percent, Ease.outCube(percent), x * Ease.inExpo(percent));
+        // console.log(percent, x*Ease.outCube(percent), x*Ease.inExpo(percent))
         requestAnimationFrame(tick);
 
-        _this2.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + _this2.tmpX + ', ' + _this2.tmpY + ')';
+        _this2.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + x * Ease.outCube(percent) + ', ' + _this2.tmpY + ')';
       };
       tick();
     }

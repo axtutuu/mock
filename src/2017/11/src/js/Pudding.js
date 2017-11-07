@@ -47,23 +47,25 @@ export default class Pudding {
       const x = (e.distance * velocity) * Math.cos(e.angle * (Math.PI / 180))
       const y = (e.distnce * velocity) * Math.sin(e.angle * (Math.PI / 180))
 
-      this._leap(x)
+      this._leap(this.x + x)
     })
   }
 
   _leap(x) {
-      console.log(x)
       const duration = 1500
       const startTime = Date.now();
       const tick = () => {
           const now = Date.now();
-          if (now - startTime >= duration) return
+          if (now - startTime >= duration) {
+            this.x = x
+            return
+          }
           const percent = (now - startTime) / duration;
 
-          console.log(percent, Ease.outCube(percent), x*Ease.inExpo(percent))
+          // console.log(percent, x*Ease.outCube(percent), x*Ease.inExpo(percent))
           requestAnimationFrame(tick)
 
-          this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${this.tmpX}, ${this.tmpY})`
+          this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${x*Ease.outCube(percent)}, ${this.tmpY})`
       }
       tick();
   }
