@@ -7,62 +7,63 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var canvas = document.querySelector('.canvas');
 var ctx = canvas.getContext('2d');
-canvas.width = canvas.height = 800;
+canvas.width = canvas.height = 600;
 
-var Line = function () {
-  function Line(x, y) {
-    _classCallCheck(this, Line);
+ctx.fillStyle = '#d8d8d8';
+ctx.fillRect(0, 0, 600, 600);
 
-    this.x = x;
-    this.y = y;
+var Circle = function () {
+  function Circle(ctx) {
+    _classCallCheck(this, Circle);
 
-    this.toX = 0;
-
-    this.degree = 0;
-    this.speed = 3;
-
-    this.radius = Math.random() * 15;
-    ctx.strokeStyle = 'red';
+    this.x = 30;
+    this.y = 30;
+    this.vx = 0;
+    this.vy = 0;
+    this.angle = 30;
+    this.speed = 3.0;
+    this.ctx = ctx;
   }
 
-  _createClass(Line, [{
+  _createClass(Circle, [{
+    key: 'update',
+    value: function update() {
+
+      if (this.x < 10 || this.x > 600 - 10) {
+        this.angle = 180 - this.angle;
+      }
+
+      if (this.y < 10 || this.y > 600 - 10) {
+        this.angle = 360 - this.angle;
+      }
+      var r = this.angle * Math.PI / 180;
+      this.vx = Math.cos(r) * this.speed;
+      this.vy = Math.sin(r) * this.speed;
+    }
+  }, {
     key: 'draw',
     value: function draw() {
-      ctx.beginPath();
-
-      ctx.moveTo(this.x, this.y);
-      for (var i = 0; i < this.toX; i++) {
-        var s = Math.sin((this.degree + i) * Math.PI / 180) * 50;
-        ctx.lineTo(i, this.y + s);
-      }
-      ctx.stroke();
+      this.ctx.beginPath();
+      this.ctx.fillStyle = 'green';
+      this.ctx.arc(this.x, this.y, 10, 0, Math.PI * 2.0, true);
+      this.ctx.fill();
     }
   }]);
 
-  return Line;
+  return Circle;
 }();
 
+var c = new Circle(ctx);
+
 function tick() {
-  ctx.fillStyle = 'yellow';
-  ctx.fillRect(0, 0, 800, 800);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  lines.forEach(function (v) {
-    v.toX += v.speed;
-    v.draw();
-    if (v.toX > 800) {
-      v.toX = 0;
-    }
-  });
+  c.x += c.vx;
+  c.y += c.vy;
 
+  c.update();
+  c.draw();
   requestAnimationFrame(tick);
-}
-
-/*
- * init
- */
-var lines = [];
-for (var i = 1; i < 15; i++) {
-  lines.push(new Line(0, 50 * i));
 }
 
 tick();

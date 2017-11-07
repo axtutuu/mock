@@ -18,14 +18,24 @@
     <meta property="twitter:title" content="😇">
     <meta property="twitter:description" content="😇">
     <!-- stylesheet-->
+    <style type="text/css">
+      .box {
+        width:  500px;
+        height: 500px;
+        overflow: scroll;
+        background-color: black;
+      }
+    </style>
     <link rel="stylesheet" href="css/style.css?v=1">
   </head>
   <body>
     <div class="wrapper">
-      <canvas class="canvas"></canvas><img id="pic" src="img/sky.jpg" style="display: none;">
+      <div class="box"><img src="http://imgcc.naver.jp/kaze/mission/USER/2/6/218936/3160/1920x1080x98fad66ed9dba5a970f66a.jpg"></div>
     </div>
     <!-- javascript-->
-    <script src="js/23-2.js"></script>
-    <script src="js/script.js?v=2"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="js/lib/hammer.min.js"></script>
+    <script src="js/15.js"></script>
+    <script src="js/script.js?v=1"></script>
   </body>
 </html>
