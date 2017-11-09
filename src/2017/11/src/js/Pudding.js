@@ -32,6 +32,8 @@ export default class Pudding {
     mc.on('panstart', (e) => {
       this.dom.style.willChange = 'transform';
       cancelAnimationFrame(this.tick)
+      this.x = this.tmpX
+      this.y = this.tmpY
     });
 
     mc.on('panmove', (e) => {
@@ -64,21 +66,22 @@ export default class Pudding {
       const tick = () => {
           const now = Date.now();
           const percent = (now - startTime) / duration;
-          const tmpX = x * Ease.outCube(percent),
-                tmpY = y * Ease.outCube(percent);
+
+          this.tmpX = this.x + x * Ease.outCube(percent);
+          this.tmpY = this.y + y * Ease.outCube(percent);
 
           // if (!this._checkPos(this.x + tmpX, this.y + tmpY)) return
           if (now - startTime >= duration) {
             this.dom.style.willChange = '';
-            this.x += tmpX
-            this.y += tmpY
+            this.x = this.tmpX
+            this.y = this.tmpY
             return
           }
           this.tick = requestAnimationFrame(tick)
 
-          console.log('tick', percent, this.x + tmpX, this.y + tmpY)
+          console.log('tick', percent, this.tmpX, this.tmpY)
 
-          this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${this.x + tmpX}, ${this.y + tmpY})`
+          this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${this.tmpX}, ${this.tmpY})`
       }
       tick();
   }

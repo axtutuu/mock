@@ -2693,6 +2693,8 @@ var Pudding = function () {
     mc.on('panstart', function (e) {
       _this.dom.style.willChange = 'transform';
       cancelAnimationFrame(_this.tick);
+      _this.x = _this.tmpX;
+      _this.y = _this.tmpY;
     });
 
     mc.on('panmove', function (e) {
@@ -2729,21 +2731,22 @@ var Pudding = function () {
       var tick = function tick() {
         var now = Date.now();
         var percent = (now - startTime) / duration;
-        var tmpX = x * Ease.outCube(percent),
-            tmpY = y * Ease.outCube(percent);
+
+        _this2.tmpX = _this2.x + x * Ease.outCube(percent);
+        _this2.tmpY = _this2.y + y * Ease.outCube(percent);
 
         // if (!this._checkPos(this.x + tmpX, this.y + tmpY)) return
         if (now - startTime >= duration) {
           _this2.dom.style.willChange = '';
-          _this2.x += tmpX;
-          _this2.y += tmpY;
+          _this2.x = _this2.tmpX;
+          _this2.y = _this2.tmpY;
           return;
         }
         _this2.tick = requestAnimationFrame(tick);
 
-        console.log('tick', percent, _this2.x + tmpX, _this2.y + tmpY);
+        console.log('tick', percent, _this2.tmpX, _this2.tmpY);
 
-        _this2.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + (_this2.x + tmpX) + ', ' + (_this2.y + tmpY) + ')';
+        _this2.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + _this2.tmpX + ', ' + _this2.tmpY + ')';
       };
       tick();
     }
