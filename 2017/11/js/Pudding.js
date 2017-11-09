@@ -2683,54 +2683,83 @@ var Pudding = function () {
     this.y = 0;
     this.tmpX = 0;
     this.tmpY = 0;
+    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
+    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
 
     var mc = new Hammer(opts.el);
 
     mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-    console.log(opts.el.children);
 
     mc.on('panstart', function (e) {
       _this.dom.style.willChange = 'transform';
+      cancelAnimationFrame(_this.tick);
+      _this.x = _this.tmpX;
+      _this.y = _this.tmpY;
     });
 
     mc.on('panmove', function (e) {
+      // if(!this._checkPos(this.tmpX, this.tmpY)) return
+
       _this.tmpX = e.deltaX + _this.x;
       _this.tmpY = e.deltaY + _this.y;
+
       _this.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
     });
 
     mc.on('panend', function (e) {
+      _this.dom.style.willChange = '';
       _this.x = _this.tmpX;
       _this.y = _this.tmpY;
-      _this.dom.style.willChange = '';
 
       var velocity = Math.abs(e.velocity);
       var x = e.distance * velocity * Math.cos(e.angle * (Math.PI / 180));
-      var y = e.distnce * velocity * Math.sin(e.angle * (Math.PI / 180));
+      var y = e.distance * velocity * Math.sin(e.angle * (Math.PI / 180));
 
-      _this._leap(x);
+      console.log('panend', x, y, Math.abs(x) > 10 || Math.abs(y) > 10);
+      _this._leap(x, y);
     });
   }
 
   _createClass(Pudding, [{
     key: '_leap',
-    value: function _leap(x) {
+    value: function _leap(x, y) {
       var _this2 = this;
 
-      console.log(x);
+      this.dom.style.willChange = 'transform';
       var duration = 1500;
       var startTime = Date.now();
       var tick = function tick() {
         var now = Date.now();
-        if (now - startTime >= duration) return;
         var percent = (now - startTime) / duration;
 
-        console.log(percent, Ease.outCube(percent), x * Ease.inExpo(percent));
-        requestAnimationFrame(tick);
+        _this2.tmpX = _this2.x + x * Ease.outCube(percent);
+        _this2.tmpY = _this2.y + y * Ease.outCube(percent);
+
+        if (_this2.tmpX > 0) _this2.tmpX = 0;
+        if (_this2.tmpX < _this2.minX) _this2.tmpX = _this2.minX;
+        if (_this2.tmpY > 0) _this2.tmpY = 0;
+        if (_this2.tmpY < _this2.minY) _this2.tmpY = _this2.minY;
+
+        if (now - startTime >= duration) {
+          _this2.dom.style.willChange = '';
+          _this2.x = _this2.tmpX;
+          _this2.y = _this2.tmpY;
+          return;
+        }
+
+        _this2.tick = requestAnimationFrame(tick);
+
+        console.log('tick', percent, _this2.tmpX, _this2.tmpY);
 
         _this2.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + _this2.tmpX + ', ' + _this2.tmpY + ')';
       };
       tick();
+    }
+  }, {
+    key: '_checkPos',
+    value: function _checkPos(x, y) {
+      console.log(x, y, this.minX, this.minY);
+      return this.minX <= x && x <= 0 && this.minY <= y && y <= 0;
     }
   }]);
 
