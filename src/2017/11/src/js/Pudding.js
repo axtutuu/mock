@@ -55,7 +55,7 @@ export default class Pudding {
       const y = (e.distance * velocity) * Math.sin(e.angle * (Math.PI / 180))
 
       console.log('panend', x, y, Math.abs(x) > 10 || Math.abs(y) > 10)
-      if (Math.abs(x) > 10 || Math.abs(y) > 10) this._leap(x, y)
+      this._leap(x, y)
     })
   }
 
@@ -70,13 +70,18 @@ export default class Pudding {
           this.tmpX = this.x + x * Ease.outCube(percent);
           this.tmpY = this.y + y * Ease.outCube(percent);
 
-          // if (!this._checkPos(this.x + tmpX, this.y + tmpY)) return
+          if (this.tmpX > 0) this.tmpX = 0
+          if (this.tmpX < this.minX) this.tmpX = this.minX
+          if (this.tmpY > 0) this.tmpY = 0
+          if (this.tmpY < this.minY) this.tmpY = this.minY
+
           if (now - startTime >= duration) {
             this.dom.style.willChange = '';
             this.x = this.tmpX
             this.y = this.tmpY
             return
           }
+
           this.tick = requestAnimationFrame(tick)
 
           console.log('tick', percent, this.tmpX, this.tmpY)

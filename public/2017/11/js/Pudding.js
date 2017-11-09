@@ -2716,7 +2716,7 @@ var Pudding = function () {
       var y = e.distance * velocity * Math.sin(e.angle * (Math.PI / 180));
 
       console.log('panend', x, y, Math.abs(x) > 10 || Math.abs(y) > 10);
-      if (Math.abs(x) > 10 || Math.abs(y) > 10) _this._leap(x, y);
+      _this._leap(x, y);
     });
   }
 
@@ -2735,13 +2735,18 @@ var Pudding = function () {
         _this2.tmpX = _this2.x + x * Ease.outCube(percent);
         _this2.tmpY = _this2.y + y * Ease.outCube(percent);
 
-        // if (!this._checkPos(this.x + tmpX, this.y + tmpY)) return
+        if (_this2.tmpX > 0) _this2.tmpX = 0;
+        if (_this2.tmpX < _this2.minX) _this2.tmpX = _this2.minX;
+        if (_this2.tmpY > 0) _this2.tmpY = 0;
+        if (_this2.tmpY < _this2.minY) _this2.tmpY = _this2.minY;
+
         if (now - startTime >= duration) {
           _this2.dom.style.willChange = '';
           _this2.x = _this2.tmpX;
           _this2.y = _this2.tmpY;
           return;
         }
+
         _this2.tick = requestAnimationFrame(tick);
 
         console.log('tick', percent, _this2.tmpX, _this2.tmpY);
