@@ -22,51 +22,69 @@ export default class Pudding {
     this.y = 0;
     this.tmpX = 0;
     this.tmpY = 0;
+    this.minX = -(this.dom.clientWidth - opts.el.clientWidth)
+    this.minY = -(this.dom.clientHeight - opts.el.clientHeight)
 
     const mc  = new Hammer(opts.el)
 
     mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-    console.log(opts.el.children)
 
     mc.on('panstart', (e) => {
       this.dom.style.willChange = 'transform';
+      cancelAnimationFrame(this.tick)
     });
 
     mc.on('panmove', (e) => {
+      // if(!this._checkPos(this.tmpX, this.tmpY)) return
+
       this.tmpX = e.deltaX + this.x;
       this.tmpY = e.deltaY + this.y;
+
       this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${this.tmpX}, ${this.tmpY})`
     });
 
     mc.on('panend', e => {
+      this.dom.style.willChange = '';
       this.x = this.tmpX;
       this.y = this.tmpY;
-      this.dom.style.willChange = '';
 
       const velocity = Math.abs(e.velocity);
       const x = (e.distance * velocity) * Math.cos(e.angle * (Math.PI / 180))
-      const y = (e.distnce * velocity) * Math.sin(e.angle * (Math.PI / 180))
+      const y = (e.distance * velocity) * Math.sin(e.angle * (Math.PI / 180))
 
-      this._leap(this.x + x)
+      console.log('panend', x, y, Math.abs(x) > 10 || Math.abs(y) > 10)
+      if (Math.abs(x) > 10 || Math.abs(y) > 10) this._leap(x, y)
     })
   }
 
-  _leap(x) {
+  _leap(x, y) {
+      this.dom.style.willChange = 'transform';
       const duration = 1500
       const startTime = Date.now();
       const tick = () => {
           const now = Date.now();
+          const percent = (now - startTime) / duration;
+          const tmpX = x * Ease.outCube(percent),
+                tmpY = y * Ease.outCube(percent);
+
+          // if (!this._checkPos(this.x + tmpX, this.y + tmpY)) return
           if (now - startTime >= duration) {
-            this.x = x
+            this.dom.style.willChange = '';
+            this.x += tmpX
+            this.y += tmpY
             return
           }
-          const percent = (now - startTime) / duration;
+          this.tick = requestAnimationFrame(tick)
 
-          // console.log(percent, x*Ease.outCube(percent), x*Ease.inExpo(percent))
-          requestAnimationFrame(tick)
+          console.log('tick', percent, this.x + tmpX, this.y + tmpY)
 
-          this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${x*Ease.outCube(percent)}, ${this.tmpY})`
+          this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${this.x + tmpX}, ${this.y + tmpY})`
       }
       tick();
+  }
+
+  _checkPos(x, y) {
+    console.log(x, y, this.minX, this.minY)
+    return this.minX <= x && x <= 0 && this.minY <= y && y <= 0;
   }
 }

@@ -43,7 +43,6 @@
     ]
   },
   "dependencies": {
-    "pudding": "file:///Users/kawasaki-atsushi/workspace/pudding",
     "hammerjs": "^2.0.8"
   }
 }
