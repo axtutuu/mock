@@ -20,14 +20,18 @@ export default class Pudding {
     this.dom = opts.el.children[0];
     this.x = 0;
     this.y = 0;
+    this.scale = 1;
     this.tmpX = 0;
     this.tmpY = 0;
+    this.tmpScale = 1;
     this.minX = -(this.dom.clientWidth - opts.el.clientWidth)
     this.minY = -(this.dom.clientHeight - opts.el.clientHeight)
+    this.pinchStart = 0
 
     const mc  = new Hammer(opts.el)
 
     mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+    mc.get('pinch').set({ enable: true })
 
     mc.on('panstart', (e) => {
       this.dom.style.willChange = 'transform';
@@ -42,7 +46,7 @@ export default class Pudding {
       this.tmpX = e.deltaX + this.x;
       this.tmpY = e.deltaY + this.y;
 
-      this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${this.tmpX}, ${this.tmpY})`
+      this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`
     });
 
     mc.on('panend', e => {
@@ -57,6 +61,38 @@ export default class Pudding {
       console.log('panend', x, y, Math.abs(x) > 10 || Math.abs(y) > 10)
       this._leap(x, y)
     })
+
+
+     mc.on('pinchstart', e => {
+          cancelAnimationFrame(this.tick)
+          this.x = this.tmpX
+          this.y = this.tmpY
+
+         this.dom.style.willChange = 'transform';
+         this.pinchStart = this._distance(
+            e.pointers[0].clientX,
+            e.pointers[0].clientY,
+            e.pointers[1].clientX,
+            e.pointers[1].clientY
+         )
+     })
+
+     mc.on('pinchmove', e => {
+       const current = this._distance(
+            e.pointers[0].clientX,
+            e.pointers[0].clientY,
+            e.pointers[1].clientX,
+            e.pointers[1].clientY
+       )
+       this.tmpScale = (current - this.pinchStart) / this.pinchStart + this.scale
+       this.dom.style.transform = `matrix(${this.tmpScale}, 0, 0, ${this.tmpScale}, ${this.x}, ${this.y})`
+     })
+
+     mc.on('pinchend', e => {
+       this.dom.style.willChange = '';
+       this.scale = this.tmpScale
+       console.log(e)
+     })
   }
 
   _leap(x, y) {
@@ -86,7 +122,7 @@ export default class Pudding {
 
           console.log('tick', percent, this.tmpX, this.tmpY)
 
-          this.dom.style.transform = `matrix(${1}, 0, 0, ${1}, ${this.tmpX}, ${this.tmpY})`
+          this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`
       }
       tick();
   }
@@ -95,4 +131,9 @@ export default class Pudding {
     console.log(x, y, this.minX, this.minY)
     return this.minX <= x && x <= 0 && this.minY <= y && y <= 0;
   }
+
+
+   _distance(posX1, posY1, posX2, posY2) {
+       return Math.sqrt(Math.pow(posX1 - posX2, 2) + Math.pow(posY1 - posY2, 2));
+   }
 }

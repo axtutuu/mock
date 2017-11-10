@@ -2681,14 +2681,18 @@ var Pudding = function () {
     this.dom = opts.el.children[0];
     this.x = 0;
     this.y = 0;
+    this.scale = 1;
     this.tmpX = 0;
     this.tmpY = 0;
+    this.tmpScale = 1;
     this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
     this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
+    this.pinchStart = 0;
 
     var mc = new Hammer(opts.el);
 
     mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+    mc.get('pinch').set({ enable: true });
 
     mc.on('panstart', function (e) {
       _this.dom.style.willChange = 'transform';
@@ -2703,7 +2707,7 @@ var Pudding = function () {
       _this.tmpX = e.deltaX + _this.x;
       _this.tmpY = e.deltaY + _this.y;
 
-      _this.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
+      _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
     });
 
     mc.on('panend', function (e) {
@@ -2717,6 +2721,27 @@ var Pudding = function () {
 
       console.log('panend', x, y, Math.abs(x) > 10 || Math.abs(y) > 10);
       _this._leap(x, y);
+    });
+
+    mc.on('pinchstart', function (e) {
+      cancelAnimationFrame(_this.tick);
+      _this.x = _this.tmpX;
+      _this.y = _this.tmpY;
+
+      _this.dom.style.willChange = 'transform';
+      _this.pinchStart = _this._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
+    });
+
+    mc.on('pinchmove', function (e) {
+      var current = _this._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
+      _this.tmpScale = (current - _this.pinchStart) / _this.pinchStart + _this.scale;
+      _this.dom.style.transform = 'matrix(' + _this.tmpScale + ', 0, 0, ' + _this.tmpScale + ', ' + _this.x + ', ' + _this.y + ')';
+    });
+
+    mc.on('pinchend', function (e) {
+      _this.dom.style.willChange = '';
+      _this.scale = _this.tmpScale;
+      console.log(e);
     });
   }
 
@@ -2751,7 +2776,7 @@ var Pudding = function () {
 
         console.log('tick', percent, _this2.tmpX, _this2.tmpY);
 
-        _this2.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + _this2.tmpX + ', ' + _this2.tmpY + ')';
+        _this2.dom.style.transform = 'matrix(' + _this2.scale + ', 0, 0, ' + _this2.scale + ', ' + _this2.tmpX + ', ' + _this2.tmpY + ')';
       };
       tick();
     }
@@ -2760,6 +2785,11 @@ var Pudding = function () {
     value: function _checkPos(x, y) {
       console.log(x, y, this.minX, this.minY);
       return this.minX <= x && x <= 0 && this.minY <= y && y <= 0;
+    }
+  }, {
+    key: '_distance',
+    value: function _distance(posX1, posY1, posX2, posY2) {
+      return Math.sqrt(Math.pow(posX1 - posX2, 2) + Math.pow(posY1 - posY2, 2));
     }
   }]);
 
