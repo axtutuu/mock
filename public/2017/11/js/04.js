@@ -2700,6 +2700,8 @@ var Pudding = function () {
     this.tmpScale = 1;
     this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
     this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
+    this.minScale = 0.5;
+    this.maxScale = 2.5;
     this.pinchStart = 0;
 
     var mc = new Hammer(opts.el);
@@ -2715,8 +2717,6 @@ var Pudding = function () {
     });
 
     mc.on('panmove', function (e) {
-      // if(!this._checkPos(this.tmpX, this.tmpY)) return
-
       _this.tmpX = e.deltaX + _this.x;
       _this.tmpY = e.deltaY + _this.y;
 
@@ -2732,7 +2732,6 @@ var Pudding = function () {
       var x = e.distance * velocity * Math.cos(e.angle * (Math.PI / 180));
       var y = e.distance * velocity * Math.sin(e.angle * (Math.PI / 180));
 
-      console.log('panend', x, y, Math.abs(x) > 10 || Math.abs(y) > 10);
       _this._leap(x, y);
     });
 
@@ -2748,13 +2747,19 @@ var Pudding = function () {
     mc.on('pinchmove', function (e) {
       var current = _this._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
       _this.tmpScale = (current - _this.pinchStart) / _this.pinchStart + _this.scale;
+
+      if (_this.tmpScale < _this.minScale * 0.5) _this.tmpScale = _this.minScale * 0.5;
+      if (_this.tmpScale > _this.maxScale * 1.5) _this.tmpScale = _this.maxScale * 1.5;
       _this.dom.style.transform = 'matrix(' + _this.tmpScale + ', 0, 0, ' + _this.tmpScale + ', ' + _this.x + ', ' + _this.y + ')';
     });
 
     mc.on('pinchend', function (e) {
       _this.dom.style.willChange = '';
+
+      if (_this.tmpScale < _this.minScale) _this.tmpScale = _this.minScale;
+      if (_this.tmpScale > _this.maxScale) _this.tmpScale = _this.maxScale;
       _this.scale = _this.tmpScale;
-      console.log(e);
+      _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.x + ', ' + _this.y + ')';
     });
   }
 
@@ -2774,9 +2779,9 @@ var Pudding = function () {
         _this2.tmpY = _this2.y + y * Ease.outCube(percent);
 
         if (_this2.tmpX > 0) _this2.tmpX = 0;
-        if (_this2.tmpX < _this2.minX) _this2.tmpX = _this2.minX;
+        if (_this2.tmpX < _this2.minX * _this2.scale) _this2.tmpX = _this2.minX * _this2.scale;
         if (_this2.tmpY > 0) _this2.tmpY = 0;
-        if (_this2.tmpY < _this2.minY) _this2.tmpY = _this2.minY;
+        if (_this2.tmpY < _this2.minY * _this2.scale) _this2.tmpY = _this2.minY * _this2.scale;
 
         if (now - startTime >= duration) {
           _this2.dom.style.willChange = '';
@@ -2787,17 +2792,9 @@ var Pudding = function () {
 
         _this2.tick = requestAnimationFrame(tick);
 
-        console.log('tick', percent, _this2.tmpX, _this2.tmpY);
-
         _this2.dom.style.transform = 'matrix(' + _this2.scale + ', 0, 0, ' + _this2.scale + ', ' + _this2.tmpX + ', ' + _this2.tmpY + ')';
       };
       tick();
-    }
-  }, {
-    key: '_checkPos',
-    value: function _checkPos(x, y) {
-      console.log(x, y, this.minX, this.minY);
-      return this.minX <= x && x <= 0 && this.minY <= y && y <= 0;
     }
   }, {
     key: '_distance',

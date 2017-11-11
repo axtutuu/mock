@@ -26,6 +26,8 @@ export default class Pudding {
     this.tmpScale = 1;
     this.minX = -(this.dom.clientWidth - opts.el.clientWidth)
     this.minY = -(this.dom.clientHeight - opts.el.clientHeight)
+    this.minScale = 0.5
+    this.maxScale = 2.5
     this.pinchStart = 0
 
     const mc  = new Hammer(opts.el)
@@ -41,8 +43,6 @@ export default class Pudding {
     });
 
     mc.on('panmove', (e) => {
-      // if(!this._checkPos(this.tmpX, this.tmpY)) return
-
       this.tmpX = e.deltaX + this.x;
       this.tmpY = e.deltaY + this.y;
 
@@ -58,7 +58,6 @@ export default class Pudding {
       const x = (e.distance * velocity) * Math.cos(e.angle * (Math.PI / 180))
       const y = (e.distance * velocity) * Math.sin(e.angle * (Math.PI / 180))
 
-      console.log('panend', x, y, Math.abs(x) > 10 || Math.abs(y) > 10)
       this._leap(x, y)
     })
 
@@ -85,13 +84,19 @@ export default class Pudding {
             e.pointers[1].clientY
        )
        this.tmpScale = (current - this.pinchStart) / this.pinchStart + this.scale
+
+       if (this.tmpScale < this.minScale * 0.5) this.tmpScale = this.minScale * 0.5
+       if (this.tmpScale > this.maxScale * 1.5) this.tmpScale = this.maxScale * 1.5
        this.dom.style.transform = `matrix(${this.tmpScale}, 0, 0, ${this.tmpScale}, ${this.x}, ${this.y})`
      })
 
      mc.on('pinchend', e => {
        this.dom.style.willChange = '';
+
+       if (this.tmpScale < this.minScale) this.tmpScale = this.minScale
+       if (this.tmpScale > this.maxScale) this.tmpScale = this.maxScale
        this.scale = this.tmpScale
-       console.log(e)
+       this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}, ${this.y})`
      })
   }
 
@@ -107,9 +112,9 @@ export default class Pudding {
           this.tmpY = this.y + y * Ease.outCube(percent);
 
           if (this.tmpX > 0) this.tmpX = 0
-          if (this.tmpX < this.minX) this.tmpX = this.minX
+          if (this.tmpX < this.minX * this.scale) this.tmpX = this.minX * this.scale
           if (this.tmpY > 0) this.tmpY = 0
-          if (this.tmpY < this.minY) this.tmpY = this.minY
+          if (this.tmpY < this.minY * this.scale) this.tmpY = this.minY * this.scale
 
           if (now - startTime >= duration) {
             this.dom.style.willChange = '';
@@ -120,18 +125,10 @@ export default class Pudding {
 
           this.tick = requestAnimationFrame(tick)
 
-          console.log('tick', percent, this.tmpX, this.tmpY)
-
           this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`
       }
       tick();
   }
-
-  _checkPos(x, y) {
-    console.log(x, y, this.minX, this.minY)
-    return this.minX <= x && x <= 0 && this.minY <= y && y <= 0;
-  }
-
 
    _distance(posX1, posY1, posX2, posY2) {
        return Math.sqrt(Math.pow(posX1 - posX2, 2) + Math.pow(posY1 - posY2, 2));
