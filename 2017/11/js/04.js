@@ -2679,6 +2679,9 @@ var Ease = {
   },
   inExpo: function inExpo(n) {
     return 0 == n ? 0 : Math.pow(1024, n - 1);
+  },
+  outCube: function outCube(n) {
+    return --n * n * n + 1;
   }
 };
 
@@ -2691,52 +2694,112 @@ var Pudding = function () {
     this.dom = opts.el.children[0];
     this.x = 0;
     this.y = 0;
+    this.scale = 1;
     this.tmpX = 0;
     this.tmpY = 0;
+    this.tmpScale = 1;
+    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
+    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
+    this.minScale = 0.5;
+    this.maxScale = 2.5;
+    this.pinchStart = 0;
 
     var mc = new Hammer(opts.el);
 
     mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-    console.log(opts.el.children);
+    mc.get('pinch').set({ enable: true });
 
     mc.on('panstart', function (e) {
       _this.dom.style.willChange = 'transform';
+      cancelAnimationFrame(_this.tick);
+      _this.x = _this.tmpX;
+      _this.y = _this.tmpY;
     });
 
     mc.on('panmove', function (e) {
       _this.tmpX = e.deltaX + _this.x;
       _this.tmpY = e.deltaY + _this.y;
-      _this.dom.style.transform = 'matrix(' + 1 + ', 0, 0, ' + 1 + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
+
+      _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
     });
 
     mc.on('panend', function (e) {
+      _this.dom.style.willChange = '';
       _this.x = _this.tmpX;
       _this.y = _this.tmpY;
-      _this.dom.style.willChange = '';
 
       var velocity = Math.abs(e.velocity);
       var x = e.distance * velocity * Math.cos(e.angle * (Math.PI / 180));
-      var y = e.distnce * velocity * Math.sin(e.angle * (Math.PI / 180));
+      var y = e.distance * velocity * Math.sin(e.angle * (Math.PI / 180));
 
-      _this._leap(x);
+      _this._leap(x, y);
+    });
+
+    mc.on('pinchstart', function (e) {
+      cancelAnimationFrame(_this.tick);
+      _this.x = _this.tmpX;
+      _this.y = _this.tmpY;
+
+      _this.dom.style.willChange = 'transform';
+      _this.pinchStart = _this._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
+    });
+
+    mc.on('pinchmove', function (e) {
+      var current = _this._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
+      _this.tmpScale = (current - _this.pinchStart) / _this.pinchStart + _this.scale;
+
+      if (_this.tmpScale < _this.minScale * 0.5) _this.tmpScale = _this.minScale * 0.5;
+      if (_this.tmpScale > _this.maxScale * 1.5) _this.tmpScale = _this.maxScale * 1.5;
+      _this.dom.style.transform = 'matrix(' + _this.tmpScale + ', 0, 0, ' + _this.tmpScale + ', ' + _this.x + ', ' + _this.y + ')';
+    });
+
+    mc.on('pinchend', function (e) {
+      _this.dom.style.willChange = '';
+
+      if (_this.tmpScale < _this.minScale) _this.tmpScale = _this.minScale;
+      if (_this.tmpScale > _this.maxScale) _this.tmpScale = _this.maxScale;
+      _this.scale = _this.tmpScale;
+      _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.x + ', ' + _this.y + ')';
     });
   }
 
   _createClass(Pudding, [{
     key: '_leap',
-    value: function _leap(x) {
-      console.log(x);
+    value: function _leap(x, y) {
+      var _this2 = this;
+
+      this.dom.style.willChange = 'transform';
       var duration = 1500;
       var startTime = Date.now();
       var tick = function tick() {
         var now = Date.now();
-        if (now - startTime >= duration) return;
         var percent = (now - startTime) / duration;
 
-        console.log(x * Ease.inExpo(percent));
-        requestAnimationFrame(tick);
+        _this2.tmpX = _this2.x + x * Ease.outCube(percent);
+        _this2.tmpY = _this2.y + y * Ease.outCube(percent);
+
+        if (_this2.tmpX > 0) _this2.tmpX = 0;
+        if (_this2.tmpX < _this2.minX * _this2.scale) _this2.tmpX = _this2.minX * _this2.scale;
+        if (_this2.tmpY > 0) _this2.tmpY = 0;
+        if (_this2.tmpY < _this2.minY * _this2.scale) _this2.tmpY = _this2.minY * _this2.scale;
+
+        if (now - startTime >= duration) {
+          _this2.dom.style.willChange = '';
+          _this2.x = _this2.tmpX;
+          _this2.y = _this2.tmpY;
+          return;
+        }
+
+        _this2.tick = requestAnimationFrame(tick);
+
+        _this2.dom.style.transform = 'matrix(' + _this2.scale + ', 0, 0, ' + _this2.scale + ', ' + _this2.tmpX + ', ' + _this2.tmpY + ')';
       };
       tick();
+    }
+  }, {
+    key: '_distance',
+    value: function _distance(posX1, posY1, posX2, posY2) {
+      return Math.sqrt(Math.pow(posX1 - posX2, 2) + Math.pow(posY1 - posY2, 2));
     }
   }]);
 
