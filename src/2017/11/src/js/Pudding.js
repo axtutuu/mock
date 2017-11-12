@@ -1,4 +1,5 @@
 import 'hammerjs';
+// https://github.com/component/ease/blob/master/index.js
 const Ease = {
   linear: n => {
     return n;
@@ -18,38 +19,46 @@ const Ease = {
 export default class Pudding {
   constructor(opts) {
     this.dom = opts.el.children[0];
+    this.mc = new Hammer(opts.el)
+    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
+    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
+
+    this._setting()
+    this._pan()
+    this._pinch()
+  }
+
+  _setting() {
     this.x = 0;
     this.y = 0;
     this.scale = 1;
     this.tmpX = 0;
     this.tmpY = 0;
     this.tmpScale = 1;
-    this.minX = -(this.dom.clientWidth - opts.el.clientWidth)
-    this.minY = -(this.dom.clientHeight - opts.el.clientHeight)
-    this.minScale = 0.5
-    this.maxScale = 2.5
-    this.pinchStart = 0
+    this.minScale = 0.5;
+    this.maxScale = 2.5;
+    this.pinchStart = 0;
 
-    const mc  = new Hammer(opts.el)
+    this.mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+    this.mc.get('pinch').set({ enable: true })
+  }
 
-    mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-    mc.get('pinch').set({ enable: true })
-
-    mc.on('panstart', (e) => {
+  _pan() {
+    this.mc.on('panstart', (e) => {
       this.dom.style.willChange = 'transform';
       cancelAnimationFrame(this.tick)
       this.x = this.tmpX
       this.y = this.tmpY
     });
 
-    mc.on('panmove', (e) => {
+    this.mc.on('panmove', (e) => {
       this.tmpX = e.deltaX + this.x;
       this.tmpY = e.deltaY + this.y;
 
       this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`
     });
 
-    mc.on('panend', e => {
+    this.mc.on('panend', e => {
       this.dom.style.willChange = '';
       this.x = this.tmpX;
       this.y = this.tmpY;
@@ -60,44 +69,45 @@ export default class Pudding {
 
       this._leap(x, y)
     })
+  }
 
+  _pinch() {
+    this.mc.on('pinchstart', e => {
+         cancelAnimationFrame(this.tick)
+         this.x = this.tmpX
+         this.y = this.tmpY
 
-     mc.on('pinchstart', e => {
-          cancelAnimationFrame(this.tick)
-          this.x = this.tmpX
-          this.y = this.tmpY
+        this.dom.style.willChange = 'transform';
+        this.pinchStart = this._distance(
+           e.pointers[0].clientX,
+           e.pointers[0].clientY,
+           e.pointers[1].clientX,
+           e.pointers[1].clientY
+        )
+    })
 
-         this.dom.style.willChange = 'transform';
-         this.pinchStart = this._distance(
-            e.pointers[0].clientX,
-            e.pointers[0].clientY,
-            e.pointers[1].clientX,
-            e.pointers[1].clientY
-         )
-     })
+    this.mc.on('pinchmove', e => {
+      const current = this._distance(
+           e.pointers[0].clientX,
+           e.pointers[0].clientY,
+           e.pointers[1].clientX,
+           e.pointers[1].clientY
+      )
+      this.tmpScale = (current - this.pinchStart) / this.pinchStart + this.scale
 
-     mc.on('pinchmove', e => {
-       const current = this._distance(
-            e.pointers[0].clientX,
-            e.pointers[0].clientY,
-            e.pointers[1].clientX,
-            e.pointers[1].clientY
-       )
-       this.tmpScale = (current - this.pinchStart) / this.pinchStart + this.scale
+      if (this.tmpScale < this.minScale * 0.5) this.tmpScale = this.minScale * 0.5
+      if (this.tmpScale > this.maxScale * 1.5) this.tmpScale = this.maxScale * 1.5
+      this.dom.style.transform = `matrix(${this.tmpScale}, 0, 0, ${this.tmpScale}, ${this.x}, ${this.y})`
+    })
 
-       if (this.tmpScale < this.minScale * 0.5) this.tmpScale = this.minScale * 0.5
-       if (this.tmpScale > this.maxScale * 1.5) this.tmpScale = this.maxScale * 1.5
-       this.dom.style.transform = `matrix(${this.tmpScale}, 0, 0, ${this.tmpScale}, ${this.x}, ${this.y})`
-     })
+    this.mc.on('pinchend', e => {
+      this.dom.style.willChange = '';
 
-     mc.on('pinchend', e => {
-       this.dom.style.willChange = '';
-
-       if (this.tmpScale < this.minScale) this.tmpScale = this.minScale
-       if (this.tmpScale > this.maxScale) this.tmpScale = this.maxScale
-       this.scale = this.tmpScale
-       this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}, ${this.y})`
-     })
+      if (this.tmpScale < this.minScale) this.tmpScale = this.minScale
+      if (this.tmpScale > this.maxScale) this.tmpScale = this.maxScale
+      this.scale = this.tmpScale
+      this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}, ${this.y})`
+    })
   }
 
   _leap(x, y) {
