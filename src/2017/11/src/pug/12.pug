@@ -1,0 +1,18 @@
+
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  // link(rel="stylesheet", href="css/canvas.css")
+  style.
+    body {
+      margin: 0;
+      background: #000;
+    }
+    
+    #video {
+      display: block;
+      width: 100%;
+    }
+block ContentBlock
+  video(id='video' autoplay playsinline)
+prepend JavascriptBlock
+  script(src="js/12.js")
