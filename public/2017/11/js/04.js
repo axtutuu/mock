@@ -2692,8 +2692,8 @@ var Pudding = function () {
 
     this.dom = opts.el.children[0];
     this.mc = new Hammer(opts.el);
-    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
-    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
+    this.minX = -(this.dom.clientWidth - opts.el.clientWidth) + -150;
+    this.minY = -(this.dom.clientHeight - opts.el.clientHeight) + -150;
 
     this._setting();
     this._pan();
@@ -2726,12 +2726,15 @@ var Pudding = function () {
         cancelAnimationFrame(_this.tick);
         _this.x = _this.tmpX;
         _this.y = _this.tmpY;
+
+        console.log(e);
       });
 
       this.mc.on('panmove', function (e) {
         _this.tmpX = e.deltaX + _this.x;
         _this.tmpY = e.deltaY + _this.y;
 
+        // this.dom.style.transformOrigin = `${e.center.x + this.x }px ${e.center.y + this.y }px`;
         _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
       });
 
@@ -2744,6 +2747,7 @@ var Pudding = function () {
         var x = e.distance * velocity * Math.cos(e.angle * (Math.PI / 180));
         var y = e.distance * velocity * Math.sin(e.angle * (Math.PI / 180));
 
+        // this.dom.style.transformOrigin = `${e.center.x + this.x }px ${e.center.y + this.y }px`;
         _this._leap(x, y);
       });
     }

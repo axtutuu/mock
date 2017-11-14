@@ -20,8 +20,8 @@ export default class Pudding {
   constructor(opts) {
     this.dom = opts.el.children[0];
     this.mc = new Hammer(opts.el)
-    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
-    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
+    this.minX = -(this.dom.clientWidth - opts.el.clientWidth) + (-150);
+    this.minY = -(this.dom.clientHeight - opts.el.clientHeight) + (-150);
 
     this._setting()
     this._pan()
@@ -49,13 +49,16 @@ export default class Pudding {
       cancelAnimationFrame(this.tick)
       this.x = this.tmpX
       this.y = this.tmpY
+
+      console.log(e)
     });
 
     this.mc.on('panmove', (e) => {
       this.tmpX = e.deltaX + this.x;
       this.tmpY = e.deltaY + this.y;
 
-      this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`
+      // this.dom.style.transformOrigin = `${e.center.x + this.x }px ${e.center.y + this.y }px`;
+      this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`;
     });
 
     this.mc.on('panend', e => {
@@ -67,6 +70,7 @@ export default class Pudding {
       const x = (e.distance * velocity) * Math.cos(e.angle * (Math.PI / 180))
       const y = (e.distance * velocity) * Math.sin(e.angle * (Math.PI / 180))
 
+      // this.dom.style.transformOrigin = `${e.center.x + this.x }px ${e.center.y + this.y }px`;
       this._leap(x, y)
     })
   }
