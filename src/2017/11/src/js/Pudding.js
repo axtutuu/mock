@@ -20,8 +20,8 @@ export default class Pudding {
   constructor(opts) {
     this.dom = opts.el.children[0];
     this.mc = new Hammer(opts.el)
-    this.minX = -(this.dom.clientWidth - opts.el.clientWidth) + (-150);
-    this.minY = -(this.dom.clientHeight - opts.el.clientHeight) + (-150);
+    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
+    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
 
     this._setting()
     this._pan()
@@ -125,7 +125,9 @@ export default class Pudding {
           this.tmpX = this.x + x * Ease.outCube(percent);
           this.tmpY = this.y + y * Ease.outCube(percent);
 
-          if (this.tmpX > 0) this.tmpX = 0
+          // transform-origin は left topの順番だったのを勘違いしていたっぽい
+          // if (this.tmpX > 0) this.tmpX = 0
+          if (this.tmpX > (250 * (this.scale - 1))) this.tmpX = (250 * (this.scale - 1))
           if (this.tmpX < this.minX * this.scale) this.tmpX = this.minX * this.scale
           if (this.tmpY > 0) this.tmpY = 0
           if (this.tmpY < this.minY * this.scale) this.tmpY = this.minY * this.scale

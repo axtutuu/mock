@@ -2679,8 +2679,8 @@ var Pudding = function () {
 
     this.dom = opts.el.children[0];
     this.mc = new Hammer(opts.el);
-    this.minX = -(this.dom.clientWidth - opts.el.clientWidth) + -150;
-    this.minY = -(this.dom.clientHeight - opts.el.clientHeight) + -150;
+    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
+    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
 
     this._setting();
     this._pan();
@@ -2785,7 +2785,9 @@ var Pudding = function () {
         _this3.tmpX = _this3.x + x * Ease.outCube(percent);
         _this3.tmpY = _this3.y + y * Ease.outCube(percent);
 
-        if (_this3.tmpX > 0) _this3.tmpX = 0;
+        // transform-origin は left topの順番だったのを勘違いしていたっぽい
+        // if (this.tmpX > 0) this.tmpX = 0
+        if (_this3.tmpX > 250 * (_this3.scale - 1)) _this3.tmpX = 250 * (_this3.scale - 1);
         if (_this3.tmpX < _this3.minX * _this3.scale) _this3.tmpX = _this3.minX * _this3.scale;
         if (_this3.tmpY > 0) _this3.tmpY = 0;
         if (_this3.tmpY < _this3.minY * _this3.scale) _this3.tmpY = _this3.minY * _this3.scale;
