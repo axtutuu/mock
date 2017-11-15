@@ -49,8 +49,6 @@ export default class Pudding {
       cancelAnimationFrame(this.tick)
       this.x = this.tmpX
       this.y = this.tmpY
-
-      console.log(e)
     });
 
     this.mc.on('panmove', (e) => {
@@ -127,10 +125,15 @@ export default class Pudding {
 
           // transform-origin は left topの順番だったのを勘違いしていたっぽい
           // if (this.tmpX > 0) this.tmpX = 0
-          if (this.tmpX > (250 * (this.scale - 1))) this.tmpX = (250 * (this.scale - 1))
-          if (this.tmpX < this.minX * this.scale) this.tmpX = this.minX * this.scale
-          if (this.tmpY > 0) this.tmpY = 0
-          if (this.tmpY < this.minY * this.scale) this.tmpY = this.minY * this.scale
+          const offsetLeft = 250 * (this.scale - 1)
+          const offsetRight = this.minX + -(this.dom.clientWidth - 250) * (this.scale - 1)
+          if (this.tmpX > offsetLeft) this.tmpX = offsetLeft
+          if (this.tmpX < offsetRight) this.tmpX = offsetRight
+
+          const offsetTop = (this.dom.clientHeight - this.dom.clientHeight) * (this.scale - 1)
+          const offsetBottom = this.minY + -(this.dom.clientHeight - 0) * (this.scale - 1)
+          if (this.tmpY > offsetTop) this.tmpY = offsetTop
+          if (this.tmpY < offsetBottom) this.tmpY = offsetBottom
 
           if (now - startTime >= duration) {
             this.dom.style.willChange = '';

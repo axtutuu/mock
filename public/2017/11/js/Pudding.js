@@ -2713,8 +2713,6 @@ var Pudding = function () {
         cancelAnimationFrame(_this.tick);
         _this.x = _this.tmpX;
         _this.y = _this.tmpY;
-
-        console.log(e);
       });
 
       this.mc.on('panmove', function (e) {
@@ -2787,10 +2785,15 @@ var Pudding = function () {
 
         // transform-origin は left topの順番だったのを勘違いしていたっぽい
         // if (this.tmpX > 0) this.tmpX = 0
-        if (_this3.tmpX > 250 * (_this3.scale - 1)) _this3.tmpX = 250 * (_this3.scale - 1);
-        if (_this3.tmpX < _this3.minX * _this3.scale) _this3.tmpX = _this3.minX * _this3.scale;
-        if (_this3.tmpY > 0) _this3.tmpY = 0;
-        if (_this3.tmpY < _this3.minY * _this3.scale) _this3.tmpY = _this3.minY * _this3.scale;
+        var offsetLeft = 250 * (_this3.scale - 1);
+        var offsetRight = _this3.minX + -(_this3.dom.clientWidth - 250) * (_this3.scale - 1);
+        if (_this3.tmpX > offsetLeft) _this3.tmpX = offsetLeft;
+        if (_this3.tmpX < offsetRight) _this3.tmpX = offsetRight;
+
+        var offsetTop = (_this3.dom.clientHeight - _this3.dom.clientHeight) * (_this3.scale - 1);
+        var offsetBottom = _this3.minY + -(_this3.dom.clientHeight - 0) * (_this3.scale - 1);
+        if (_this3.tmpY > offsetTop) _this3.tmpY = offsetTop;
+        if (_this3.tmpY < offsetBottom) _this3.tmpY = offsetBottom;
 
         if (now - startTime >= duration) {
           _this3.dom.style.willChange = '';
