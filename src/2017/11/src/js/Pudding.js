@@ -20,8 +20,10 @@ export default class Pudding {
   constructor(opts) {
     this.dom = opts.el.children[0];
     this.mc = new Hammer(opts.el)
-    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
-    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
+    this.screenHeight = opts.el.clientHeight
+    this.screenWidth  = opts.el.clientWidth
+    this.minX = -(this.dom.clientWidth - this.screenWidth);
+    this.minY = -(this.dom.clientHeight - this.screenHeight);
 
     this._setting()
     this._pan()
@@ -38,9 +40,15 @@ export default class Pudding {
     this.minScale = 0.5;
     this.maxScale = 2.5;
     this.pinchStart = 0;
+    // this.originX = 250;
+    this.originX = this.dom.clientWidth;
+    this.originY = this.dom.clientHeight;
 
     this.mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
     this.mc.get('pinch').set({ enable: true })
+
+    this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`;
+    this.dom.style.transformOrigin = `${this.originX}px ${this.originY}px 0px`;
   }
 
   _pan() {
@@ -55,7 +63,7 @@ export default class Pudding {
       this.tmpX = e.deltaX + this.x;
       this.tmpY = e.deltaY + this.y;
 
-      // this.dom.style.transformOrigin = `${e.center.x + this.x }px ${e.center.y + this.y }px`;
+      console.log(e.center.x)
       this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`;
     });
 
@@ -86,6 +94,10 @@ export default class Pudding {
            e.pointers[1].clientX,
            e.pointers[1].clientY
         )
+
+        this.originX = e.center.x + Math.abs(this.x)
+        this.originY = e.center.y + Math.abs(this.y)
+        this.dom.style.transformOrigin = `${this.originX}px ${this.originY}px`;
     })
 
     this.mc.on('pinchmove', e => {
@@ -124,16 +136,17 @@ export default class Pudding {
           this.tmpY = this.y + y * Ease.outCube(percent);
 
           // transform-origin は left topの順番だったのを勘違いしていたっぽい
-          // if (this.tmpX > 0) this.tmpX = 0
-          const offsetLeft = 250 * (this.scale - 1)
-          const offsetRight = this.minX + -(this.dom.clientWidth - 250) * (this.scale - 1)
+          const offsetLeft = this.originX * (this.scale - 1)
+          const offsetRight = this.minX + -(this.dom.clientWidth - this.originX) * (this.scale - 1)
           if (this.tmpX > offsetLeft) this.tmpX = offsetLeft
           if (this.tmpX < offsetRight) this.tmpX = offsetRight
+          if (this.dom.clientWidth * this.scale < this.screenWidth) this.tmpX = offsetLeft
 
-          const offsetTop = (this.dom.clientHeight - this.dom.clientHeight) * (this.scale - 1)
-          const offsetBottom = this.minY + -(this.dom.clientHeight - 0) * (this.scale - 1)
-          if (this.tmpY > offsetTop) this.tmpY = offsetTop
+          const offsetTop = this.originY * (this.scale - 1)
+          const offsetBottom = this.minY + -(this.dom.clientHeight - this.originY) * (this.scale - 1)
           if (this.tmpY < offsetBottom) this.tmpY = offsetBottom
+          if (this.tmpY > offsetTop) this.tmpY = offsetTop
+          if (this.dom.clientHeight * this.scale < this.screenHeight) this.tmpY = offsetTop * 0.5
 
           if (now - startTime >= duration) {
             this.dom.style.willChange = '';

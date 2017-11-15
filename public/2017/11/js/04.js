@@ -2692,8 +2692,10 @@ var Pudding = function () {
 
     this.dom = opts.el.children[0];
     this.mc = new Hammer(opts.el);
-    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
-    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
+    this.screenHeight = opts.el.clientHeight;
+    this.screenWidth = opts.el.clientWidth;
+    this.minX = -(this.dom.clientWidth - this.screenWidth);
+    this.minY = -(this.dom.clientHeight - this.screenHeight);
 
     this._setting();
     this._pan();
@@ -2712,9 +2714,15 @@ var Pudding = function () {
       this.minScale = 0.5;
       this.maxScale = 2.5;
       this.pinchStart = 0;
+      // this.originX = 250;
+      this.originX = this.dom.clientWidth;
+      this.originY = this.dom.clientHeight;
 
       this.mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
       this.mc.get('pinch').set({ enable: true });
+
+      this.dom.style.transform = 'matrix(' + this.scale + ', 0, 0, ' + this.scale + ', ' + this.tmpX + ', ' + this.tmpY + ')';
+      this.dom.style.transformOrigin = this.originX + 'px ' + this.originY + 'px 0px';
     }
   }, {
     key: '_pan',
@@ -2732,7 +2740,7 @@ var Pudding = function () {
         _this.tmpX = e.deltaX + _this.x;
         _this.tmpY = e.deltaY + _this.y;
 
-        // this.dom.style.transformOrigin = `${e.center.x + this.x }px ${e.center.y + this.y }px`;
+        console.log(e.center.x);
         _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
       });
 
@@ -2761,6 +2769,10 @@ var Pudding = function () {
 
         _this2.dom.style.willChange = 'transform';
         _this2.pinchStart = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
+
+        _this2.originX = e.center.x + Math.abs(_this2.x);
+        _this2.originY = e.center.y + Math.abs(_this2.y);
+        _this2.dom.style.transformOrigin = _this2.originX + 'px ' + _this2.originY + 'px';
       });
 
       this.mc.on('pinchmove', function (e) {
@@ -2797,16 +2809,17 @@ var Pudding = function () {
         _this3.tmpY = _this3.y + y * Ease.outCube(percent);
 
         // transform-origin は left topの順番だったのを勘違いしていたっぽい
-        // if (this.tmpX > 0) this.tmpX = 0
-        var offsetLeft = 250 * (_this3.scale - 1);
-        var offsetRight = _this3.minX + -(_this3.dom.clientWidth - 250) * (_this3.scale - 1);
+        var offsetLeft = _this3.originX * (_this3.scale - 1);
+        var offsetRight = _this3.minX + -(_this3.dom.clientWidth - _this3.originX) * (_this3.scale - 1);
         if (_this3.tmpX > offsetLeft) _this3.tmpX = offsetLeft;
         if (_this3.tmpX < offsetRight) _this3.tmpX = offsetRight;
+        if (_this3.dom.clientWidth * _this3.scale < _this3.screenWidth) _this3.tmpX = offsetLeft;
 
-        var offsetTop = (_this3.dom.clientHeight - _this3.dom.clientHeight) * (_this3.scale - 1);
-        var offsetBottom = _this3.minY + -(_this3.dom.clientHeight - 0) * (_this3.scale - 1);
-        if (_this3.tmpY > offsetTop) _this3.tmpY = offsetTop;
+        var offsetTop = _this3.originY * (_this3.scale - 1);
+        var offsetBottom = _this3.minY + -(_this3.dom.clientHeight - _this3.originY) * (_this3.scale - 1);
         if (_this3.tmpY < offsetBottom) _this3.tmpY = offsetBottom;
+        if (_this3.tmpY > offsetTop) _this3.tmpY = offsetTop;
+        if (_this3.dom.clientHeight * _this3.scale < _this3.screenHeight) _this3.tmpY = offsetTop * 0.5;
 
         if (now - startTime >= duration) {
           _this3.dom.style.willChange = '';
