@@ -2711,10 +2711,9 @@ var Pudding = function () {
       this.tmpX = 0;
       this.tmpY = 0;
       this.tmpScale = 1;
-      this.minScale = 0.5;
+      this.minScale = 0.7;
       this.maxScale = 2.5;
       this.pinchStart = 0;
-      // this.originX = 250;
       this.originX = this.dom.clientWidth;
       this.originY = this.dom.clientHeight;
 
@@ -2753,7 +2752,6 @@ var Pudding = function () {
         var x = e.distance * velocity * Math.cos(e.angle * (Math.PI / 180));
         var y = e.distance * velocity * Math.sin(e.angle * (Math.PI / 180));
 
-        // this.dom.style.transformOrigin = `${e.center.x + this.x }px ${e.center.y + this.y }px`;
         _this._leap(x, y);
       });
     }
@@ -2808,19 +2806,7 @@ var Pudding = function () {
         _this3.tmpX = _this3.x + x * Ease.outCube(percent);
         _this3.tmpY = _this3.y + y * Ease.outCube(percent);
 
-        // transform-origin は left topの順番だったのを勘違いしていたっぽい
-        var offsetLeft = _this3.originX * (_this3.scale - 1);
-        var offsetRight = _this3.minX + -(_this3.dom.clientWidth - _this3.originX) * (_this3.scale - 1);
-        if (_this3.tmpX > offsetLeft) _this3.tmpX = offsetLeft;
-        if (_this3.tmpX < offsetRight) _this3.tmpX = offsetRight;
-        if (_this3.dom.clientWidth * _this3.scale < _this3.screenWidth) _this3.tmpX = offsetLeft;
-
-        var offsetTop = _this3.originY * (_this3.scale - 1);
-        var offsetBottom = _this3.minY + -(_this3.dom.clientHeight - _this3.originY) * (_this3.scale - 1);
-        if (_this3.tmpY < offsetBottom) _this3.tmpY = offsetBottom;
-        if (_this3.tmpY > offsetTop) _this3.tmpY = offsetTop;
-        if (_this3.dom.clientHeight * _this3.scale < _this3.screenHeight) _this3.tmpY = offsetTop * 0.5;
-
+        _this3._fixPos();
         if (now - startTime >= duration) {
           _this3.dom.style.willChange = '';
           _this3.x = _this3.tmpX;
@@ -2838,6 +2824,24 @@ var Pudding = function () {
     key: '_distance',
     value: function _distance(posX1, posY1, posX2, posY2) {
       return Math.sqrt(Math.pow(posX1 - posX2, 2) + Math.pow(posY1 - posY2, 2));
+    }
+
+    // tmpPosを上書き
+
+  }, {
+    key: '_fixPos',
+    value: function _fixPos() {
+      var offsetLeft = this.originX * (this.scale - 1);
+      var offsetRight = this.minX + -(this.dom.clientWidth - this.originX) * (this.scale - 1);
+      if (this.tmpX > offsetLeft) this.tmpX = offsetLeft;
+      if (this.tmpX < offsetRight) this.tmpX = offsetRight;
+      if (this.dom.clientWidth * this.scale < this.screenWidth) this.tmpX = offsetLeft * 0.5;
+
+      var offsetTop = this.originY * (this.scale - 1);
+      var offsetBottom = this.minY + -(this.dom.clientHeight - this.originY) * (this.scale - 1);
+      if (this.tmpY < offsetBottom) this.tmpY = offsetBottom;
+      if (this.tmpY > offsetTop) this.tmpY = offsetTop;
+      if (this.dom.clientHeight * this.scale < this.screenHeight) this.tmpY = offsetTop * 0.5;
     }
   }]);
 
