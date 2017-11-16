@@ -2669,6 +2669,7 @@ require('hammerjs');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+// https://github.com/component/ease/blob/master/index.js
 var Ease = {
   linear: function linear(n) {
     return n;
@@ -2687,81 +2688,113 @@ var Ease = {
 
 var Pudding = function () {
   function Pudding(opts) {
-    var _this = this;
-
     _classCallCheck(this, Pudding);
 
     this.dom = opts.el.children[0];
-    this.x = 0;
-    this.y = 0;
-    this.scale = 1;
-    this.tmpX = 0;
-    this.tmpY = 0;
-    this.tmpScale = 1;
-    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
-    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
-    this.pinchStart = 0;
+    this.mc = new Hammer(opts.el);
+    this.screenHeight = opts.el.clientHeight;
+    this.screenWidth = opts.el.clientWidth;
+    this.minX = -(this.dom.clientWidth - this.screenWidth);
+    this.minY = -(this.dom.clientHeight - this.screenHeight);
 
-    var mc = new Hammer(opts.el);
-
-    mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-    mc.get('pinch').set({ enable: true });
-
-    mc.on('panstart', function (e) {
-      _this.dom.style.willChange = 'transform';
-      cancelAnimationFrame(_this.tick);
-      _this.x = _this.tmpX;
-      _this.y = _this.tmpY;
-    });
-
-    mc.on('panmove', function (e) {
-      // if(!this._checkPos(this.tmpX, this.tmpY)) return
-
-      _this.tmpX = e.deltaX + _this.x;
-      _this.tmpY = e.deltaY + _this.y;
-
-      _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
-    });
-
-    mc.on('panend', function (e) {
-      _this.dom.style.willChange = '';
-      _this.x = _this.tmpX;
-      _this.y = _this.tmpY;
-
-      var velocity = Math.abs(e.velocity);
-      var x = e.distance * velocity * Math.cos(e.angle * (Math.PI / 180));
-      var y = e.distance * velocity * Math.sin(e.angle * (Math.PI / 180));
-
-      console.log('panend', x, y, Math.abs(x) > 10 || Math.abs(y) > 10);
-      _this._leap(x, y);
-    });
-
-    mc.on('pinchstart', function (e) {
-      cancelAnimationFrame(_this.tick);
-      _this.x = _this.tmpX;
-      _this.y = _this.tmpY;
-
-      _this.dom.style.willChange = 'transform';
-      _this.pinchStart = _this._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
-    });
-
-    mc.on('pinchmove', function (e) {
-      var current = _this._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
-      _this.tmpScale = (current - _this.pinchStart) / _this.pinchStart + _this.scale;
-      _this.dom.style.transform = 'matrix(' + _this.tmpScale + ', 0, 0, ' + _this.tmpScale + ', ' + _this.x + ', ' + _this.y + ')';
-    });
-
-    mc.on('pinchend', function (e) {
-      _this.dom.style.willChange = '';
-      _this.scale = _this.tmpScale;
-      console.log(e);
-    });
+    this._setting();
+    this._pan();
+    this._pinch();
   }
 
   _createClass(Pudding, [{
+    key: '_setting',
+    value: function _setting() {
+      this.x = 0;
+      this.y = 0;
+      this.scale = 1;
+      this.tmpX = 0;
+      this.tmpY = 0;
+      this.tmpScale = 1;
+      this.minScale = 0.7;
+      this.maxScale = 2.5;
+      this.pinchStart = 0;
+      this.originX = this.dom.clientWidth;
+      this.originY = this.dom.clientHeight;
+
+      this.mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+      this.mc.get('pinch').set({ enable: true });
+
+      this.dom.style.transform = 'matrix(' + this.scale + ', 0, 0, ' + this.scale + ', ' + this.tmpX + ', ' + this.tmpY + ')';
+      this.dom.style.transformOrigin = this.originX + 'px ' + this.originY + 'px 0px';
+    }
+  }, {
+    key: '_pan',
+    value: function _pan() {
+      var _this = this;
+
+      this.mc.on('panstart', function (e) {
+        _this.dom.style.willChange = 'transform';
+        cancelAnimationFrame(_this.tick);
+        _this.x = _this.tmpX;
+        _this.y = _this.tmpY;
+      });
+
+      this.mc.on('panmove', function (e) {
+        _this.tmpX = e.deltaX + _this.x;
+        _this.tmpY = e.deltaY + _this.y;
+
+        console.log(e.center.x);
+        _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
+      });
+
+      this.mc.on('panend', function (e) {
+        _this.dom.style.willChange = '';
+        _this.x = _this.tmpX;
+        _this.y = _this.tmpY;
+
+        var velocity = Math.abs(e.velocity);
+        var x = e.distance * velocity * Math.cos(e.angle * (Math.PI / 180));
+        var y = e.distance * velocity * Math.sin(e.angle * (Math.PI / 180));
+
+        _this._leap(x, y);
+      });
+    }
+  }, {
+    key: '_pinch',
+    value: function _pinch() {
+      var _this2 = this;
+
+      this.mc.on('pinchstart', function (e) {
+        cancelAnimationFrame(_this2.tick);
+        _this2.x = _this2.tmpX;
+        _this2.y = _this2.tmpY;
+
+        _this2.dom.style.willChange = 'transform';
+        _this2.pinchStart = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
+
+        _this2.originX = e.center.x + Math.abs(_this2.x);
+        _this2.originY = e.center.y + Math.abs(_this2.y);
+        _this2.dom.style.transformOrigin = _this2.originX + 'px ' + _this2.originY + 'px';
+      });
+
+      this.mc.on('pinchmove', function (e) {
+        var current = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
+        _this2.tmpScale = (current - _this2.pinchStart) / _this2.pinchStart + _this2.scale;
+
+        if (_this2.tmpScale < _this2.minScale * 0.5) _this2.tmpScale = _this2.minScale * 0.5;
+        if (_this2.tmpScale > _this2.maxScale * 1.5) _this2.tmpScale = _this2.maxScale * 1.5;
+        _this2.dom.style.transform = 'matrix(' + _this2.tmpScale + ', 0, 0, ' + _this2.tmpScale + ', ' + _this2.x + ', ' + _this2.y + ')';
+      });
+
+      this.mc.on('pinchend', function (e) {
+        _this2.dom.style.willChange = '';
+
+        if (_this2.tmpScale < _this2.minScale) _this2.tmpScale = _this2.minScale;
+        if (_this2.tmpScale > _this2.maxScale) _this2.tmpScale = _this2.maxScale;
+        _this2.scale = _this2.tmpScale;
+        _this2.dom.style.transform = 'matrix(' + _this2.scale + ', 0, 0, ' + _this2.scale + ', ' + _this2.x + ', ' + _this2.y + ')';
+      });
+    }
+  }, {
     key: '_leap',
     value: function _leap(x, y) {
-      var _this2 = this;
+      var _this3 = this;
 
       this.dom.style.willChange = 'transform';
       var duration = 1500;
@@ -2770,39 +2803,45 @@ var Pudding = function () {
         var now = Date.now();
         var percent = (now - startTime) / duration;
 
-        _this2.tmpX = _this2.x + x * Ease.outCube(percent);
-        _this2.tmpY = _this2.y + y * Ease.outCube(percent);
+        _this3.tmpX = _this3.x + x * Ease.outCube(percent);
+        _this3.tmpY = _this3.y + y * Ease.outCube(percent);
 
-        if (_this2.tmpX > 0) _this2.tmpX = 0;
-        if (_this2.tmpX < _this2.minX) _this2.tmpX = _this2.minX;
-        if (_this2.tmpY > 0) _this2.tmpY = 0;
-        if (_this2.tmpY < _this2.minY) _this2.tmpY = _this2.minY;
-
+        _this3._fixPos();
         if (now - startTime >= duration) {
-          _this2.dom.style.willChange = '';
-          _this2.x = _this2.tmpX;
-          _this2.y = _this2.tmpY;
+          _this3.dom.style.willChange = '';
+          _this3.x = _this3.tmpX;
+          _this3.y = _this3.tmpY;
           return;
         }
 
-        _this2.tick = requestAnimationFrame(tick);
+        _this3.tick = requestAnimationFrame(tick);
 
-        console.log('tick', percent, _this2.tmpX, _this2.tmpY);
-
-        _this2.dom.style.transform = 'matrix(' + _this2.scale + ', 0, 0, ' + _this2.scale + ', ' + _this2.tmpX + ', ' + _this2.tmpY + ')';
+        _this3.dom.style.transform = 'matrix(' + _this3.scale + ', 0, 0, ' + _this3.scale + ', ' + _this3.tmpX + ', ' + _this3.tmpY + ')';
       };
       tick();
-    }
-  }, {
-    key: '_checkPos',
-    value: function _checkPos(x, y) {
-      console.log(x, y, this.minX, this.minY);
-      return this.minX <= x && x <= 0 && this.minY <= y && y <= 0;
     }
   }, {
     key: '_distance',
     value: function _distance(posX1, posY1, posX2, posY2) {
       return Math.sqrt(Math.pow(posX1 - posX2, 2) + Math.pow(posY1 - posY2, 2));
+    }
+
+    // tmpPosを上書き
+
+  }, {
+    key: '_fixPos',
+    value: function _fixPos() {
+      var offsetLeft = this.originX * (this.scale - 1);
+      var offsetRight = this.minX + -(this.dom.clientWidth - this.originX) * (this.scale - 1);
+      if (this.tmpX > offsetLeft) this.tmpX = offsetLeft;
+      if (this.tmpX < offsetRight) this.tmpX = offsetRight;
+      if (this.dom.clientWidth * this.scale < this.screenWidth) this.tmpX = offsetLeft * 0.5;
+
+      var offsetTop = this.originY * (this.scale - 1);
+      var offsetBottom = this.minY + -(this.dom.clientHeight - this.originY) * (this.scale - 1);
+      if (this.tmpY < offsetBottom) this.tmpY = offsetBottom;
+      if (this.tmpY > offsetTop) this.tmpY = offsetTop;
+      if (this.dom.clientHeight * this.scale < this.screenHeight) this.tmpY = offsetTop * 0.5;
     }
   }]);
 
