@@ -1,14 +1,24 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-console.log('image');
+(function main() {
+  var input = document.querySelector('#img');
+  var reader = new FileReader();
+  input.onchange = function (e) {
+    reader.readAsArrayBuffer(input.files[0]);
+  };
+
+  reader.onload = function (e) {
+    console.log(getOrientation(e.target.result));
+  };
+})();
 
 /*
  * get orientation
  * https://stackoverflow.com/questions/7584794/accessing-jpeg-exif-rotation-data-in-javascript-on-the-client-side
  */
-function getOrientation(base64) {
-  var view = new DataView(base64);
+function getOrientation(data) {
+  var view = new DataView(data);
   if (view.getUint16(0, false) != 0xFFD8) return -2;
   var length = view.byteLength,
       offset = 2;

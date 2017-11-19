@@ -1,11 +1,22 @@
-console.log('image')
+(function main() {
+  const input = document.querySelector('#img')
+  const reader = new FileReader();
+  input.onchange = (e) => {
+    reader.readAsArrayBuffer(input.files[0])
+  }
+
+  reader.onload = (e) => {
+    console.log(getOrientation(e.target.result));
+  }
+})();
+
 
 /*
  * get orientation
  * https://stackoverflow.com/questions/7584794/accessing-jpeg-exif-rotation-data-in-javascript-on-the-client-side
  */
-function getOrientation(base64) {
-  const view = new DataView(base64);
+function getOrientation(data) {
+  const view = new DataView(data);
   if (view.getUint16(0, false) != 0xFFD8) return -2;
   let length = view.byteLength, offset = 2;
   while (offset < length) {
