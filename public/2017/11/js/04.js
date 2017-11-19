@@ -2768,6 +2768,7 @@ var Pudding = function () {
         _this2.dom.style.willChange = 'transform';
         _this2.pinchStart = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
 
+        // TODO: ここでズレる
         _this2.originX = e.center.x + Math.abs(_this2.x);
         _this2.originY = e.center.y + Math.abs(_this2.y);
         _this2.dom.style.transformOrigin = _this2.originX + 'px ' + _this2.originY + 'px';
@@ -2815,7 +2816,6 @@ var Pudding = function () {
         }
 
         _this3.tick = requestAnimationFrame(tick);
-
         _this3.dom.style.transform = 'matrix(' + _this3.scale + ', 0, 0, ' + _this3.scale + ', ' + _this3.tmpX + ', ' + _this3.tmpY + ')';
       };
       tick();

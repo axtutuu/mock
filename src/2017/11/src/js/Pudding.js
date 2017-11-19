@@ -93,6 +93,7 @@ export default class Pudding {
            e.pointers[1].clientY
         )
 
+        // TODO: ここでズレる
         this.originX = e.center.x + Math.abs(this.x)
         this.originY = e.center.y + Math.abs(this.y)
         this.dom.style.transformOrigin = `${this.originX}px ${this.originY}px`;
@@ -142,7 +143,6 @@ export default class Pudding {
           }
 
           this.tick = requestAnimationFrame(tick)
-
           this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`
       }
       tick();
@@ -165,6 +165,5 @@ export default class Pudding {
      if (this.tmpY < offsetBottom) this.tmpY = offsetBottom
      if (this.tmpY > offsetTop) this.tmpY = offsetTop
      if (this.dom.clientHeight * this.scale < this.screenHeight) this.tmpY = offsetTop * 0.5
-
    }
 }
