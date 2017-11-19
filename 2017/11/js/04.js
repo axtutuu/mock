@@ -2692,8 +2692,10 @@ var Pudding = function () {
 
     this.dom = opts.el.children[0];
     this.mc = new Hammer(opts.el);
-    this.minX = -(this.dom.clientWidth - opts.el.clientWidth);
-    this.minY = -(this.dom.clientHeight - opts.el.clientHeight);
+    this.screenHeight = opts.el.clientHeight;
+    this.screenWidth = opts.el.clientWidth;
+    this.minX = -(this.dom.clientWidth - this.screenWidth);
+    this.minY = -(this.dom.clientHeight - this.screenHeight);
 
     this._setting();
     this._pan();
@@ -2709,12 +2711,17 @@ var Pudding = function () {
       this.tmpX = 0;
       this.tmpY = 0;
       this.tmpScale = 1;
-      this.minScale = 0.5;
+      this.minScale = 0.7;
       this.maxScale = 2.5;
       this.pinchStart = 0;
+      this.originX = this.dom.clientWidth;
+      this.originY = this.dom.clientHeight;
 
       this.mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
       this.mc.get('pinch').set({ enable: true });
+
+      this.dom.style.transform = 'matrix(' + this.scale + ', 0, 0, ' + this.scale + ', ' + this.tmpX + ', ' + this.tmpY + ')';
+      this.dom.style.transformOrigin = this.originX + 'px ' + this.originY + 'px 0px';
     }
   }, {
     key: '_pan',
@@ -2732,6 +2739,7 @@ var Pudding = function () {
         _this.tmpX = e.deltaX + _this.x;
         _this.tmpY = e.deltaY + _this.y;
 
+        console.log(e.center.x);
         _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
       });
 
@@ -2759,6 +2767,11 @@ var Pudding = function () {
 
         _this2.dom.style.willChange = 'transform';
         _this2.pinchStart = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
+
+        // TODO: ここでズレる
+        _this2.originX = e.center.x + Math.abs(_this2.x);
+        _this2.originY = e.center.y + Math.abs(_this2.y);
+        _this2.dom.style.transformOrigin = _this2.originX + 'px ' + _this2.originY + 'px';
       });
 
       this.mc.on('pinchmove', function (e) {
@@ -2794,11 +2807,7 @@ var Pudding = function () {
         _this3.tmpX = _this3.x + x * Ease.outCube(percent);
         _this3.tmpY = _this3.y + y * Ease.outCube(percent);
 
-        if (_this3.tmpX > 0) _this3.tmpX = 0;
-        if (_this3.tmpX < _this3.minX * _this3.scale) _this3.tmpX = _this3.minX * _this3.scale;
-        if (_this3.tmpY > 0) _this3.tmpY = 0;
-        if (_this3.tmpY < _this3.minY * _this3.scale) _this3.tmpY = _this3.minY * _this3.scale;
-
+        _this3._fixPos();
         if (now - startTime >= duration) {
           _this3.dom.style.willChange = '';
           _this3.x = _this3.tmpX;
@@ -2807,7 +2816,6 @@ var Pudding = function () {
         }
 
         _this3.tick = requestAnimationFrame(tick);
-
         _this3.dom.style.transform = 'matrix(' + _this3.scale + ', 0, 0, ' + _this3.scale + ', ' + _this3.tmpX + ', ' + _this3.tmpY + ')';
       };
       tick();
@@ -2816,6 +2824,24 @@ var Pudding = function () {
     key: '_distance',
     value: function _distance(posX1, posY1, posX2, posY2) {
       return Math.sqrt(Math.pow(posX1 - posX2, 2) + Math.pow(posY1 - posY2, 2));
+    }
+
+    // tmpPosを上書き
+
+  }, {
+    key: '_fixPos',
+    value: function _fixPos() {
+      var offsetLeft = this.originX * (this.scale - 1);
+      var offsetRight = this.minX + -(this.dom.clientWidth - this.originX) * (this.scale - 1);
+      if (this.tmpX > offsetLeft) this.tmpX = offsetLeft;
+      if (this.tmpX < offsetRight) this.tmpX = offsetRight;
+      if (this.dom.clientWidth * this.scale < this.screenWidth) this.tmpX = offsetLeft * 0.5;
+
+      var offsetTop = this.originY * (this.scale - 1);
+      var offsetBottom = this.minY + -(this.dom.clientHeight - this.originY) * (this.scale - 1);
+      if (this.tmpY < offsetBottom) this.tmpY = offsetBottom;
+      if (this.tmpY > offsetTop) this.tmpY = offsetTop;
+      if (this.dom.clientHeight * this.scale < this.screenHeight) this.tmpY = offsetTop * 0.5;
     }
   }]);
 

@@ -2646,10 +2646,6 @@ if (typeof define === 'function' && define.amd) {
 },{}],2:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 require('hammerjs');
@@ -2755,7 +2751,6 @@ var Pudding = function () {
         _this2.dom.style.willChange = 'transform';
         _this2.pinchStart = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
 
-        // TODO: ここでズレる
         _this2.originX = e.center.x + Math.abs(_this2.x);
         _this2.originY = e.center.y + Math.abs(_this2.y);
         _this2.dom.style.transformOrigin = _this2.originX + 'px ' + _this2.originY + 'px';
@@ -2803,6 +2798,7 @@ var Pudding = function () {
         }
 
         _this3.tick = requestAnimationFrame(tick);
+
         _this3.dom.style.transform = 'matrix(' + _this3.scale + ', 0, 0, ' + _this3.scale + ', ' + _this3.tmpX + ', ' + _this3.tmpY + ')';
       };
       tick();
@@ -2835,6 +2831,6 @@ var Pudding = function () {
   return Pudding;
 }();
 
-exports.default = Pudding;
+window.Pudding = Pudding;
 
 },{"hammerjs":1}]},{},[2]);
