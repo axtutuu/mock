@@ -2813,7 +2813,6 @@ var Pudding = function () {
         }
 
         _this3.tick = requestAnimationFrame(tick);
-
         _this3.dom.style.transform = 'matrix(' + _this3.scale + ', 0, 0, ' + _this3.scale + ', ' + _this3.tmpX + ', ' + _this3.tmpY + ')';
       };
       tick();

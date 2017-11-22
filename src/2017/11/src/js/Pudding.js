@@ -153,7 +153,6 @@ export default class Pudding {
           }
 
           this.tick = requestAnimationFrame(tick)
-
           this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`
       }
       tick();
@@ -176,6 +175,5 @@ export default class Pudding {
      if (this.tmpY < offsetBottom) this.tmpY = offsetBottom
      if (this.tmpY > offsetTop) this.tmpY = offsetTop
      if (this.dom.clientHeight * this.scale < this.screenHeight) this.tmpY = offsetTop * 0.5
-
    }
 }
