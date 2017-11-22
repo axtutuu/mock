@@ -52,6 +52,9 @@ class Pudding {
 
   _pan() {
     this.mc.on('panstart', (e) => {
+
+      console.log('panstart')
+
       this.dom.style.willChange = 'transform';
       cancelAnimationFrame(this.tick)
       this.x = this.tmpX
@@ -59,14 +62,17 @@ class Pudding {
     });
 
     this.mc.on('panmove', (e) => {
+      console.log('panmove')
+
       this.tmpX = e.deltaX + this.x;
       this.tmpY = e.deltaY + this.y;
 
-      console.log(e.center.x)
       this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`;
     });
 
     this.mc.on('panend', e => {
+      console.log('panend')
+
       this.dom.style.willChange = '';
       this.x = this.tmpX;
       this.y = this.tmpY;
@@ -81,6 +87,8 @@ class Pudding {
 
   _pinch() {
     this.mc.on('pinchstart', e => {
+        console.log('pinchstart')
+
          cancelAnimationFrame(this.tick)
          this.x = this.tmpX
          this.y = this.tmpY
@@ -93,12 +101,15 @@ class Pudding {
            e.pointers[1].clientY
         )
 
-        this.originX = e.center.x + Math.abs(this.x)
-        this.originY = e.center.y + Math.abs(this.y)
+        this.originX = ((e.center.x  / this.scale) + Math.abs(this.x))
+        this.originY = ((e.center.y / this.scale) + Math.abs(this.y))
+        console.log(this.originX, this.originY)
         this.dom.style.transformOrigin = `${this.originX}px ${this.originY}px`;
     })
 
     this.mc.on('pinchmove', e => {
+      console.log('pinchmove')
+
       const current = this._distance(
            e.pointers[0].clientX,
            e.pointers[0].clientY,
@@ -142,7 +153,6 @@ class Pudding {
           }
 
           this.tick = requestAnimationFrame(tick)
-
           this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.tmpX}, ${this.tmpY})`
       }
       tick();
@@ -165,7 +175,6 @@ class Pudding {
      if (this.tmpY < offsetBottom) this.tmpY = offsetBottom
      if (this.tmpY > offsetTop) this.tmpY = offsetTop
      if (this.dom.clientHeight * this.scale < this.screenHeight) this.tmpY = offsetTop * 0.5
-
    }
 }
 
