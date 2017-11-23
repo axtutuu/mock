@@ -2716,6 +2716,9 @@ var Pudding = function () {
       var _this = this;
 
       this.mc.on('panstart', function (e) {
+
+        console.log('panstart');
+
         _this.dom.style.willChange = 'transform';
         cancelAnimationFrame(_this.tick);
         _this.x = _this.tmpX;
@@ -2723,14 +2726,17 @@ var Pudding = function () {
       });
 
       this.mc.on('panmove', function (e) {
+        console.log('panmove');
+
         _this.tmpX = e.deltaX + _this.x;
         _this.tmpY = e.deltaY + _this.y;
 
-        console.log(e.center.x);
         _this.dom.style.transform = 'matrix(' + _this.scale + ', 0, 0, ' + _this.scale + ', ' + _this.tmpX + ', ' + _this.tmpY + ')';
       });
 
       this.mc.on('panend', function (e) {
+        console.log('panend');
+
         _this.dom.style.willChange = '';
         _this.x = _this.tmpX;
         _this.y = _this.tmpY;
@@ -2748,6 +2754,8 @@ var Pudding = function () {
       var _this2 = this;
 
       this.mc.on('pinchstart', function (e) {
+        console.log('pinchstart');
+
         cancelAnimationFrame(_this2.tick);
         _this2.x = _this2.tmpX;
         _this2.y = _this2.tmpY;
@@ -2755,13 +2763,15 @@ var Pudding = function () {
         _this2.dom.style.willChange = 'transform';
         _this2.pinchStart = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
 
-        // TODO: ここでズレる
-        _this2.originX = e.center.x + Math.abs(_this2.x);
-        _this2.originY = e.center.y + Math.abs(_this2.y);
+        _this2.originX = e.center.x / _this2.scale + Math.abs(_this2.x);
+        _this2.originY = e.center.y / _this2.scale + Math.abs(_this2.y);
+        console.log(_this2.originX, _this2.originY);
         _this2.dom.style.transformOrigin = _this2.originX + 'px ' + _this2.originY + 'px';
       });
 
       this.mc.on('pinchmove', function (e) {
+        console.log('pinchmove');
+
         var current = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
         _this2.tmpScale = (current - _this2.pinchStart) / _this2.pinchStart + _this2.scale;
 
