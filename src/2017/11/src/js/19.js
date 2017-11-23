@@ -1,12 +1,20 @@
+let canvas, ctx;
+
 (function main() {
+
+  canvas = canvas || document.createElement('canvas');
+  ctx    = canvas.getContext('2d');
+
   const input = document.querySelector('#img')
   const reader = new FileReader();
+
   input.onchange = (e) => {
     reader.readAsArrayBuffer(input.files[0])
   }
 
   reader.onload = (e) => {
-    console.log(getOrientation(e.target.result));
+    console.log(e.target.result)
+    const orientation = getOrientation(e.target.result)
   }
 })();
 
@@ -40,4 +48,20 @@ function getOrientation(data) {
     }
     return -1;
   }
+}
+
+// https://gist.github.com/fupslot/5015897
+function dataURIToBlob(dataURI) {
+    dataURI = dataURI.replace(/^data:/, '');
+
+    const type = dataURI.match(/image\/[^;]+/);
+    const base64 = dataURI.replace(/^[^,]+,/, '');
+    const arrayBuffer = new ArrayBuffer(base64.length);
+    const typedArray = new Uint8Array(arrayBuffer);
+
+    for (let i = 0; i < base64.length; i++) {
+        typedArray[i] = base64.charCodeAt(i);
+    }
+
+    return new Blob([arrayBuffer], {type});
 }
