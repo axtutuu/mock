@@ -1,15 +1,25 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+var canvas = void 0,
+    ctx = void 0;
+
 (function main() {
+
+  canvas = canvas || document.createElement('canvas');
+  ctx = canvas.getContext('2d');
+
   var input = document.querySelector('#img');
   var reader = new FileReader();
+
   input.onchange = function (e) {
-    reader.readAsArrayBuffer(input.files[0]);
+    reader.readAsDataURL(input.files[0]);
   };
 
   reader.onload = function (e) {
-    console.log(getOrientation(e.target.result));
+    console.log(e.target.result);
+    var orientation = getOrientation(e.target.result);
+    drawCanvas(e.target.result, orientation);
   };
 })();
 
@@ -43,6 +53,62 @@ function getOrientation(data) {
     }
     return -1;
   }
+}
+
+// https://gist.github.com/fupslot/5015897
+function dataURIToBlob(dataURI) {
+  dataURI = dataURI.replace(/^data:/, '');
+
+  var type = dataURI.match(/image\/[^;]+/);
+  var base64 = dataURI.replace(/^[^,]+,/, '');
+  var arrayBuffer = new ArrayBuffer(base64.length);
+  var typedArray = new Uint8Array(arrayBuffer);
+
+  for (var i = 0; i < base64.length; i++) {
+    typedArray[i] = base64.charCodeAt(i);
+  }
+
+  return new Blob([arrayBuffer], { type: type });
+}
+
+// https://qiita.com/mo49/items/a3d61d97f1883ead333b
+function drawCanvas(imgDataURL, orientation) {
+  var img = new Image();
+  img.src = imgDataURL;
+  img.onload = function () {
+    switch (orientation) {
+      case 3:
+        //画像が１８０度回転している時
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.rotate(Math.PI);
+        ctx.drawImage(img, -img.width, -img.height);
+        ctx.rotate(-Math.PI);
+        break;
+      case 6:
+        //画像が時計回りに９０度回っている時
+        canvas.width = img.height;
+        canvas.height = img.width;
+        ctx.rotate(Math.PI * 0.5);
+        ctx.drawImage(img, 0, -img.height);
+        ctx.rotate(-Math.PI * 0.5);
+        break;
+      case 8:
+        //画像が反時計回りに９０度回っている時
+        canvas.width = img.height;
+        canvas.height = img.width;
+        ctx.rotate(-Math.PI * 0.5);
+        ctx.drawImage(img, -img.width, 0);
+        ctx.rotate(Math.PI * 0.5);
+        break;
+      default:
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+    }
+
+    return canvas.toDataURL("image/jpeg");
+  };
 }
 
 },{}]},{},[1]);

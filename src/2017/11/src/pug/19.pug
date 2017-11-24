@@ -2,6 +2,8 @@ extends /layout/_DefaultLayout
 prepend StylesheetBlock
   // link(rel="stylesheet", href="css/canvas.css")
 block ContentBlock
-  input(type='file' name="image-input" id="img")
+  form(method='post' action='/')
+    input(type='file' name="image-input" id="img")
+    button(type='submit') submit
 prepend JavascriptBlock
   script(src="js/19.js")
