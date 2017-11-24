@@ -18,10 +18,25 @@ var canvas = void 0,
 
   reader.onload = function (e) {
     console.log(e.target.result);
-    var orientation = getOrientation(e.target.result);
+    var orientation = getOrientation(base64ToArrayBuffer(e.target.result));
+    console.log(orientation);
     drawCanvas(e.target.result, orientation);
   };
 })();
+
+// https://github.com/exif-js/exif-js/blob/master/exif.js#L343
+function base64ToArrayBuffer(base64, contentType) {
+  contentType = contentType || base64.match(/^data\:([^\;]+)\;base64,/mi)[1] || ''; // e.g. 'data:image/jpeg;base64,...' => 'image/jpeg'
+  base64 = base64.replace(/^data\:([^\;]+)\;base64,/gmi, '');
+  var binary = atob(base64);
+  var len = binary.length;
+  var buffer = new ArrayBuffer(len);
+  var view = new Uint8Array(buffer);
+  for (var i = 0; i < len; i++) {
+    view[i] = binary.charCodeAt(i);
+  }
+  return buffer;
+}
 
 /*
  * get orientation
