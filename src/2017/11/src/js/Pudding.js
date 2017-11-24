@@ -16,7 +16,7 @@ const Ease = {
   }
 }
 
-export default class Pudding {
+class Pudding {
   constructor(opts) {
     this.dom = opts.el.children[0];
     this.mc = new Hammer(opts.el)
@@ -101,14 +101,22 @@ export default class Pudding {
            e.pointers[1].clientY
         )
 
-        this.originX = ((e.center.x  / this.scale) + Math.abs(this.x))
-        this.originY = ((e.center.y / this.scale) + Math.abs(this.y))
-        console.log(this.originX, this.originY)
+        const offsetLeft = this.originX * (this.scale - 1)
+        this.tmpOriginX = ((e.center.x / this.scale) + -(this.x))
+        this.tmpOriginY = ((e.center.y / this.scale) + -(this.y))
+
+        console.log((this.originX - this.tmpOriginX) * (this.scale - 1))
+        this.x = this.x - (this.originX - this.tmpOriginX) * (this.scale - 1)
+        this.y = this.y - (this.originY - this.tmpOriginY) * (this.scale - 1)
+        this.originX = this.tmpOriginX
+        this.originY = this.tmpOriginY
+
+        this.dom.style.transform = `matrix(${this.scale}, 0, 0, ${this.scale}, ${this.x}, ${this.y})`
         this.dom.style.transformOrigin = `${this.originX}px ${this.originY}px`;
     })
 
     this.mc.on('pinchmove', e => {
-      console.log('pinchmove')
+      // console.log('pinchmove')
 
       const current = this._distance(
            e.pointers[0].clientX,
@@ -177,3 +185,5 @@ export default class Pudding {
      if (this.dom.clientHeight * this.scale < this.screenHeight) this.tmpY = offsetTop * 0.5
    }
 }
+
+window.Pudding = Pudding
