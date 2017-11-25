@@ -10,7 +10,23 @@ var canvas = void 0,
   ctx = canvas.getContext('2d');
 
   var input = document.querySelector('#img');
+  var form = document.querySelector('#form');
   var reader = new FileReader();
+
+  var request = new XMLHttpRequest();
+
+  var blob = void 0;
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var data = new FormData(e.target);
+    data.append('myFile', blob);
+    data.delete('image-input');
+    console.log(blob);
+
+    request.open('POST', '/');
+    request.send(data);
+  });
 
   input.onchange = function (e) {
     reader.readAsDataURL(input.files[0]);
@@ -27,10 +43,13 @@ var canvas = void 0,
     var img2 = document.createElement('img');
     var orientation = getOrientation(base64ToArrayBuffer(e.target.result));
 
+    console.log(orientation);
     drawCanvas(e.target.result, orientation).then(function (base64) {
       img2.src = base64;
       img2.width = 300;
       document.body.appendChild(img2);
+
+      blob = dataURIToBlob(base64);
     });
   };
 })();
@@ -137,6 +156,11 @@ function drawCanvas(imgDataURL, orientation) {
       resolve(canvas.toDataURL("image/jpeg"));
     };
   });
+}
+
+function post() {
+  request.open("POST", "/");
+  request.send();
 }
 
 },{}]},{},[1]);
