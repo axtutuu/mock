@@ -13,10 +13,24 @@ let canvas, ctx;
   }
 
   reader.onload = (e) => {
-    console.log(e.target.result);
-    const orientation = getOrientation(base64ToArrayBuffer(e.target.result));
-    console.log(orientation)
     drawCanvas(e.target.result, orientation);
+
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.width = '300';
+    document.body.appendChild(img);
+
+
+    const img2 = document.createElement('img');
+    const orientation = getOrientation(base64ToArrayBuffer(e.target.result));
+
+    drawCanvas(e.target.result, orientation)
+      .then(base64 => {
+        img2.src = base64
+        img2.width = 300
+        document.body.appendChild(img2);
+      })
+
   }
 })();
 
@@ -86,35 +100,37 @@ function dataURIToBlob(dataURI) {
 function drawCanvas(imgDataURL, orientation) {
   const img = new Image();
   img.src = imgDataURL
-  img.onload = () => {
-    switch (orientation) {
-      case 3: //画像が１８０度回転している時
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.rotate(Math.PI);
-        ctx.drawImage(img, -img.width, -img.height);
-        ctx.rotate(-Math.PI);
-        break;
-      case 6: //画像が時計回りに９０度回っている時
-        canvas.width = img.height;
-        canvas.height = img.width;
-        ctx.rotate(Math.PI * 0.5);
-        ctx.drawImage(img, 0, -img.height);
-        ctx.rotate(-Math.PI * 0.5);
-        break;
-      case 8: //画像が反時計回りに９０度回っている時
-        canvas.width = img.height;
-        canvas.height = img.width;
-        ctx.rotate(-Math.PI * 0.5);
-        ctx.drawImage(img, -img.width, 0);
-        ctx.rotate(Math.PI * 0.5);
-        break;
-      default:
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-    }
 
-    return canvas.toDataURL("image/jpeg");
-  }
+  return new Promise(resolve => {
+      img.onload = () => {
+        switch (orientation) {
+          case 3: //画像が１８０度回転している時
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.rotate(Math.PI);
+            ctx.drawImage(img, -img.width, -img.height);
+            ctx.rotate(-Math.PI);
+            break;
+          case 6: //画像が時計回りに９０度回っている時
+            canvas.width = img.height;
+            canvas.height = img.width;
+            ctx.rotate(Math.PI * 0.5);
+            ctx.drawImage(img, 0, -img.height);
+            ctx.rotate(-Math.PI * 0.5);
+            break;
+          case 8: //画像が反時計回りに９０度回っている時
+            canvas.width = img.height;
+            canvas.height = img.width;
+            ctx.rotate(-Math.PI * 0.5);
+            ctx.drawImage(img, -img.width, 0);
+            ctx.rotate(Math.PI * 0.5);
+            break;
+          default:
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+        }
+        resolve(canvas.toDataURL("image/jpeg"));
+      }
+  });
 }
