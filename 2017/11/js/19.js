@@ -17,11 +17,37 @@ var canvas = void 0,
   };
 
   reader.onload = function (e) {
-    console.log(e.target.result);
-    var orientation = getOrientation(e.target.result);
     drawCanvas(e.target.result, orientation);
+
+    var img = document.createElement('img');
+    img.src = e.target.result;
+    img.width = '300';
+    document.body.appendChild(img);
+
+    var img2 = document.createElement('img');
+    var orientation = getOrientation(base64ToArrayBuffer(e.target.result));
+
+    drawCanvas(e.target.result, orientation).then(function (base64) {
+      img2.src = base64;
+      img2.width = 300;
+      document.body.appendChild(img2);
+    });
   };
 })();
+
+// https://github.com/exif-js/exif-js/blob/master/exif.js#L343
+function base64ToArrayBuffer(base64, contentType) {
+  contentType = contentType || base64.match(/^data\:([^\;]+)\;base64,/mi)[1] || ''; // e.g. 'data:image/jpeg;base64,...' => 'image/jpeg'
+  base64 = base64.replace(/^data\:([^\;]+)\;base64,/gmi, '');
+  var binary = atob(base64);
+  var len = binary.length;
+  var buffer = new ArrayBuffer(len);
+  var view = new Uint8Array(buffer);
+  for (var i = 0; i < len; i++) {
+    view[i] = binary.charCodeAt(i);
+  }
+  return buffer;
+}
 
 /*
  * get orientation
@@ -75,40 +101,42 @@ function dataURIToBlob(dataURI) {
 function drawCanvas(imgDataURL, orientation) {
   var img = new Image();
   img.src = imgDataURL;
-  img.onload = function () {
-    switch (orientation) {
-      case 3:
-        //画像が１８０度回転している時
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.rotate(Math.PI);
-        ctx.drawImage(img, -img.width, -img.height);
-        ctx.rotate(-Math.PI);
-        break;
-      case 6:
-        //画像が時計回りに９０度回っている時
-        canvas.width = img.height;
-        canvas.height = img.width;
-        ctx.rotate(Math.PI * 0.5);
-        ctx.drawImage(img, 0, -img.height);
-        ctx.rotate(-Math.PI * 0.5);
-        break;
-      case 8:
-        //画像が反時計回りに９０度回っている時
-        canvas.width = img.height;
-        canvas.height = img.width;
-        ctx.rotate(-Math.PI * 0.5);
-        ctx.drawImage(img, -img.width, 0);
-        ctx.rotate(Math.PI * 0.5);
-        break;
-      default:
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-    }
 
-    return canvas.toDataURL("image/jpeg");
-  };
+  return new Promise(function (resolve) {
+    img.onload = function () {
+      switch (orientation) {
+        case 3:
+          //画像が１８０度回転している時
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.rotate(Math.PI);
+          ctx.drawImage(img, -img.width, -img.height);
+          ctx.rotate(-Math.PI);
+          break;
+        case 6:
+          //画像が時計回りに９０度回っている時
+          canvas.width = img.height;
+          canvas.height = img.width;
+          ctx.rotate(Math.PI * 0.5);
+          ctx.drawImage(img, 0, -img.height);
+          ctx.rotate(-Math.PI * 0.5);
+          break;
+        case 8:
+          //画像が反時計回りに９０度回っている時
+          canvas.width = img.height;
+          canvas.height = img.width;
+          ctx.rotate(-Math.PI * 0.5);
+          ctx.drawImage(img, -img.width, 0);
+          ctx.rotate(Math.PI * 0.5);
+          break;
+        default:
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+      }
+      resolve(canvas.toDataURL("image/jpeg"));
+    };
+  });
 }
 
 },{}]},{},[1]);
