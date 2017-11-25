@@ -6,7 +6,23 @@ let canvas, ctx;
   ctx    = canvas.getContext('2d');
 
   const input = document.querySelector('#img')
+  const form  = document.querySelector('#form')
   const reader = new FileReader();
+
+  const request = new XMLHttpRequest();
+
+  let blob;
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = new FormData(e.target)
+    data.append('myFile', blob);
+    data.delete('image-input')
+    console.log(blob)
+
+    request.open('POST', '/');
+    request.send(data);
+  });
 
   input.onchange = (e) => {
     reader.readAsDataURL(input.files[0])
@@ -24,11 +40,14 @@ let canvas, ctx;
     const img2 = document.createElement('img');
     const orientation = getOrientation(base64ToArrayBuffer(e.target.result));
 
+    console.log(orientation)
     drawCanvas(e.target.result, orientation)
       .then(base64 => {
         img2.src = base64
         img2.width = 300
         document.body.appendChild(img2);
+
+        blob = dataURIToBlob(base64)
       })
 
   }
@@ -133,4 +152,9 @@ function drawCanvas(imgDataURL, orientation) {
         resolve(canvas.toDataURL("image/jpeg"));
       }
   });
+}
+
+function post() {
+  request.open("POST", "/");
+  request.send()
 }
