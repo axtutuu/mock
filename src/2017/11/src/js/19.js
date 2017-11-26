@@ -1,4 +1,4 @@
-let canvas, ctx;
+let canvas, ctx, blob;
 
 (function main() {
 
@@ -8,17 +8,17 @@ let canvas, ctx;
   const input = document.querySelector('#img')
   const form  = document.querySelector('#form')
   const reader = new FileReader();
-
   const request = new XMLHttpRequest();
 
-  let blob;
-
+  /*
+   * post form data
+   */
   form.addEventListener('submit', e => {
     e.preventDefault();
+
     const data = new FormData(e.target)
+    data.delete('image-input') // 不要なフォームデータの削除
     data.append('myFile', blob);
-    data.delete('image-input')
-    console.log(blob)
 
     request.open('POST', '/');
     request.send(data);
@@ -29,22 +29,13 @@ let canvas, ctx;
   }
 
   reader.onload = (e) => {
-    drawCanvas(e.target.result, orientation);
-
     const img = document.createElement('img');
-    img.src = e.target.result;
-    img.width = '300';
-    document.body.appendChild(img);
-
-
-    const img2 = document.createElement('img');
     const orientation = getOrientation(base64ToArrayBuffer(e.target.result));
 
-    console.log(orientation)
     drawCanvas(e.target.result, orientation)
       .then(base64 => {
-        img2.src = base64
-        img2.width = 300
+        img.src = base64
+        img.width = 300
         document.body.appendChild(img2);
 
         blob = dataURIToBlob(base64)
@@ -152,9 +143,4 @@ function drawCanvas(imgDataURL, orientation) {
         resolve(canvas.toDataURL("image/jpeg"));
       }
   });
-}
-
-function post() {
-  request.open("POST", "/");
-  request.send()
 }

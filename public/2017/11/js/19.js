@@ -2,7 +2,8 @@
 'use strict';
 
 var canvas = void 0,
-    ctx = void 0;
+    ctx = void 0,
+    blob = void 0;
 
 (function main() {
 
@@ -12,17 +13,17 @@ var canvas = void 0,
   var input = document.querySelector('#img');
   var form = document.querySelector('#form');
   var reader = new FileReader();
-
   var request = new XMLHttpRequest();
 
-  var blob = void 0;
-
+  /*
+   * post form data
+   */
   form.addEventListener('submit', function (e) {
     e.preventDefault();
+
     var data = new FormData(e.target);
+    data.delete('image-input'); // 不要なフォームデータの削除
     data.append('myFile', blob);
-    data.delete('image-input');
-    console.log(blob);
 
     request.open('POST', '/');
     request.send(data);
@@ -33,20 +34,12 @@ var canvas = void 0,
   };
 
   reader.onload = function (e) {
-    drawCanvas(e.target.result, orientation);
-
     var img = document.createElement('img');
-    img.src = e.target.result;
-    img.width = '300';
-    document.body.appendChild(img);
-
-    var img2 = document.createElement('img');
     var orientation = getOrientation(base64ToArrayBuffer(e.target.result));
 
-    console.log(orientation);
     drawCanvas(e.target.result, orientation).then(function (base64) {
-      img2.src = base64;
-      img2.width = 300;
+      img.src = base64;
+      img.width = 300;
       document.body.appendChild(img2);
 
       blob = dataURIToBlob(base64);
@@ -156,11 +149,6 @@ function drawCanvas(imgDataURL, orientation) {
       resolve(canvas.toDataURL("image/jpeg"));
     };
   });
-}
-
-function post() {
-  request.open("POST", "/");
-  request.send();
 }
 
 },{}]},{},[1]);
