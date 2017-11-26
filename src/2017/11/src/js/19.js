@@ -36,7 +36,7 @@ let canvas, ctx, blob;
       .then(base64 => {
         img.src = base64
         img.width = 300
-        document.body.appendChild(img2);
+        document.body.appendChild(img);
 
         blob = dataURIToBlob(base64)
       })
