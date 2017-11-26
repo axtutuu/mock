@@ -40,7 +40,7 @@ var canvas = void 0,
     drawCanvas(e.target.result, orientation).then(function (base64) {
       img.src = base64;
       img.width = 300;
-      document.body.appendChild(img2);
+      document.body.appendChild(img);
 
       blob = dataURIToBlob(base64);
     });
