@@ -1,0 +1,39 @@
+.main
+  display flex
+  flex-direction column
+  
+.items
+  &:not(:root)
+    display flex
+    margin 0 auto
+    padding 0
+    
+  & &__item
+    list-style none
+    width 64px
+    height 64px
+    background-color black
+    margin 0px 16px
+    
+  & &__item--rock
+    background url(http://2.bp.blogspot.com/-VhlO-Yfjy_E/Uab3z3RNJQI/AAAAAAAAUVg/fX8VnSVDlWs/s800/janken_gu.png) no-repeat center
+    background-size contain
+    
+  & &__item--scissors
+    background url(http://4.bp.blogspot.com/-__yEIXe5SxU/Uab3zO7BB2I/AAAAAAAAUVI/MYg6TVeiv-Y/s800/janken_choki.png) no-repeat center
+    background-size contain
+    
+  & &__item--paper
+    background url(http://3.bp.blogspot.com/-qZtyoue9xKs/Uab30IG0Q5I/AAAAAAAAUVk/qnH8a2OgrvI/s800/janken_pa.png) no-repeat center
+    background-size contain
+    
+.submit
+  appearance none
+  background-color black
+  border none
+  color white
+  border-radius 50%
+  width 64px
+  height 64px
+  margin 16px auto
+  display block

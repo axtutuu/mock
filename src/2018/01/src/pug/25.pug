@@ -1,0 +1,11 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  link(rel="stylesheet", href="css/main.css")
+
+block ContentBlock
+  main.main
+    ul.items
+      li.items__item.items__item--rock
+      li.items__item.items__item--scissors
+      li.items__item.items__item--paper
+    button.submit#submit submit
