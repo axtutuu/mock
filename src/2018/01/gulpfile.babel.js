@@ -91,7 +91,7 @@ gulp.task('browser-sync', () => {
         ghostMode: false
     });
 
-    watch([`${SRC}/scss/**/*.scss`], gulp.series('stylus', browserSync.reload));
+    watch([`${SRC}/styl/**/*.styl`], gulp.series('stylus', browserSync.reload));
     watch([`${SRC}/js/**/*.js[x]`, `${SRC}/js/**/*.js`], gulp.series('browserify', browserSync.reload));
     watch([
         `${SRC}/pug/**/*.pug`,

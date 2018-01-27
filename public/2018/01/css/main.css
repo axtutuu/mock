@@ -1,0 +1,78 @@
+.main {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.items:not(:root) {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 0 auto;
+  padding: 0;
+}
+.items .items__item {
+  list-style: none;
+  width: 64px;
+  height: 64px;
+  background-color: #000;
+  margin: 0px 16px;
+  position: relative;
+}
+.items .items__item--rock {
+  background: url("http://2.bp.blogspot.com/-VhlO-Yfjy_E/Uab3z3RNJQI/AAAAAAAAUVg/fX8VnSVDlWs/s800/janken_gu.png") no-repeat center;
+  background-size: contain;
+}
+.items .items__item--scissors {
+  background: url("http://4.bp.blogspot.com/-__yEIXe5SxU/Uab3zO7BB2I/AAAAAAAAUVI/MYg6TVeiv-Y/s800/janken_choki.png") no-repeat center;
+  background-size: contain;
+}
+.items .items__item--paper {
+  background: url("http://3.bp.blogspot.com/-qZtyoue9xKs/Uab30IG0Q5I/AAAAAAAAUVk/qnH8a2OgrvI/s800/janken_pa.png") no-repeat center;
+  background-size: contain;
+}
+.submit {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background-color: #000;
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  margin: 16px auto;
+  display: block;
+}
+.items[data-selected-item="rock"] .items__item[data-item="rock"]:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255,255,255,0.5);
+}
+.items[data-selected-item="scissors"] .items__item[data-item="scissors"]:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255,255,255,0.5);
+}
+.items[data-selected-item="paper"] .items__item[data-item="paper"]:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255,255,255,0.5);
+}
