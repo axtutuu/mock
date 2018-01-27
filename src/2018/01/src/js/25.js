@@ -26,7 +26,7 @@ class Judgment {
 
   set(item) {
     const tmp = this.items[item]
-    if (!tmp) throw new Error('item not found')
+    if (tmp === undefined) throw new Error('item not found')
     this.item = tmp
   }
 

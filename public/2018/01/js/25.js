@@ -17128,7 +17128,7 @@ var Judgment = function () {
     key: 'set',
     value: function set(item) {
       var tmp = this.items[item];
-      if (!tmp) throw new Error('item not found');
+      if (tmp === undefined) throw new Error('item not found');
       this.item = tmp;
     }
   }, {
