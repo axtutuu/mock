@@ -17103,7 +17103,7 @@ var ROCK = 0,
     SCISSORS = 1,
     PAPER = 2;
 
-function cp() {
+function randCp() {
   return Math.floor(Math.random() * (PAPER - ROCK) + ROCK);
 }
 
@@ -17146,8 +17146,24 @@ var judgment = new Judgment();
 
 var submit = document.querySelector('#submit');
 var items = document.querySelector('#items');
+var result = document.querySelector('#result');
+var resultTtl = document.querySelector('#result-title');
+var bg = document.querySelector('#result-bg');
+var me = document.querySelector('#result-me');
+var cp = document.querySelector('#result-cp');
+
 submit.addEventListener('click', function () {
-  console.log(judgment.judge(cp()));
+  if (judgment.item == undefined) return;
+  var cpResult = randCp();
+
+  resultTtl.textContent = judgment.judge(cpResult);
+  result.setAttribute('data-display', 'block');
+  me.setAttribute('data-item', _lodash2.default.invert(judgment.items)[judgment.item]);
+  cp.setAttribute('data-item', _lodash2.default.invert(judgment.items)[cpResult]);
+});
+
+bg.addEventListener('click', function () {
+  result.setAttribute('data-display', 'none');
 });
 
 items.addEventListener('click', function (e) {

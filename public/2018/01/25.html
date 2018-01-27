@@ -25,11 +25,27 @@
     <div class="wrapper">
       <main class="main">
         <ul class="items" id="items" data-selected-item="none">
-          <li class="items__item items__item--rock" data-item="rock"></li>
-          <li class="items__item items__item--scissors" data-item="scissors"></li>
-          <li class="items__item items__item--paper" data-item="paper"></li>
+          <li class="items__item" data-item="rock"></li>
+          <li class="items__item" data-item="scissors"></li>
+          <li class="items__item" data-item="paper"></li>
         </ul>
         <button class="submit" id="submit">submit</button>
+        <aside class="result" id="result" data-display="none">
+          <div class="result__bg" id="result-bg"></div>
+          <section class="result__wrapper">
+            <h2 class="result__title" id="result-title">負け</h2>
+            <div class="items">
+              <div class="items__result">
+                <div class="items__title">あなた</div>
+                <div class="items__item" id="result-me"></div>
+              </div>
+              <div class="items__result">
+                <div class="items__title">コンピューター</div>
+                <div class="items__item" id="result-cp"></div>
+              </div>
+            </div>
+          </section>
+        </aside>
       </main>
     </div>
     <!-- javascript-->

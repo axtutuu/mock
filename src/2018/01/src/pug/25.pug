@@ -7,7 +7,19 @@ prepend JavascriptBlock
 block ContentBlock
   main.main
     ul.items#items(data-selected-item="none")
-      li.items__item.items__item--rock(data-item='rock')
-      li.items__item.items__item--scissors(data-item='scissors')
-      li.items__item.items__item--paper(data-item='paper')
+      li.items__item(data-item='rock')
+      li.items__item(data-item='scissors')
+      li.items__item(data-item='paper')
     button.submit#submit submit
+
+    aside.result#result(data-display='none')
+      .result__bg#result-bg
+      section.result__wrapper
+        h2.result__title#result-title 負け
+        .items
+          .items__result
+            .items__title あなた
+            .items__item#result-me
+          .items__result
+            .items__title コンピューター
+            .items__item#result-cp

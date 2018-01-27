@@ -10,6 +10,9 @@
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   margin: 0 auto;
   padding: 0;
 }
@@ -17,19 +20,18 @@
   list-style: none;
   width: 64px;
   height: 64px;
-  background-color: #000;
   margin: 0px 16px;
   position: relative;
 }
-.items .items__item--rock {
+.items .items__item[data-item="rock"] {
   background: url("http://2.bp.blogspot.com/-VhlO-Yfjy_E/Uab3z3RNJQI/AAAAAAAAUVg/fX8VnSVDlWs/s800/janken_gu.png") no-repeat center;
   background-size: contain;
 }
-.items .items__item--scissors {
+.items .items__item[data-item="scissors"] {
   background: url("http://4.bp.blogspot.com/-__yEIXe5SxU/Uab3zO7BB2I/AAAAAAAAUVI/MYg6TVeiv-Y/s800/janken_choki.png") no-repeat center;
   background-size: contain;
 }
-.items .items__item--paper {
+.items .items__item[data-item="paper"] {
   background: url("http://3.bp.blogspot.com/-qZtyoue9xKs/Uab30IG0Q5I/AAAAAAAAUVk/qnH8a2OgrvI/s800/janken_pa.png") no-repeat center;
   background-size: contain;
 }
@@ -75,4 +77,36 @@
   right: 0;
   bottom: 0;
   background-color: rgba(255,255,255,0.5);
+}
+.result.result[data-display="none"] {
+  display: none;
+}
+.result.result[data-display="block"] {
+  display: block;
+}
+.result__bg:before {
+  content: '';
+  display: block;
+  background-color: rgba(0,0,0,0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.result__wrapper {
+  background-color: #fff;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  min-width: 40%;
+  min-height: 300px;
+}
+.items__result {
+  text-align: center;
+}
+.result__title {
+  text-align: center;
 }

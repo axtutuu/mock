@@ -5,7 +5,7 @@ const ROCK = 0,
       PAPER = 2
 
 
-function cp() {
+function randCp() {
   return Math.floor(Math.random() * (PAPER - ROCK) + ROCK)
 }
 
@@ -40,8 +40,24 @@ const judgment = new Judgment()
 
 const submit = document.querySelector('#submit')
 const items = document.querySelector('#items')
+const result = document.querySelector('#result')
+const resultTtl = document.querySelector('#result-title')
+const bg = document.querySelector('#result-bg')
+const me = document.querySelector('#result-me')
+const cp = document.querySelector('#result-cp')
+
 submit.addEventListener('click', () => {
-  console.log(judgment.judge(cp()))
+  if (judgment.item == undefined) return
+  const cpResult = randCp()
+
+  resultTtl.textContent = judgment.judge(cpResult)
+  result.setAttribute('data-display', 'block')
+  me.setAttribute('data-item', _.invert(judgment.items)[judgment.item])
+  cp.setAttribute('data-item', _.invert(judgment.items)[cpResult])
+})
+
+bg.addEventListener('click', () => {
+  result.setAttribute('data-display', 'none')
 })
 
 items.addEventListener('click', (e) => {
