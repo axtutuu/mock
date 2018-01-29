@@ -1,6 +1,7 @@
 block ConfigBlock
   - title = "😇"
   - description = "😇"
+  - app = 'app'
 
 doctype html
 html(lang="ja")
@@ -62,7 +63,7 @@ html(lang="ja")
     block StylesheetBlock
       link(rel="stylesheet", href="css/style.css?v="+versions["style.css"])
   body
-    .wrapper
+    .wrapper(id=app)
       block ContentBlock
 
     // javascript

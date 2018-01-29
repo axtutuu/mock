@@ -110,15 +110,24 @@
 .result__title {
   text-align: center;
 }
-.items:not(:root) {
+#slot .items:not(:root) {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  width: 487.5px;
 }
-.items .items__item {
+#slot .items__item {
+  height: 152.5px;
+  width: 152.5px;
+  overflow: hidden;
+  margin: 0 5px;
+}
+#slot .items__slot {
+  display: block;
   list-style: none;
   background-image: url("/2018/01/img/slot.png");
   background-size: contain;
   background-repeat: repeat-y;
-  height: 1820px;
+  height: 910px;
+  width: 152.5px;
 }

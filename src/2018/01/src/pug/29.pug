@@ -1,10 +1,16 @@
 extends /layout/_DefaultLayout
+append ConfigBlock
+  - app = 'slot'
 prepend StylesheetBlock
-  // link(rel="stylesheet", href="css/canvas.css")
+  link(rel="stylesheet", href="css/main.css")
+
 block ContentBlock
   ul.items
     li.items__item
+      span.items__slot
     li.items__item
+      span.items__slot
     li.items__item
+      span.items__slot
 prepend JavascriptBlock
   // script(src="js/fabric.js")
