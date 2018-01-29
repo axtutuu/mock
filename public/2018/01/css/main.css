@@ -110,3 +110,15 @@
 .result__title {
   text-align: center;
 }
+.items:not(:root) {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+.items .items__item {
+  list-style: none;
+  background-image: url("/2018/01/img/slot.png");
+  background-size: contain;
+  background-repeat: repeat-y;
+  height: 1820px;
+}
