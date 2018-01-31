@@ -7,7 +7,7 @@ const roll = () => {
   frameId = window.requestAnimationFrame(roll)
   slot.style.transform = `translateY(-${pos}px)`
   pos += 10
-  if (pos > 525) pos = 0
+  if (pos > 540) pos = 0
 }
 
 roll()
