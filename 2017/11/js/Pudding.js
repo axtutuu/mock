@@ -2646,10 +2646,6 @@ if (typeof define === 'function' && define.amd) {
 },{}],2:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 require('hammerjs');
@@ -2763,14 +2759,22 @@ var Pudding = function () {
         _this2.dom.style.willChange = 'transform';
         _this2.pinchStart = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
 
-        _this2.originX = e.center.x / _this2.scale + Math.abs(_this2.x);
-        _this2.originY = e.center.y / _this2.scale + Math.abs(_this2.y);
-        console.log(_this2.originX, _this2.originY);
+        var offsetLeft = _this2.originX * (_this2.scale - 1);
+        _this2.tmpOriginX = e.center.x / _this2.scale + -_this2.x;
+        _this2.tmpOriginY = e.center.y / _this2.scale + -_this2.y;
+
+        console.log((_this2.originX - _this2.tmpOriginX) * (_this2.scale - 1));
+        _this2.x = _this2.x - (_this2.originX - _this2.tmpOriginX) * (_this2.scale - 1);
+        _this2.y = _this2.y - (_this2.originY - _this2.tmpOriginY) * (_this2.scale - 1);
+        _this2.originX = _this2.tmpOriginX;
+        _this2.originY = _this2.tmpOriginY;
+
+        _this2.dom.style.transform = 'matrix(' + _this2.scale + ', 0, 0, ' + _this2.scale + ', ' + _this2.x + ', ' + _this2.y + ')';
         _this2.dom.style.transformOrigin = _this2.originX + 'px ' + _this2.originY + 'px';
       });
 
       this.mc.on('pinchmove', function (e) {
-        console.log('pinchmove');
+        // console.log('pinchmove')
 
         var current = _this2._distance(e.pointers[0].clientX, e.pointers[0].clientY, e.pointers[1].clientX, e.pointers[1].clientY);
         _this2.tmpScale = (current - _this2.pinchStart) / _this2.pinchStart + _this2.scale;
@@ -2845,6 +2849,6 @@ var Pudding = function () {
   return Pudding;
 }();
 
-exports.default = Pudding;
+window.Pudding = Pudding;
 
 },{"hammerjs":1}]},{},[2]);
