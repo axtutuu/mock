@@ -21,7 +21,7 @@ import $ from 'jquery';
 const SRC = './src';
 const CONFIG = './src/config';
 // const HTDOCS = './public';
-const HTDOCS = '../../../public/2018/01';
+const HTDOCS = '../../../public/2018/03';
 const PUBLIC = '../../../public';
 
 const BASE_PATH = '';
