@@ -78,16 +78,26 @@ var controls = new THREEx.ArMarkerControls(context, marker1, {    // マーカ�
 });
 scene.add(marker1);                                   // マーカをシーンに追加
 // モデル（メッシュ）
-var geo = new THREE.CubeGeometry(1, 1, 1);            // cube ジオメトリ（サイズは 1x1x1）
-var mat = new THREE.MeshNormalMaterial({              // マテリアルの作成
-  transparent: true,                                  // 透過
-  opacity: 0.5,                                       // 不透明度
-  side: THREE.DoubleSide,                             // 内側も描く
+// var geo = new THREE.CubeGeometry(1, 1, 1);         // cube ジオメトリ（サイズは 1x1x1）
+// var geo = new THREE.BoxGeometry( 1, 1, 1 );      // cube ジオメトリ（サイズは 1x1x1）
+var geo = new THREE.SphereGeometry( 1.5, 8, 6, 0, Math.PI * 2, 0, Math.PI);      // cube ジオメトリ（サイズは 1x1x1）
+// var mat = new THREE.MeshNormalMaterial({              // マテリアルの作成
+//   transparent: true,                                  // 透過
+//   opacity: 1,                                         // 不透明度
+// });
+
+var loader = new THREE.TextureLoader();
+var texture = loader.load('images/face2.png');
+var mat = new THREE.MeshLambertMaterial( { 
+    map: texture
 });
+
+// const mat = new THREE.MeshPhongMaterial({color: 0xFF0000});
 var mesh1 = new THREE.Mesh(geo, mat);                 // メッシュを生成
 mesh1.name = "cube";                                  // メッシュの名前（後でピッキングで使う）
-mesh1.position.set(0, 0.5, 0);                        // 初期位置
+mesh1.position.set(0, 1.5, 0);                        // 初期位置
 marker1.add(mesh1);                                   // メッシュをマーカに追加
+
 // マーカ隠蔽（cloaking）
 var videoTex = new THREE.VideoTexture(source.domElement);  // 映像をテクスチャとして取得
 videoTex.minFilter = THREE.NearestFilter;             // 映像テクスチャのフィルタ処理
