@@ -1,0 +1,9 @@
+extends /layout/_DefaultLayout
+block ContentBlock
+  script(src="js/tracking-min.js")
+  script(src="js/face/face-min.js")
+  div#13
+      video(id="video" width="320" height="240" preload autoplay loop muted)
+      canvas(id="canvas" width="320" height="240")
+prepend JavascriptBlock
+  script(src="js/14.js")
