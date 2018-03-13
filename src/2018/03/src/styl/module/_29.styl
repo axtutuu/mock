@@ -1,0 +1,26 @@
+#slot
+
+  .items
+
+    &:not(:root)
+      display flex
+      width 305px * 0.5 * 3 + 30px
+
+    &__item
+      height 305px * 0.5
+      width 305px * 0.5
+      overflow hidden
+      margin 0 5px
+
+    &__slot
+      display block
+      list-style none
+      background-image url('/2018/01/img/slot.png')
+      background-size contain
+      background-repeat repeat-y
+      height 910px * 0.5 * 2
+      width 305px * 0.5
+
+  .submit
+    width 64px
+    height 64px
