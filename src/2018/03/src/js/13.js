@@ -80,15 +80,15 @@ scene.add(marker1);                                   // マーカをシーン�
 // モデル（メッシュ）
 // var geo = new THREE.CubeGeometry(1, 1, 1);         // cube ジオメトリ（サイズは 1x1x1）
 // var geo = new THREE.BoxGeometry( 1, 1, 1 );      // cube ジオメトリ（サイズは 1x1x1）
-var geo = new THREE.SphereGeometry( 1.5, 8, 6, 0, Math.PI * 2, 0, Math.PI);      // cube ジオメトリ（サイズは 1x1x1）
+var geo = new THREE.SphereGeometry( 1.1, 12, 12, 0, Math.PI * 2, 0, Math.PI);      // cube ジオメトリ（サイズは 1x1x1）
 // var mat = new THREE.MeshNormalMaterial({              // マテリアルの作成
 //   transparent: true,                                  // 透過
 //   opacity: 1,                                         // 不透明度
 // });
 
 var loader = new THREE.TextureLoader();
-var texture = loader.load('images/face2.png');
-var mat = new THREE.MeshLambertMaterial( { 
+var texture = loader.load('images/face5.png');
+var mat = new THREE.MeshLambertMaterial( {
     map: texture
 });
 
