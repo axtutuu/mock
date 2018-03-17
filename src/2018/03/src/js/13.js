@@ -87,7 +87,7 @@ var geo = new THREE.SphereGeometry( 1.5, 8, 6, 0, Math.PI * 2, 0, Math.PI);     
 // });
 
 var loader = new THREE.TextureLoader();
-var texture = loader.load('images/face2.png');
+var texture = loader.load('images/face4.png');
 var mat = new THREE.MeshLambertMaterial( { 
     map: texture
 });
