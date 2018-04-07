@@ -1,0 +1,8 @@
+extends /layout/_DefaultLayout
+prepend StylesheetBlock
+  // link(rel="stylesheet", href="css/canvas.css")
+block ContentBlock
+  h1 Mario
+  canvas(width="640" height="480")
+prepend JavascriptBlock
+  script(src="js/mario.js")
