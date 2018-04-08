@@ -7,6 +7,9 @@ var cxt = canvas.getContext('2d');
 
 // animate()
 var lastAnimationFrameTime = 0;
+var enter = false;
+var space = false;
+
 cxt.fillStyle = "rgb(255, 0, 0)";
 cxt.fillRect(0, 0, 640, 480);
 
@@ -23,6 +26,19 @@ function keyDown(e) {
     case 32:
       space = true;
       break;
+    case 37:
+      left = true;
+      break;
+    case 39:
+      right = true;
+      break;
+    case 38:
+      up = true;
+      break;
+    case 40:
+      down = true;
+      break;
+
   }
 }
 
