@@ -1,4 +1,4 @@
-(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
 //===================================================================
@@ -101,7 +101,7 @@ var mat = new THREE.MeshLambertMaterial({
 // const mat = new THREE.MeshPhongMaterial({color: 0xFF0000});
 var mesh1 = new THREE.Mesh(geo, mat); // メッシュを生成
 mesh1.name = "cube"; // メッシュの名前（後でピッキングで使う）
-mesh1.position.set(0, 1.5, 0); // 初期位置
+mesh1.position.set(0, 0, 0); // 初期位置
 marker1.add(mesh1); // メッシュをマーカに追加
 
 // マーカ隠蔽（cloaking）

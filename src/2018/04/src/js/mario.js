@@ -93,8 +93,6 @@ class Mario {
       ctx.drawImage(img, this.animeX, 0, 32, 32, this.x, this.y, 32, 32)
     }
   }
-
-  move(right,l)
 }
 
 const mario = new Mario()
