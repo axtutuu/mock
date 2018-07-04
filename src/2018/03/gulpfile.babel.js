@@ -44,6 +44,15 @@ gulp.task('stylus', () => {
 
 gulp.task('css', gulp.series('stylus'));
 
+gulp.task('sass', () => {
+    const config = readConfig(`${CONFIG}/pleeease.json`);
+    return gulp.src(`${SRC}/scss/**/[!_]*.scss`)
+        .pipe(sassGlob())
+        .pipe(sass())
+        .pipe(pleeease(config))
+        .pipe(gulp.dest(`${DEST}/css`));
+});
+
 gulp.task('browserify', () => {
   return gulp.src([`${SRC}/js/**/[!_]*.js[x]`,`${SRC}/js/**/[!_]*.js`])
         .pipe(through2.obj(function(file, encode, callback) {
@@ -107,5 +116,5 @@ gulp.task('serve', gulp.series('browser-sync'));
 
 
 // default
-gulp.task('build', gulp.parallel('css', 'js', 'html'));
+gulp.task('build', gulp.parallel('css', 'js', 'html', 'sass'));
 gulp.task('default', gulp.series('build', 'serve'));

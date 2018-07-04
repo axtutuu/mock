@@ -1,7 +1,61 @@
 extends /layout/_DefaultLayout
 prepend StylesheetBlock
-  // link(rel="stylesheet", href="css/canvas.css")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.1/pixi.min.js")
+  link(href="https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.1/css/cc-icons.min.css" rel="stylesheet")
+  link(rel="stylesheet", href="css/template.css")
 block ContentBlock
-  canvas(width="460" height="460")
+  .container
+    h1
+      | PixiTetris
+    h2
+      | A simple Tetris game made with 
+      a(href="https://github.com/pixijs/pixi.js") Pixi.js
+      | , ES6 (
+      a(href="https://babeljs.io") Babel
+      | ) and 
+      a(href="http://browserify.org/") Browserify
+      | .
+    h2
+      | The code is 
+      a(href="http://github.com/BenjaminBini/PixiTetris") on GitHub
+      | .
+    #game
+      .infos
+        .info-section
+          span.info-section-title
+            | Next
+          #next-tetromino
+            .block1
+            .block2
+            .block3
+            .block4
+        .info-section
+          .info-section-title
+            | Level
+          #level
+            | 0
+        .info-section
+          .info-section-title
+            | Score
+          #score
+            | 0
+        .info-section
+          .info-section-title
+            | Cleared Lines
+          #cleared
+            | 0
+        .info-section
+          .info-section-title
+            | Best score
+          #best-score
+            | 0
+        #start-pause
+          button#pause Pause
+      #canvas-container
+        #overlay
+          #overlay-info Paused
+    script(src="dist/bundle.js")
+
 prepend JavascriptBlock
   script(src="js/tetris.js")
+

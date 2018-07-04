@@ -3,8 +3,8 @@
 // import
 import gulp from 'gulp';
 import source from 'vinyl-source-stream';
-// import sass from 'gulp-sass';
-// import sassGlob from 'gulp-sass-glob';
+import sass from 'gulp-sass';
+import sassGlob from 'gulp-sass-glob';
 import stylus from 'gulp-stylus';
 import pleeease from 'gulp-pleeease';
 import browserify from 'browserify';
@@ -36,6 +36,15 @@ gulp.task('stylus', () => {
 });
 
 gulp.task('css', gulp.series('stylus'));
+
+gulp.task('sass', () => {
+    const config = readConfig(`${CONFIG}/pleeease.json`);
+    return gulp.src(`${SRC}/scss/**/[!_]*.scss`)
+        .pipe(sassGlob())
+        .pipe(sass())
+        .pipe(pleeease(config))
+        .pipe(gulp.dest(`${DEST}/css`));
+});
 
 gulp.task('browserify', () => {
   return gulp.src([`${SRC}/js/**/[!_]*.js[x]`,`${SRC}/js/**/[!_]*.js`])
@@ -83,6 +92,7 @@ gulp.task('browser-sync', () => {
         ghostMode: false
     });
 
+    watch([`${SRC}/scss/**/*.scss`], gulp.series('sass', browserSync.reload));
     watch([`${SRC}/styl/**/*.styl`], gulp.series('stylus', browserSync.reload));
     watch([`${SRC}/js/**/*.js[x]`, `${SRC}/js/**/*.js`], gulp.series('browserify', browserSync.reload));
     watch([
@@ -95,5 +105,5 @@ gulp.task('serve', gulp.series('browser-sync'));
 
 
 // default
-gulp.task('build', gulp.parallel('css', 'js', 'html'));
+gulp.task('build', gulp.parallel('css', 'js', 'html', 'sass'));
 gulp.task('default', gulp.series('build', 'serve'));

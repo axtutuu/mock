@@ -1,17 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-var _Game = require('./tetris/Game');
-
-var _Game2 = _interopRequireDefault(_Game);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var g = new _Game2.default();
-
-},{"./tetris/Game":4}],2:[function(require,module,exports){
-'use strict';
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -69,7 +58,7 @@ function getTexture(color) {
 
 var colorTextures = {};
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -106,7 +95,7 @@ exports.default = {
   }
 };
 
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -489,7 +478,7 @@ var Game = function () {
 
 exports.default = Game;
 
-},{"./Constants":3,"./ScoreManager":5,"./Stage":6,"./Tetromino":7}],5:[function(require,module,exports){
+},{"./Constants":2,"./ScoreManager":4,"./Stage":5,"./Tetromino":6}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -570,7 +559,7 @@ var ScoreManager = function () {
 
 exports.default = ScoreManager;
 
-},{"./Constants":3}],6:[function(require,module,exports){
+},{"./Constants":2}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -741,7 +730,7 @@ var Stage = function () {
 
 exports.default = Stage;
 
-},{"./BlockFactory":2,"./Constants":3}],7:[function(require,module,exports){
+},{"./BlockFactory":1,"./Constants":2}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -939,4 +928,4 @@ var Types = exports.Types = {
   }
 };
 
-},{"./BlockFactory":2,"./Constants":3}]},{},[1]);
+},{"./BlockFactory":1,"./Constants":2}]},{},[3]);
