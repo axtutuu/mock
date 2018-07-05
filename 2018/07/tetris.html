@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <!-- meta-->
+    <title>😇</title>
+    <meta name="description" content="😇">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <!-- smartphone meta-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
+    <!-- ogp-->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="😇">
+    <meta property="og:description" content="😇">
+    <meta property="og:locale" content="ja_JP">
+    <!-- twitter card-->
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:title" content="😇">
+    <meta property="twitter:description" content="😇">
+    <!-- stylesheet-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.1/pixi.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.1/css/cc-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/template.css">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <div class="wrapper" id="app">
+      <div class="container">
+        <h1>PixiTetris</h1>
+        <h2>A simple Tetris game made with <a href="https://github.com/pixijs/pixi.js">Pixi.js</a>, ES6 (<a href="https://babeljs.io">Babel</a>) and <a href="http://browserify.org/">Browserify</a>.</h2>
+        <h2>The code is <a href="http://github.com/BenjaminBini/PixiTetris">on GitHub</a>.</h2>
+        <div id="game">
+          <div class="infos">
+            <div class="info-section"><span class="info-section-title">Next</span>
+              <div id="next-tetromino">
+                <div class="block1"></div>
+                <div class="block2"></div>
+                <div class="block3"></div>
+                <div class="block4"></div>
+              </div>
+            </div>
+            <div class="info-section">
+              <div class="info-section-title">Level</div>
+              <div id="level">0</div>
+            </div>
+            <div class="info-section">
+              <div class="info-section-title">Score</div>
+              <div id="score">0</div>
+            </div>
+            <div class="info-section">
+              <div class="info-section-title">Cleared Lines</div>
+              <div id="cleared">0</div>
+            </div>
+            <div class="info-section">
+              <div class="info-section-title">Best score</div>
+              <div id="best-score">0</div>
+            </div>
+            <div id="start-pause">
+              <button id="pause">Pause</button>
+            </div>
+          </div>
+          <div id="canvas-container">
+            <div id="overlay">
+              <div id="overlay-info">Paused</div>
+            </div>
+          </div>
+        </div>
+        <script src="dist/bundle.js"></script>
+      </div>
+    </div>
+    <!-- javascript-->
+    <script src="js/tetris.js"></script>
+    <script src="js/script.js?v="></script>
+  </body>
+</html>
