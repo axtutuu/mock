@@ -1,15 +1,98 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+var _Tube = require('./flappy-bird/Tube');
+
+var _Tube2 = _interopRequireDefault(_Tube);
+
+var _Bird = require('./flappy-bird/Bird');
+
+var _Bird2 = _interopRequireDefault(_Bird);
+
+var _Constants = require('./flappy-bird/Constants');
+
+var _Constants2 = _interopRequireDefault(_Constants);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var canvasWidthHeight = _Constants2.default.canvasWidthHeight,
+    GRAVITY = _Constants2.default.GRAVITY,
+    GAME_SPEED_X = _Constants2.default.GAME_SPEED_X,
+    BIRD_FRAME_LIST = _Constants2.default.BIRD_FRAME_LIST,
+    TUBE_POS_LIST = _Constants2.default.TUBE_POS_LIST;
+
+
+var renderer = PIXI.autoDetectRenderer(canvasWidthHeight, canvasWidthHeight, { backgroundColor: 0xc1c2c4 });
+document.body.appendChild(renderer.view);
+var stage = new PIXI.Container();
+stage.interactive = true;
+stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000);
+renderer.render(stage);
+
+var tubeList = TUBE_POS_LIST.map(function (d) {
+  return new _Tube2.default(stage, d);
+});
+PIXI.loader.add(BIRD_FRAME_LIST).load(setup);
+
+var bird = void 0;
+var button = document.querySelector('#start');
+function setup() {
+  bird = new _Bird2.default(stage, tubeList, function () {
+    // Called when bird hit tube/ground/upper bound
+    gameFailed = true;
+    button.classList.remove('hide');
+  });
+  requestAnimationFrame(draw);
+}
+
+var gameStarted = false;
+var gameFailed = false;
+function draw() {
+  if (gameStarted) {
+    bird.updateSprite();
+    if (!gameFailed) tubeList.forEach(function (d) {
+      return d.update();
+    });
+  }
+  renderer.render(stage);
+  requestAnimationFrame(draw);
+}
+
+button.addEventListener('click', function () {
+  gameStarted = true;
+  button.innerHTML = 'Retry';
+  if (gameFailed) {
+    gameFailed = false;
+    tubeList.forEach(function (d, i) {
+      return d.reset(TUBE_POS_LIST[i]);
+    });
+    bird.reset();
+  }
+  button.classList.add('hide');
+});
+
+},{"./flappy-bird/Bird":2,"./flappy-bird/Constants":3,"./flappy-bird/Tube":4}],2:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Constants = require('./Constants');
+
+var _Constants2 = _interopRequireDefault(_Constants);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var canvasWidthHeight = Math.min(Math.min(window.innerHeight, window.innerWidth), 512);
-var GRAVITY = 9.7;
-var GAME_SPEED_X = 100;
-var BIRD_FRAME_LIST = ['./images/frame-1.png', './images/frame-2.png', './images/frame-3.png', './images/frame-4.png'];
-var TUBE_POS_LIST = [canvasWidthHeight + 50, canvasWidthHeight + 150, canvasWidthHeight + 280];
+var canvasWidthHeight = _Constants2.default.canvasWidthHeight,
+    GRAVITY = _Constants2.default.GRAVITY,
+    GAME_SPEED_X = _Constants2.default.GAME_SPEED_X,
+    BIRD_FRAME_LIST = _Constants2.default.BIRD_FRAME_LIST,
+    TUBE_POS_LIST = _Constants2.default.TUBE_POS_LIST;
 
 var Bird = function () {
   function Bird(stage, tubeList, onCollision) {
@@ -90,6 +173,46 @@ var Bird = function () {
   return Bird;
 }();
 
+exports.default = Bird;
+
+},{"./Constants":3}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var canvasWidthHeight = Math.min(Math.min(window.innerHeight, window.innerWidth), 512);
+exports.default = {
+  GRAVITY: 9.8,
+  GAME_SPEED_X: 100,
+  canvasWidthHeight: canvasWidthHeight,
+  BIRD_FRAME_LIST: ['./images/frame-1.png', './images/frame-2.png', './images/frame-3.png', './images/frame-4.png'],
+  TUBE_POS_LIST: [canvasWidthHeight + 150, canvasWidthHeight + 250, canvasWidthHeight + 480]
+};
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Constants = require('./Constants');
+
+var _Constants2 = _interopRequireDefault(_Constants);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var canvasWidthHeight = _Constants2.default.canvasWidthHeight,
+    GRAVITY = _Constants2.default.GRAVITY,
+    GAME_SPEED_X = _Constants2.default.GAME_SPEED_X,
+    BIRD_FRAME_LIST = _Constants2.default.BIRD_FRAME_LIST,
+    TUBE_POS_LIST = _Constants2.default.TUBE_POS_LIST;
+
 var Tube = function () {
   function Tube(stage, x) {
     _classCallCheck(this, Tube);
@@ -146,53 +269,6 @@ var Tube = function () {
   return Tube;
 }();
 
-var renderer = PIXI.autoDetectRenderer(canvasWidthHeight, canvasWidthHeight, { backgroundColor: 0xc1c2c4 });
-document.body.appendChild(renderer.view);
-var stage = new PIXI.Container();
-stage.interactive = true;
-stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000);
-renderer.render(stage);
+exports.default = Tube;
 
-var tubeList = TUBE_POS_LIST.map(function (d) {
-  return new Tube(stage, d);
-});
-PIXI.loader.add(BIRD_FRAME_LIST).load(setup);
-
-var bird = void 0;
-var button = document.querySelector('#start');
-function setup() {
-  bird = new Bird(stage, tubeList, function () {
-    // Called when bird hit tube/ground/upper bound
-    gameFailed = true;
-    button.classList.remove('hide');
-  });
-  requestAnimationFrame(draw);
-}
-
-var gameStarted = false;
-var gameFailed = false;
-function draw() {
-  if (gameStarted) {
-    bird.updateSprite();
-    if (!gameFailed) tubeList.forEach(function (d) {
-      return d.update();
-    });
-  }
-  renderer.render(stage);
-  requestAnimationFrame(draw);
-}
-
-button.addEventListener('click', function () {
-  gameStarted = true;
-  button.innerHTML = 'Retry';
-  if (gameFailed) {
-    gameFailed = false;
-    tubeList.forEach(function (d, i) {
-      return d.reset(TUBE_POS_LIST[i]);
-    });
-    bird.reset();
-  }
-  button.classList.add('hide');
-});
-
-},{}]},{},[1]);
+},{"./Constants":3}]},{},[1]);
