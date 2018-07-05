@@ -3,8 +3,8 @@
 // import
 import gulp from 'gulp';
 import source from 'vinyl-source-stream';
-// import sass from 'gulp-sass';
-// import sassGlob from 'gulp-sass-glob';
+import sass from 'gulp-sass';
+import sassGlob from 'gulp-sass-glob';
 import stylus from 'gulp-stylus';
 import pleeease from 'gulp-pleeease';
 import browserify from 'browserify';
@@ -13,24 +13,17 @@ import pug from 'gulp-pug';
 import browserSync from 'browser-sync';
 import readConfig from 'read-config';
 import watch from 'gulp-watch';
-import RevLogger from 'rev-logger';
 import through2 from 'through2';
-import $ from 'jquery';
 
 // const
 const SRC = './src';
 const CONFIG = './src/config';
 // const HTDOCS = './public';
-const HTDOCS = '../../../public/2018/03';
+const HTDOCS = '../../../public/2018/07';
 const PUBLIC = '../../../public';
 
 const BASE_PATH = '';
 const DEST = `${HTDOCS}${BASE_PATH}`;
-
-const revLogger = new RevLogger({
-    'style.css': `${DEST}/css/style.css`,
-    'script.js': `${DEST}/js/script.js`
-});
 
 
 // css
@@ -75,7 +68,6 @@ gulp.task('js', gulp.parallel('browserify'));
 // html
 gulp.task('pug', () => {
     const locals = readConfig(`${CONFIG}/meta.yml`);
-    locals.versions = revLogger.versions();
     locals.basePath = BASE_PATH;
     
     return gulp.src(`${SRC}/pug/**/[!_]*.pug`)
@@ -100,16 +92,13 @@ gulp.task('browser-sync', () => {
         ghostMode: false
     });
 
+    watch([`${SRC}/scss/**/*.scss`], gulp.series('sass', browserSync.reload));
     watch([`${SRC}/styl/**/*.styl`], gulp.series('stylus', browserSync.reload));
     watch([`${SRC}/js/**/*.js[x]`, `${SRC}/js/**/*.js`], gulp.series('browserify', browserSync.reload));
     watch([
         `${SRC}/pug/**/*.pug`,
         `${SRC}/config/meta.yml`
     ], gulp.series('pug', browserSync.reload));
-
-    revLogger.watch((changed) => {
-        gulp.series('pug', browserSync.reload)();
-    });
 });
 
 gulp.task('serve', gulp.series('browser-sync'));

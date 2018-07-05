@@ -1,0 +1,72 @@
+Arguments: 
+  /Users/kawasaki-atsushi/.nodebrew/node/v6.8.0/bin/node /Users/kawasaki-atsushi/.nodebrew/current/bin/yarn install
+
+PATH: 
+  /Users/kawasaki-atsushi/.goenv/shims:/Users/kawasaki-atsushi/.goenv/bin:/Users/kawasaki-atsushi/.rbenv/shims:/Users/kawasaki-atsushi/.rbenv/bin:/Users/kawasaki-atsushi/.nodebrew/current/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+Yarn version: 
+  1.3.2
+
+Node version: 
+  6.8.0
+
+Platform: 
+  darwin x64
+
+npm manifest: 
+  {
+    "name": "kayac-html5-starter",
+    "version": "0.0.0",
+    "description": "kayac-html5-starter development.",
+    "main": "gulpfile.babel.js",
+    "engines": {
+      "node": ">=5.0.0"
+    },
+    "scripts": {
+      "start": "gulp",
+      "serve": "gulp serve",
+      "build": "gulp build",
+      "build-css": "gulp css",
+      "build-js": "gulp js",
+      "build-html": "gulp html"
+    },
+    "keywords": [
+      "gulp"
+    ],
+    "author": "Kayac Inc.",
+    "license": "MIT",
+    "devDependencies": {
+      "babel": "6.3.*",
+      "babel-preset-es2015": "6.3.*",
+      "babelify": "7.2.*",
+      "browser-sync": "2.11.*",
+      "browserify": "12.0.*",
+      "gulp": "git://github.com/gulpjs/gulp.git#4.0",
+      "gulp-pleeease": "2.0.*",
+      "gulp-pug": "^3.0.3",
+      "gulp-sass": "2.1.*",
+      "gulp-sass-glob": "^1.0.6",
+      "gulp-watch": "^4.3.8",
+      "jquery": "2.*",
+      "read-config": "2.0.*",
+      "reset.css": "^2.0.2",
+      "rev-logger": "1.1.1",
+      "vinyl-source-stream": "1.1.*"
+    },
+    "babel": {
+      "presets": [
+        "es2015"
+      ]
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  Error: getaddrinfo ENOTFOUND registry.yarnpkg.com registry.yarnpkg.com:443
+      at errnoException (dns.js:28:10)
+      at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:76:26)
