@@ -18,11 +18,12 @@ export default class Tube {
   }
 
   reset(x=canvasWidthHeight + 20) {
-    this.x = x;
+    this.x = x
 
-    const tubeMinHeight = 60;
+    const tubeMinHeight = 60
     const randomNum = Math.random() * (canvasWidthHeight - 2 * tubeMinHeight - this.innerDistance);
-    this.y = tubeMinHeight + randomNum;
+    this.y = tubeMinHeight + randomNum
+    console.log(this.x)
   }
 
   checkCollision(x, y, width, height) {

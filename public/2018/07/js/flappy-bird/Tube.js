@@ -58,6 +58,7 @@ var Tube = function () {
       var tubeMinHeight = 60;
       var randomNum = Math.random() * (canvasWidthHeight - 2 * tubeMinHeight - this.innerDistance);
       this.y = tubeMinHeight + randomNum;
+      console.log(this.x);
     }
   }, {
     key: 'checkCollision',

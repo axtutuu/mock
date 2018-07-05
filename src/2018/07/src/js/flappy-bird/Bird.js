@@ -1,4 +1,5 @@
 import Constants from './Constants'
+import EventEmitter from 'events'
 const {
   canvasWidthHeight,
   GRAVITY,
@@ -7,14 +8,14 @@ const {
   TUBE_POS_LIST
 } = Constants
 
-export default class Bird {
-  constructor(stage, tubeList, onCollision) {
+export default class Bird extends EventEmitter {
+  constructor(stage, tubeList) {
+    super()
     this.speedY = 0
     this.sprite = new PIXI.Sprite()
     this.isDied = false
     this.textureCounter = 0
     this.tubeList = tubeList
-    this.onCollision = onCollision
     this.updateTexture = () => {
       if (this.isDied) return;
       this.sprite.texture = PIXI.loader.resources[BIRD_FRAME_LIST[this.textureCounter++]].texture;
@@ -50,8 +51,8 @@ export default class Bird {
     if (y < -height / 2 || y > canvasWidthHeight + height / 2) isCollide = true;
 
     if (isCollide) {
-      this.onCollision();
       this.isDied = true;
+      this.emit('collision')
     }
   }
 
