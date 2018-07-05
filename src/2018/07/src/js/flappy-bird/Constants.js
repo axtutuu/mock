@@ -1,7 +1,8 @@
 const canvasWidthHeight = Math.min(Math.min(window.innerHeight, window.innerWidth), 512)
+
 export default {
   GRAVITY: 9.8,
-  GAME_SPEED_X: 100,
+  GAME_SPEED_X: 150,
   canvasWidthHeight: canvasWidthHeight,
   BIRD_FRAME_LIST: [
     './images/frame-1.png',

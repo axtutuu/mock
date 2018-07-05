@@ -366,7 +366,6 @@ var Bird = function (_EventEmitter) {
 
     stage.addChild(_this.sprite);
     _this.sprite.anchor.set(0.5, 0.5);
-    _this.updateTexture();
     _this.sprite.scale.x = 0.06;
     _this.sprite.scale.y = 0.06;
     _this.reset();
@@ -434,9 +433,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var canvasWidthHeight = Math.min(Math.min(window.innerHeight, window.innerWidth), 512);
+
 exports.default = {
   GRAVITY: 9.8,
-  GAME_SPEED_X: 100,
+  GAME_SPEED_X: 150,
   canvasWidthHeight: canvasWidthHeight,
   BIRD_FRAME_LIST: ['./images/frame-1.png', './images/frame-2.png', './images/frame-3.png', './images/frame-4.png'],
   TUBE_POS_LIST: [canvasWidthHeight + 150, canvasWidthHeight + 250, canvasWidthHeight + 480]
@@ -573,7 +573,7 @@ var Tube = function () {
 
     this.sprite = new PIXI.Graphics();
     this.innerDistance = 180;
-    this.tubeWidth = 20;
+    this.tubeWidth = 30;
 
     stage.addChild(this.sprite);
     this.reset(x);
@@ -589,7 +589,6 @@ var Tube = function () {
       var tubeMinHeight = 60;
       var randomNum = Math.random() * (canvasWidthHeight - 2 * tubeMinHeight - this.innerDistance);
       this.y = tubeMinHeight + randomNum;
-      console.log(this.x);
     }
   }, {
     key: 'checkCollision',
@@ -609,7 +608,7 @@ var Tube = function () {
       if (this.x < -this.tubeWidth) this.reset();
 
       this.sprite.clear();
-      this.sprite.beginFill(0xffffff, 1);
+      this.sprite.beginFill(0x04B404, 1);
       var x = this.x,
           y = this.y,
           tubeWidth = this.tubeWidth,

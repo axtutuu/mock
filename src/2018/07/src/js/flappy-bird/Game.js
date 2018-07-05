@@ -41,7 +41,6 @@ export default class Game {
     PIXI.loader
       .add(BIRD_FRAME_LIST)
       .load(this.setup.bind(this))
-
   }
 
   setup() {

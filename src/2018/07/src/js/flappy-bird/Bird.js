@@ -25,7 +25,6 @@ export default class Bird extends EventEmitter {
 
     stage.addChild(this.sprite);
     this.sprite.anchor.set(0.5, 0.5);
-    this.updateTexture();
     this.sprite.scale.x = 0.06;
     this.sprite.scale.y = 0.06;
     this.reset();
