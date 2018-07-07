@@ -6,27 +6,37 @@ const {
   GRAVITY,
   GAME_SPEED_X,
   BIRD_FRAME_LIST,
-  TUBE_POS_LIST
+  TUBE_POS_LIST,
+  SPRITE
 } = Constants
 
 export default class Game {
   constructor() {
+    const canvas = document.querySelector('.js-canvas')
     this.startBtn = document.querySelector('#start')
     this.started = false
     this.failed = false
-    const canvas = document.querySelector('.js-canvas')
+
     this.renderer = PIXI.autoDetectRenderer({
       width: canvasWidthHeight,
       height: canvasWidthHeight,
       view: canvas,
-      backgroundColor: 0xc1c2c4,
+      backgroundColor: 0xC1FFFF,
     })
     this.stage = new PIXI.Container()
     this.stage.interactive = true
     this.stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000)
     this.renderer.render(this.stage)
 
-    this.tubeList = TUBE_POS_LIST.map(d => new Tube(this.stage, d))
+    const texture = new PIXI.Texture(
+      PIXI.BaseTexture.fromImage(SPRITE),
+      new PIXI.Rectangle(0, 0, 100, 175)
+    )
+    const background = new PIXI.Sprite(texture)
+    background.width = canvasWidthHeight
+    this.stage.addChild(background)
+
+    this.tubeList = TUBE_POS_LIST.map(x => new Tube(this.stage, x))
     this.startBtn.addEventListener('click', () => {
       this.started = true
       this.startBtn.innerHTML = 'Retry'

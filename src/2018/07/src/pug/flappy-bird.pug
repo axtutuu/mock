@@ -2,37 +2,10 @@ doctype html
 html
   head
     title Flappy Bird
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.4/pixi.min.js")
     meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
-    style.
-      html, body {
-        background: #fff;
-        height: 100%;
-        width: 100%;
-        margin: 0;
-      }
-      body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-      }
-      button {
-        margin-bottom: 30px;
-        font-size: 20px;
-        background-color: skyblue; /* Green */
-        border: none;
-        color: white;
-        cursor: pointer;
-        padding: 10px 15px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-      }
-      .hide {
-        visibility: hidden;
-      }
+    link(rel="stylesheet", href="css/flappy-bird.css")
   body
     button#start Start
     canvas.js-canvas
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.4/pixi.min.js")
     script(src="js/flappy-bird.js")

@@ -360,10 +360,10 @@ var Bird = function (_EventEmitter) {
     _this.reset();
 
     document.addEventListener('keydown', function (e) {
-      if (e.keyCode == 32) _this.addSpeed(-GRAVITY / 3);
+      if (e.keyCode == 32) _this.jump(-GRAVITY / 3);
     });
     stage.on('pointerdown', function () {
-      return _this.addSpeed(-GRAVITY / 3);
+      return _this.jump(-GRAVITY / 3);
     });
 
     setInterval(_this.updateTexture, 200);
@@ -375,7 +375,6 @@ var Bird = function (_EventEmitter) {
     value: function updateSprite() {
       this.speedY += GRAVITY / 70;
       this.sprite.y += this.speedY;
-      this.sprite.rotation = Math.atan(this.speedY / GAME_SPEED_X);
 
       var isCollide = false;
       var _sprite = this.sprite,
@@ -395,8 +394,8 @@ var Bird = function (_EventEmitter) {
       }
     }
   }, {
-    key: 'addSpeed',
-    value: function addSpeed(speedInc) {
+    key: 'jump',
+    value: function jump(speedInc) {
       this.speedY += speedInc;
       this.speedY = Math.max(-GRAVITY, this.speedY);
     }
@@ -428,7 +427,8 @@ exports.default = {
   GAME_SPEED_X: 150,
   canvasWidthHeight: canvasWidthHeight,
   BIRD_FRAME_LIST: ['./images/frame-1.png', './images/frame-2.png', './images/frame-3.png', './images/frame-4.png'],
-  TUBE_POS_LIST: [canvasWidthHeight + 150, canvasWidthHeight + 250, canvasWidthHeight + 480]
+  TUBE_POS_LIST: [canvasWidthHeight + 150, canvasWidthHeight + 250, canvasWidthHeight + 480],
+  SPRITE: ['./images/GLnwC.png']
 };
 
 },{}],4:[function(require,module,exports){
@@ -460,7 +460,8 @@ var canvasWidthHeight = _Constants2.default.canvasWidthHeight,
     GRAVITY = _Constants2.default.GRAVITY,
     GAME_SPEED_X = _Constants2.default.GAME_SPEED_X,
     BIRD_FRAME_LIST = _Constants2.default.BIRD_FRAME_LIST,
-    TUBE_POS_LIST = _Constants2.default.TUBE_POS_LIST;
+    TUBE_POS_LIST = _Constants2.default.TUBE_POS_LIST,
+    SPRITE = _Constants2.default.SPRITE;
 
 var Game = function () {
   function Game() {
@@ -468,23 +469,29 @@ var Game = function () {
 
     _classCallCheck(this, Game);
 
+    var canvas = document.querySelector('.js-canvas');
     this.startBtn = document.querySelector('#start');
     this.started = false;
     this.failed = false;
-    var canvas = document.querySelector('.js-canvas');
+
     this.renderer = PIXI.autoDetectRenderer({
       width: canvasWidthHeight,
       height: canvasWidthHeight,
       view: canvas,
-      backgroundColor: 0xc1c2c4
+      backgroundColor: 0xC1FFFF
     });
     this.stage = new PIXI.Container();
     this.stage.interactive = true;
     this.stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000);
     this.renderer.render(this.stage);
 
-    this.tubeList = TUBE_POS_LIST.map(function (d) {
-      return new _Tube2.default(_this.stage, d);
+    var texture = new PIXI.Texture(PIXI.BaseTexture.fromImage(SPRITE), new PIXI.Rectangle(0, 0, 100, 175));
+    var background = new PIXI.Sprite(texture);
+    background.width = canvasWidthHeight;
+    this.stage.addChild(background);
+
+    this.tubeList = TUBE_POS_LIST.map(function (x) {
+      return new _Tube2.default(_this.stage, x);
     });
     this.startBtn.addEventListener('click', function () {
       _this.started = true;

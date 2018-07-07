@@ -14,5 +14,8 @@ export default {
     canvasWidthHeight + 150,
     canvasWidthHeight + 250,
     canvasWidthHeight + 480
+  ],
+  SPRITE: [
+    './images/GLnwC.png'
   ]
 }

@@ -30,9 +30,9 @@ export default class Bird extends EventEmitter {
     this.reset();
 
     document.addEventListener('keydown', e => {
-      if (e.keyCode == 32) this.addSpeed(-GRAVITY / 3);
+      if (e.keyCode == 32) this.jump(-GRAVITY / 3);
     });
-    stage.on('pointerdown', () => this.addSpeed(-GRAVITY / 3))
+    stage.on('pointerdown', () => this.jump(-GRAVITY / 3))
 
     setInterval(this.updateTexture, 200);
   }
@@ -40,13 +40,12 @@ export default class Bird extends EventEmitter {
   updateSprite() {
     this.speedY += GRAVITY / 70;
     this.sprite.y += this.speedY;
-    this.sprite.rotation = Math.atan(this.speedY / GAME_SPEED_X);
 
     let isCollide = false;
     const { x, y, width, height } = this.sprite;
     this.tubeList.forEach(d => {
       if (d.checkCollision(x - width / 2, y - height / 2, width, height)) isCollide = true;
-    });
+    })
     if (y < -height / 2 || y > canvasWidthHeight + height / 2) isCollide = true;
 
     if (isCollide) {
@@ -55,7 +54,7 @@ export default class Bird extends EventEmitter {
     }
   }
 
-  addSpeed(speedInc) {
+  jump(speedInc) {
     this.speedY += speedInc;
     this.speedY = Math.max(-GRAVITY, this.speedY);
   }
