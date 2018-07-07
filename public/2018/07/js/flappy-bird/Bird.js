@@ -421,6 +421,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var canvasWidthHeight = Math.min(Math.min(window.innerHeight, window.innerWidth), 512);
+var width = 275;
+var height = 512;
 
 exports.default = {
   GRAVITY: 9.8,

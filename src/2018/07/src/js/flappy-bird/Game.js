@@ -18,8 +18,8 @@ export default class Game {
     this.failed = false
 
     this.renderer = PIXI.autoDetectRenderer({
-      width: canvasWidthHeight,
-      height: canvasWidthHeight,
+      width: 275,
+      height: 512,
       view: canvas,
       backgroundColor: 0xC1FFFF,
     })
@@ -30,10 +30,11 @@ export default class Game {
 
     const texture = new PIXI.Texture(
       PIXI.BaseTexture.fromImage(SPRITE),
-      new PIXI.Rectangle(0, 0, 100, 175)
+      new PIXI.Rectangle(0, 0, 275, 512)
     )
     const background = new PIXI.Sprite(texture)
-    background.width = canvasWidthHeight
+    // background.width = canvasWidthHeight
+    // background.height = canvasWidthHeight
     this.stage.addChild(background)
 
     this.tubeList = TUBE_POS_LIST.map(x => new Tube(this.stage, x))

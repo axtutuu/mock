@@ -432,6 +432,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var canvasWidthHeight = Math.min(Math.min(window.innerHeight, window.innerWidth), 512);
+var width = 275;
+var height = 512;
 
 exports.default = {
   GRAVITY: 9.8,
@@ -486,8 +488,8 @@ var Game = function () {
     this.failed = false;
 
     this.renderer = PIXI.autoDetectRenderer({
-      width: canvasWidthHeight,
-      height: canvasWidthHeight,
+      width: 275,
+      height: 512,
       view: canvas,
       backgroundColor: 0xC1FFFF
     });
@@ -496,9 +498,10 @@ var Game = function () {
     this.stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000);
     this.renderer.render(this.stage);
 
-    var texture = new PIXI.Texture(PIXI.BaseTexture.fromImage(SPRITE), new PIXI.Rectangle(0, 0, 100, 175));
+    var texture = new PIXI.Texture(PIXI.BaseTexture.fromImage(SPRITE), new PIXI.Rectangle(0, 0, 275, 512));
     var background = new PIXI.Sprite(texture);
-    background.width = canvasWidthHeight;
+    // background.width = canvasWidthHeight
+    // background.height = canvasWidthHeight
     this.stage.addChild(background);
 
     this.tubeList = TUBE_POS_LIST.map(function (x) {

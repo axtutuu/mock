@@ -1,4 +1,6 @@
 const canvasWidthHeight = Math.min(Math.min(window.innerHeight, window.innerWidth), 512)
+const width = 275
+const height = 512
 
 export default {
   GRAVITY: 9.8,
