@@ -360,10 +360,10 @@ var Bird = function (_EventEmitter) {
     _this.reset();
 
     document.addEventListener('keydown', function (e) {
-      if (e.keyCode == 32) _this.addSpeed(-GRAVITY / 3);
+      if (e.keyCode == 32) _this.jump(-GRAVITY / 3);
     });
     stage.on('pointerdown', function () {
-      return _this.addSpeed(-GRAVITY / 3);
+      return _this.jump(-GRAVITY / 3);
     });
 
     setInterval(_this.updateTexture, 200);
@@ -375,7 +375,6 @@ var Bird = function (_EventEmitter) {
     value: function updateSprite() {
       this.speedY += GRAVITY / 70;
       this.sprite.y += this.speedY;
-      this.sprite.rotation = Math.atan(this.speedY / GAME_SPEED_X);
 
       var isCollide = false;
       var _sprite = this.sprite,
@@ -395,8 +394,8 @@ var Bird = function (_EventEmitter) {
       }
     }
   }, {
-    key: 'addSpeed',
-    value: function addSpeed(speedInc) {
+    key: 'jump',
+    value: function jump(speedInc) {
       this.speedY += speedInc;
       this.speedY = Math.max(-GRAVITY, this.speedY);
     }
@@ -428,7 +427,8 @@ exports.default = {
   GAME_SPEED_X: 150,
   canvasWidthHeight: canvasWidthHeight,
   BIRD_FRAME_LIST: ['./images/frame-1.png', './images/frame-2.png', './images/frame-3.png', './images/frame-4.png'],
-  TUBE_POS_LIST: [canvasWidthHeight + 150, canvasWidthHeight + 250, canvasWidthHeight + 480]
+  TUBE_POS_LIST: [canvasWidthHeight + 150, canvasWidthHeight + 250, canvasWidthHeight + 480],
+  SPRITE: ['./images/GLnwC.png']
 };
 
 },{}]},{},[2]);
